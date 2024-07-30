@@ -4,13 +4,6 @@ import Apartment from "@/models/Apartment";
 import { ConnectMongoDB, DisconnectMongoDB } from "@/utilis/dbConnect";
 import Category from "@/models/Category";
 
-export const config = {
-  api: {
-    bodyParser: false,
-    externalResolver: true,
-  },
-};
-
 export async function POST(req: NextRequest) {
   try {
     await ConnectMongoDB();
