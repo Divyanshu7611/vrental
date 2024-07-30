@@ -130,14 +130,15 @@ export async function POST(req: NextRequest) {
       electricity,
       parking,
       facility,
-      category: checkCategory!._id,
+      category,
+      // category: checkCategory!._id,
     });
     // push appartment into user
-    await Category.updateOne(
-      { _id: checkCategory!._id },
-      { $addToSet: { houselist: newApartment._id } }
-    );
-    await DisconnectMongoDB();
+    // await Category.updateOne(
+    //   { _id: checkCategory!._id },
+    //   { $addToSet: { houselist: newApartment._id } }
+    // );
+    // await DisconnectMongoDB();
 
     return NextResponse.json(
       {
