@@ -3,8 +3,8 @@ import Image from "next/image";
 
 export default function FlatCard() {
   return (
-    <div className="bg-white rounded-lg w-full flex flex-wrap pl-5 justify-between">
-      <div className="flex flex-col justify-between max-h-[315px] py-5">
+    <div className="bg-white lg:rounded-lg w-full flex justify-between lg:flex-row flex-col-reverse mb-10">
+      <div className="flex flex-col justify-between lg:max-h-[315px] p-5">
         <div className="flex flex-col gap-3">
           <h1 className="text-2xl font-normal">Lotus Flats</h1>
           <p className="text-sm text-black opacity-50">
@@ -22,7 +22,13 @@ export default function FlatCard() {
         </div>
       </div>
       <div>
-        <Image src="/assets/flat.png" alt="flatcard" height={315} width={500} />
+        <Image
+          src="/assets/flat.png"
+          alt="flatcard"
+          height={315}
+          width={500}
+          className="w-full h-full"
+        />
       </div>
     </div>
   );

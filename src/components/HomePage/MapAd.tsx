@@ -4,7 +4,7 @@ export default function MapAd() {
   return (
     <div>
       <div className="bg-white w-full flex-col-reverse lg:flex-row flex justify-between items-center mt-10 lg:rounded-lg mb-10">
-        <div className="flex-col flex justify-between gap-16">
+        <div className="flex-col flex justify-between gap-16 p-5 w-full">
           <div className="flex flex-col gap-3">
             <h1 className="font-medium text-2xl text-black">
               Search Your Dream Room On The Map
