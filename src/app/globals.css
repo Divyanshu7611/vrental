@@ -68,3 +68,28 @@ body {
   background-position: center;
   object-fit: contain;
 }
+
+
+
+/* spinner */
+.spinner {
+  width: 48px;
+  height: 48px;
+  border: 6px solid #76bad7;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  display: inline-block;
+  box-sizing: border-box;
+  animation: spin 1s linear infinite;
+  background: transparent;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}

@@ -50,7 +50,6 @@ export async function POST(request: NextRequest) {
     confirmPassword,
     otp,
     adharNo,
-    role,
   } = await request.json();
 
   try {
@@ -65,8 +64,7 @@ export async function POST(request: NextRequest) {
       !confirmPassword ||
       !phone ||
       !otp ||
-      !adharNo ||
-      !role
+      !adharNo
     ) {
       return NextResponse.json(
         {
@@ -139,7 +137,7 @@ export async function POST(request: NextRequest) {
       image: `https://api.dicebear.com/5.x/initials/svg?seed=${firstName} ${lastName}`,
       clientID,
       adharNo,
-      role,
+      role: "USER",
     });
     // send tharID to user Email
     await sendMail(email, clientID, firstName);

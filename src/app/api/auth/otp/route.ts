@@ -45,7 +45,7 @@ export async function POST(request: NextRequest) {
       {
         success: true,
         message: "OTP Send Successfuly",
-        otp,
+        otp: otp,
       },
       { status: 200 }
     );

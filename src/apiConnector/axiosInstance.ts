@@ -22,9 +22,9 @@ export const apiConnector = ({
   const config: AxiosRequestConfig = {
     method,
     url,
-    params: params || undefined,
-    data: bodyData || undefined,
-    headers: headers || undefined,
+    params,
+    data: bodyData,
+    headers,
   };
 
   return axiosInstance(config);
