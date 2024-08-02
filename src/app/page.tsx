@@ -6,6 +6,7 @@ import MapAd from "@/components/HomePage/MapAd";
 import Footer from "@/components/global/Footer";
 import FlatCard from "@/components/mini/FlatCard";
 import Navbar from "@/components/global/Navbar";
+import HomeFlat from "@/components/mini/HomeFlat";
 
 function Home() {
   return (
@@ -18,7 +19,15 @@ function Home() {
             <CategoryShowcase categories="Rooms" />
             <CategoryShowcase categories="Hostels" />
             <MapAd />
-            <FlatCard />
+            <HomeFlat
+              title="Lotus Flats"
+              description="Enjoy stunning city views from this modern loft with open space."
+              location="Rohini Sector, New Delhi"
+              price="₹40,000/month"
+              image="/assets/flat.png"
+              category="FLAT"
+              flexProp="row"
+            />
           </div>
         </div>
         <Footer />

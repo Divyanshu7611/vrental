@@ -112,7 +112,7 @@ const FlatCard: React.FC<FlatCardProps> = ({
       animate={controls}
       variants={cardVariants}
       whileHover={{ scale: 1.05 }}
-      className={`bg-white lg:rounded-lg w-full lg:max-w-[1000px] mx-auto flex justify-between ${
+      className={`bg-white lg:rounded-lg w-full mx-auto flex justify-between ${
         flexProp === "row" ? "lg:flex-row" : "lg:flex-row-reverse"
       } flex-col-reverse mb-10`}
     >
