@@ -14,7 +14,9 @@ export interface IApartment extends Document {
   electricity: boolean;
   location: string;
   client: Types.ObjectId[];
-  category: Types.ObjectId;
+  category: string;
+  availableFor: string;
+  contactNo: number;
 }
 
 const apartmentSchema: Schema = new Schema<IApartment>({
@@ -49,7 +51,16 @@ const apartmentSchema: Schema = new Schema<IApartment>({
     type: Number,
     required: true,
   },
+  contactNo: {
+    type: Number,
+    required: true,
+  },
   furnitureDescription: {
+    type: String,
+    required: true,
+    trim: true,
+  },
+  availableFor: {
     type: String,
     required: true,
     trim: true,
@@ -59,7 +70,7 @@ const apartmentSchema: Schema = new Schema<IApartment>({
   furniture: { type: Boolean, required: true },
   parking: { type: Boolean, required: true },
   electricity: { type: Boolean, required: true },
-  category: { type: Schema.Types.ObjectId, required: true },
+  category: { type: String, required: true },
 });
 
 const Apartment: Model<IApartment> =

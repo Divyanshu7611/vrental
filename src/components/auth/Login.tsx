@@ -1,10 +1,11 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { useForm, SubmitHandler, FieldErrors } from "react-hook-form";
 import { toast, ToastContainer } from "react-toastify";
 import Spinner from "../global/Spinner";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
+import { UserContext } from "@/context/UserContext";
 
 interface FormValues {
   email: string;
@@ -20,6 +21,7 @@ export default function Login() {
   } = useForm<FormValues>();
 
   const [isLoading, setLoading] = useState(false);
+  const userContext = useContext(UserContext);
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     try {
@@ -27,6 +29,10 @@ export default function Login() {
       const response = await axios.post("/api/auth/login", data);
       if (response.data.success) {
         setLoading(false);
+        const token = response.data.token;
+        localStorage.setItem("token", token);
+        userContext?.AuthDataHandler(response.data.existingUser);
+        console.log("User Data", userContext?.userAuthData);
         toast.success(response.data.message);
       } else {
         setLoading(false);

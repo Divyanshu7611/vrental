@@ -2,7 +2,7 @@ import React from "react";
 
 function Hero() {
   return (
-    <div>
+    <div className="lg:mt-16 mt-12">
       <div className="Hero lg:h-[454px] h-[254px] flex justify-center items-center">
         <input
           placeholder="Turning House Into Rental"

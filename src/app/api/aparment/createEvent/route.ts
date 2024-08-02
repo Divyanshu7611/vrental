@@ -3,8 +3,11 @@ import { uploadImage } from "@/utilis/uploadImage";
 import Apartment from "@/models/Apartment";
 import { ConnectMongoDB, DisconnectMongoDB } from "@/utilis/dbConnect";
 import Category from "@/models/Category";
+import User from "@/models/User";
 
 export async function POST(req: NextRequest) {
+  const url = new URL(req.url);
+  const userId = url.searchParams.get("id");
   try {
     await ConnectMongoDB();
     const formData = await req.formData();
@@ -12,11 +15,14 @@ export async function POST(req: NextRequest) {
     const apartmentName = formData.get("apartmentName") as string;
     const description = formData.get("description") as string;
     const price = Number(formData.get("price"));
+    const contactNo = Number(formData.get("contactNo"));
+
     const facility = formData.get("facility") as string;
     const furnitureDescription = formData.get("furnitureDescription") as string;
     const location = formData.get("location") as string;
     const furniture = formData.get("furniture") === "true";
     const parking = formData.get("parking") === "true";
+    const availableFor = formData.get("availableFor") as string;
     const electricity = formData.get("electricity") === "true";
     const imageFiles = formData.getAll("image") as File[];
     const category = formData.get("category") as string;
@@ -38,7 +44,9 @@ export async function POST(req: NextRequest) {
       furniture === undefined ||
       parking === undefined ||
       electricity === undefined ||
-      !category
+      !category ||
+      !availableFor ||
+      !contactNo
     ) {
       return NextResponse.json(
         {
@@ -97,18 +105,6 @@ export async function POST(req: NextRequest) {
         { status: 400 }
       );
     }
-    // check category exist or not
-    const checkCategory = Category.findOne({ category });
-
-    if (!checkCategory) {
-      return NextResponse.json(
-        {
-          message: "Category Does Not Exits",
-          success: false,
-        },
-        { status: 403 }
-      );
-    }
 
     // Create new apartment
     const newApartment = await Apartment.create({
@@ -124,20 +120,22 @@ export async function POST(req: NextRequest) {
       parking,
       facility,
       category,
-      // category: checkCategory!._id,
+      availableFor,
+      contactNo,
     });
-    // push appartment into user
-    // await Category.updateOne(
-    //   { _id: checkCategory!._id },
-    //   { $addToSet: { houselist: newApartment._id } }
-    // );
-    // await DisconnectMongoDB();
+    await User.findByIdAndUpdate(
+      userId,
+      { $addToSet: { apartments: newApartment._id } },
+      { new: true }
+    );
 
+    const updatedUser = await User.findById(userId).populate("apartments");
     return NextResponse.json(
       {
         message: "Apartment Created Successfully",
         success: true,
         apartment: newApartment,
+        user: updatedUser,
       },
       { status: 201 }
     );

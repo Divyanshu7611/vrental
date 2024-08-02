@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import { Roboto } from "next/font/google";
 import "./globals.css";
 import { ToastContainer } from "react-toastify";
+import { UserContextProvider } from "@/context/UserContext";
 
 const inter = Inter({ subsets: ["latin"] });
 const roboto = Roboto({
@@ -23,10 +24,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={roboto.className}>
-        {children}
-        <ToastContainer />
-      </body>
+      <UserContextProvider>
+        <body className={roboto.className}>
+          {children}
+          <ToastContainer />
+        </body>
+      </UserContextProvider>
     </html>
   );
 }

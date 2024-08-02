@@ -14,6 +14,7 @@ export interface IUser extends Document {
   participated: IApartment["_id"][];
   resetToken?: string;
   resetTokenExpires?: Date;
+  apartments: IApartment["_id"][];
 }
 
 const userSchema: Schema = new Schema<IUser>({
@@ -63,6 +64,12 @@ const userSchema: Schema = new Schema<IUser>({
     uppercase: true,
   },
   participated: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Apartment",
+    },
+  ],
+  apartments: [
     {
       type: Schema.Types.ObjectId,
       ref: "Apartment",
