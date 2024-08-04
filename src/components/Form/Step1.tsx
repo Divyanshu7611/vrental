@@ -8,10 +8,6 @@ import Spinner from "../global/Spinner";
 import "react-toastify/dist/ReactToastify.css";
 import { UserContext } from "@/context/UserContext";
 
-interface formProps {
-  setFormResponse: React.Dispatch<React.SetStateAction<boolean>>;
-}
-
 type FormValues = {
   apartmentName: string;
   description: string;
@@ -28,12 +24,12 @@ type FormValues = {
   contactNo: number;
 };
 
-const Step1: React.FC<formProps> = ({ setFormResponse }) => {
+const Step1: React.FC = () => {
   const userContext = useContext(UserContext);
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
-      window.location.href = "/login";
+      window.location.href = "/auth";
     }
   }, []);
 
@@ -118,7 +114,7 @@ const Step1: React.FC<formProps> = ({ setFormResponse }) => {
                   {...register("apartmentName", {
                     required: "Apartment name is required",
                   })}
-                  className="border border-gray-400 rounded-lg px-3 py-2 font-normal"
+                  className="border border-gray-400 rounded-lg px-3 py-2 font-normal bg-white"
                   placeholder="Raman Villa"
                 />
                 {errors.apartmentName && (
@@ -135,7 +131,7 @@ const Step1: React.FC<formProps> = ({ setFormResponse }) => {
                   {...register("contactNo", {
                     required: "Apartment name is required",
                   })}
-                  className="border border-gray-400 rounded-lg px-3 py-2 font-normal"
+                  className="border border-gray-400 rounded-lg px-3 py-2 font-normal bg-white"
                   placeholder="9854761278"
                 />
                 {errors.apartmentName && (
@@ -151,7 +147,7 @@ const Step1: React.FC<formProps> = ({ setFormResponse }) => {
                   {...register("location", {
                     required: "Location is required",
                   })}
-                  className="border border-gray-400 rounded-lg px-3 py-2 font-normal"
+                  className="border border-gray-400 rounded-lg px-3 py-2 font-normal bg-white"
                   placeholder="Mansarover jaipur"
                 />
                 {errors.location && (
@@ -166,6 +162,7 @@ const Step1: React.FC<formProps> = ({ setFormResponse }) => {
                   <input
                     type="radio"
                     value="ROOM"
+                    className="bg-white"
                     {...register("category", {
                       required: "Category is required",
                     })}
@@ -176,6 +173,7 @@ const Step1: React.FC<formProps> = ({ setFormResponse }) => {
                   <input
                     type="radio"
                     value="PG"
+                    className="bg-white"
                     {...register("category", {
                       required: "Category is required",
                     })}
@@ -186,6 +184,7 @@ const Step1: React.FC<formProps> = ({ setFormResponse }) => {
                   <input
                     type="radio"
                     value="HOSTEL"
+                    className="bg-white"
                     {...register("category", {
                       required: "Category is required",
                     })}
@@ -196,6 +195,7 @@ const Step1: React.FC<formProps> = ({ setFormResponse }) => {
                   <input
                     type="radio"
                     value="CO-LIVING"
+                    className="bg-white"
                     {...register("category", {
                       required: "Category is required",
                     })}
@@ -206,6 +206,7 @@ const Step1: React.FC<formProps> = ({ setFormResponse }) => {
                   <input
                     type="radio"
                     value="FLAT"
+                    className="bg-white"
                     {...register("category", {
                       required: "Category is required",
                     })}
@@ -223,7 +224,7 @@ const Step1: React.FC<formProps> = ({ setFormResponse }) => {
                 <input
                   type="number"
                   {...register("price", { required: "Price is required" })}
-                  className="border border-gray-400 rounded-lg px-3 py-2 font-normal"
+                  className="border border-gray-400 rounded-lg px-3 py-2 font-normal bg-white"
                   placeholder="5000"
                 />
                 {errors.price && (
@@ -236,7 +237,7 @@ const Step1: React.FC<formProps> = ({ setFormResponse }) => {
                   {...register("facility", {
                     required: "Facility is required",
                   })}
-                  className="border border-gray-400 rounded-lg px-3 py-2 font-normal"
+                  className="border border-gray-400 rounded-lg px-3 py-2 font-normal bg-white"
                   placeholder="Swimming Pool, Gym"
                 />
                 {errors.facility && (
@@ -253,7 +254,7 @@ const Step1: React.FC<formProps> = ({ setFormResponse }) => {
                     required: "Furniture description is required",
                   })}
                   placeholder="Fully furnished with a bed, sofa, and dining table"
-                  className="border border-gray-400 rounded-lg px-3 py-2 font-normal"
+                  className="border border-gray-400 rounded-lg px-3 py-2 font-normal bg-white"
                 />
                 {errors.furnitureDescription && (
                   <p className="text-red-500">
@@ -271,7 +272,7 @@ const Step1: React.FC<formProps> = ({ setFormResponse }) => {
                 <input
                   type="checkbox"
                   {...register("furniture")}
-                  className="border border-gray-400 rounded-lg p-2 font-medium"
+                  className="border border-gray-400 rounded-lg p-2 font-medium bg-white"
                 />
               </label>
               <label htmlFor="electricity" className="flex gap-3 items-center">
@@ -279,7 +280,7 @@ const Step1: React.FC<formProps> = ({ setFormResponse }) => {
                 <input
                   type="checkbox"
                   {...register("electricity")}
-                  className="border border-gray-400 rounded-lg p-2 font-medium"
+                  className="border border-gray-400 rounded-lg p-2 font-medium bg-white"
                 />
               </label>
               <label htmlFor="parking" className="flex gap-3 items-center">
@@ -287,7 +288,7 @@ const Step1: React.FC<formProps> = ({ setFormResponse }) => {
                 <input
                   type="checkbox"
                   {...register("parking")}
-                  className="border border-gray-400 rounded-lg p-2 font-medium"
+                  className="border border-gray-400 rounded-lg p-2 font-medium bg-white"
                 />
               </label>
             </div>
@@ -300,7 +301,7 @@ const Step1: React.FC<formProps> = ({ setFormResponse }) => {
                 {...register("availableFor", {
                   required: "Please select an option",
                 })}
-                className="border border-gray-400 rounded-lg px-3 py-2 font-normal"
+                className="border border-gray-400 rounded-lg px-3 py-2 font-normal bg-white"
               >
                 <option value="">Select an option</option>
                 <option value="Boys">Boys</option>
@@ -322,7 +323,7 @@ const Step1: React.FC<formProps> = ({ setFormResponse }) => {
                   required: "Description is required",
                 })}
                 placeholder="Describe the apartment in detai"
-                className="border border-gray-400 rounded-lg px-3 py-2 font-normal"
+                className="border border-gray-400 rounded-lg px-3 py-2 font-normal bg-white"
                 rows={3}
                 cols={30}
               />

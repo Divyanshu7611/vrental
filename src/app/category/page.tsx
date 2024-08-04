@@ -126,6 +126,15 @@ export default function Page() {
             <FlatCard
               key={flat._id}
               title={flat.apartmentName}
+              id={flat._id}
+              contactNo={flat.contactNo}
+              facility={flat.facility}
+              furnitureDescription={flat.furnitureDescription}
+              availableFor={flat.availableFor}
+              furniture={flat.furniture}
+              parking={flat.parking}
+              electricity={flat.electricity}
+              client={flat.client}
               description={flat.description}
               location={flat.location}
               price={`₹${flat.price}/month`}

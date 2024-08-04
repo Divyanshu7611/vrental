@@ -6,6 +6,7 @@ import Spinner from "../global/Spinner";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import { UserContext } from "@/context/UserContext";
+import { useRouter } from "next/navigation";
 
 interface FormValues {
   email: string;
@@ -22,7 +23,7 @@ export default function Login() {
 
   const [isLoading, setLoading] = useState(false);
   const userContext = useContext(UserContext);
-
+  const router = useRouter();
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     try {
       setLoading(true);
@@ -34,6 +35,7 @@ export default function Login() {
         userContext?.AuthDataHandler(response.data.existingUser);
         console.log("User Data", userContext?.userAuthData);
         toast.success(response.data.message);
+        router.push("/");
       } else {
         setLoading(false);
         toast.error(response.data.message);

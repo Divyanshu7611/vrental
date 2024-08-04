@@ -68,6 +68,11 @@ interface FlatCardProps {
   image: string;
   flexProp: string;
   category: string;
+  id: string;
+  contactNo: number;
+  furnitureDescription: string;
+  parking: boolean;
+  electricity: boolean;
 }
 
 const FlatCard: React.FC<FlatCardProps> = ({

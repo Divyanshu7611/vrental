@@ -15,6 +15,9 @@ export interface IUser extends Document {
   resetToken?: string;
   resetTokenExpires?: Date;
   apartments: IApartment["_id"][];
+  profession: string;
+  age: number;
+  bio: string;
 }
 
 const userSchema: Schema = new Schema<IUser>({
@@ -90,6 +93,19 @@ const userSchema: Schema = new Schema<IUser>({
   resetTokenExpires: {
     type: Date,
     default: undefined,
+  },
+  profession: {
+    type: String,
+    trim: true,
+    uppercase: true,
+  },
+
+  age: {
+    type: Number,
+  },
+  bio: {
+    type: String,
+    trim: true,
   },
 });
 

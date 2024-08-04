@@ -8,14 +8,12 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const Page = () => {
-  const [formResponse, setFormResponse] = useState<boolean>(false);
-
   return (
     <div className="bg-gradient-to-b from-[#F8F8F8] to-[#00E0FF] min-w-screen min-h-screen">
       <Navbar />
       <div className="overflow-x-hidden flex justify-center items-center">
         <div className="max-w-[1200px] mx-auto my-24">
-          <Step1 setFormResponse={setFormResponse} />
+          <Step1 />
         </div>
       </div>
       <Footer />

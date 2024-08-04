@@ -122,6 +122,7 @@ export async function POST(req: NextRequest) {
       category,
       availableFor,
       contactNo,
+      ownerID: userId,
     });
     await User.findByIdAndUpdate(
       userId,

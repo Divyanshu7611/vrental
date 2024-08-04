@@ -1,5 +1,6 @@
 import mongoose, { Schema, Document, Model, ObjectId, Types } from "mongoose";
 import { ICategory } from "./Category";
+import { IUser } from "./User";
 
 export interface IApartment extends Document {
   apartmentName: string;
@@ -17,6 +18,7 @@ export interface IApartment extends Document {
   category: string;
   availableFor: string;
   contactNo: number;
+  ownerID: IUser["_id"];
 }
 
 const apartmentSchema: Schema = new Schema<IApartment>({
@@ -71,6 +73,7 @@ const apartmentSchema: Schema = new Schema<IApartment>({
   parking: { type: Boolean, required: true },
   electricity: { type: Boolean, required: true },
   category: { type: String, required: true },
+  ownerID: { type: Schema.Types.ObjectId, ref: "User", required: true },
 });
 
 const Apartment: Model<IApartment> =
