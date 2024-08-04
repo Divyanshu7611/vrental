@@ -12,7 +12,7 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-export default function page() {
+export default function Page() {
   const [aparmentData, handleApartmentData] = useState<any>([]);
   const [loading, setLoading] = useState(true);
   const userContext = useContext(UserContext);
