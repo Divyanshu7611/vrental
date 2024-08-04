@@ -208,19 +208,44 @@ export default function Navbar() {
         </div>
         <div className="hidden lg:flex mx-auto">
           <ul className="flex items-center gap-6 mx-auto justify-center">
-            <li className="text-base font-semibold text-[#000000] cursor-pointer">
+            <li
+              className="text-base font-semibold text-[#000000] cursor-pointer"
+              onClick={() => {
+                router.push("/category?category=ROOM");
+              }}
+            >
               Rooms
             </li>
-            <li className="text-base font-semibold text-[#000000] cursor-pointer">
+            <li
+              className="text-base font-semibold text-[#000000] cursor-pointer"
+              onClick={() => {
+                router.push("/category?category=FLAT");
+              }}
+            >
               Flats
             </li>
-            <li className="text-base font-semibold text-[#000000] cursor-pointer">
+            <li
+              className="text-base font-semibold text-[#000000] cursor-pointer"
+              onClick={() => {
+                router.push("/category?category=HOSTEL");
+              }}
+            >
               Hostels
             </li>
-            <li className="text-base font-semibold text-[#000000] cursor-pointer">
+            <li
+              className="text-base font-semibold text-[#000000] cursor-pointer"
+              onClick={() => {
+                router.push("/category?category=CO-LIVING");
+              }}
+            >
               Living
             </li>
-            <li className="text-base font-semibold text-[#000000] cursor-pointer">
+            <li
+              className="text-base font-semibold text-[#000000] cursor-pointer"
+              onClick={() => {
+                router.push("/category?category=PG");
+              }}
+            >
               P-G
             </li>
           </ul>
@@ -302,11 +327,46 @@ export default function Navbar() {
           &times;
         </button>
         <ul className="flex flex-col gap-6 mt-10 px-4">
-          <li className="text-base font-semibold text-[#000000]">Rooms</li>
-          <li className="text-base font-semibold text-[#000000]">Flats</li>
-          <li className="text-base font-semibold text-[#000000]">Hostels</li>
-          <li className="text-base font-semibold text-[#000000]">Living</li>
-          <li className="text-base font-semibold text-[#000000]">P-G</li>
+          <li
+            className="text-base font-semibold text-[#000000]"
+            onClick={() => {
+              router.push("/category?category=ROOM");
+            }}
+          >
+            Rooms
+          </li>
+          <li
+            className="text-base font-semibold text-[#000000]"
+            onClick={() => {
+              router.push("/category?category=FLAT");
+            }}
+          >
+            Flats
+          </li>
+          <li
+            className="text-base font-semibold text-[#000000]"
+            onClick={() => {
+              router.push("/category?category=HOSTEL");
+            }}
+          >
+            Hostels
+          </li>
+          <li
+            className="text-base font-semibold text-[#000000]"
+            onClick={() => {
+              router.push("/category?category=LIVING");
+            }}
+          >
+            Living
+          </li>
+          <li
+            className="text-base font-semibold text-[#000000]"
+            onClick={() => {
+              router.push("/category?category=PG");
+            }}
+          >
+            P-G
+          </li>
           {isToken ? (
             <>
               <li
