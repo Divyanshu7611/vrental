@@ -11,7 +11,7 @@ const mailerSender = async ({ email, title, body, text }: EmailOptions) => {
   try {
     let transporter = nodemailer.createTransport({
       host: process.env.HOST_NAME,
-      port: parseInt(process.env.EMAIL_PORT || "587"),
+      port: parseInt(process.env.EMAIL_PORT || "465"),
       secure: process.env.EMAIL_SECURE === "true",
       auth: {
         user: process.env.MAIL_USER,
