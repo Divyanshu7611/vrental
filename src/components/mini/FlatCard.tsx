@@ -1,62 +1,7 @@
-// "use client";
-// import React from "react";
-// import Image from "next/image";
-// import motion from "framer-motion";
-
-// interface FlatCardProps {
-//   title: string;
-//   description: string;
-//   location: string;
-//   price: string;
-//   image: string;
-//   flexProp: string;
-// }
-
-// const FlatCard: React.FC<FlatCardProps> = ({
-//   title,
-//   description,
-//   location,
-//   price,
-//   image,
-//   flexProp,
-// }) => {
-//   return (
-//     <div
-//       className={`bg-white lg:rounded-lg w-full lg:max-w-[1000px] mx-auto flex justify-between ${
-//         flexProp === "row" ? "lg:flex-row" : "lg:flex-row-reverse"
-//       } flex-col-reverse mb-10`}
-//     >
-//       <div className="flex flex-col justify-between lg:max-h-[315px] p-5">
-//         <div className="flex flex-col gap-3">
-//           <h1 className="text-2xl font-normal">{title}</h1>
-//           <p className="text-sm text-black opacity-50">{description}</p>
-//           <p className="text-sm text-black opacity-50">{location}</p>
-//           <p className="text-base text-black opacity-100">{price}</p>
-//         </div>
-//         <div>
-//           <button className="border border-[#1FA5AD] bg-transparent rounded-lg text-[#1FA5AD] text-sm px-4 py-1 hover:scale-105 transition-all duration-200">
-//             View Flat
-//           </button>
-//         </div>
-//       </div>
-//       <div>
-//         <Image
-//           src={image}
-//           alt="flatcard"
-//           height={315}
-//           width={500}
-//           // className="w-full h-full"
-//         />
-//       </div>
-//     </div>
-//   );
-// };
-
-// export default FlatCard;
-
 "use client";
 import React, { useEffect } from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { motion, useAnimation } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 
@@ -73,9 +18,14 @@ interface FlatCardProps {
   furnitureDescription: string;
   parking: boolean;
   electricity: boolean;
+  facility: string;
+  availableFor: string;
+  furniture: boolean;
+  client: string[];
 }
 
 const FlatCard: React.FC<FlatCardProps> = ({
+  id,
   title,
   description,
   location,
@@ -85,6 +35,7 @@ const FlatCard: React.FC<FlatCardProps> = ({
   category,
 }) => {
   const controls = useAnimation();
+  const router = useRouter();
   const { ref, inView } = useInView({
     threshold: 0.2,
     triggerOnce: true,
@@ -129,7 +80,12 @@ const FlatCard: React.FC<FlatCardProps> = ({
           <p className="text-base text-black opacity-100">{price}</p>
         </div>
         <div>
-          <button className="border border-[#1FA5AD] bg-transparent rounded-lg text-[#1FA5AD] text-sm px-4 py-1 hover:scale-105 transition-all duration-200">
+          <button
+            className="border border-[#1FA5AD] bg-transparent rounded-lg text-[#1FA5AD] text-sm px-4 py-1 hover:scale-105 transition-all duration-200"
+            onClick={() => {
+              router.push(`/view?apartmentID=${id}`);
+            }}
+          >
             View {category.toLowerCase()}
           </button>
         </div>
