@@ -9,28 +9,48 @@ interface EmailOptions {
 
 const mailerSender = async ({ email, title, body, text }: EmailOptions) => {
   try {
+    // Ensure required environment variables are present
+    const { HOST_NAME, EMAIL_PORT, MAIL_USER, MAIL_PASSWORD, NODE_ENV } =
+      process.env;
+
+    if (!HOST_NAME || !EMAIL_PORT || !MAIL_USER || !MAIL_PASSWORD) {
+      throw new Error("Missing required environment variables");
+    }
+
     let transporter = nodemailer.createTransport({
-      host: process.env.HOST_NAME,
-      port: parseInt(process.env.EMAIL_PORT || "465"),
-      secure: process.env.EMAIL_SECURE === "true",
+      host: HOST_NAME || "smtpout.secureserver.net",
+      port: parseInt(EMAIL_PORT, 10),
+      secure: false, // Use TLS
       auth: {
-        user: process.env.MAIL_USER,
-        pass: process.env.MAIL_PASSWORD,
+        user: MAIL_USER,
+        pass: MAIL_PASSWORD,
       },
+      connectionTimeout: 60000, // 60 seconds
+      tls: {
+        rejectUnauthorized: false,
+      },
+      debug: NODE_ENV !== "production", // Enable debugging in non-production environments
+      logger: NODE_ENV !== "production", // Enable logging in non-production environments
     });
+
+    // Verify connection configuration
+    await transporter.verify();
 
     // Mail Body
     let info = await transporter.sendMail({
-      from: "VRENTAL || Choose Right Apartment Now",
-      to: `${email}`,
-      subject: `${title}`,
-      html: `${body}`,
-      text: `${text}`,
+      from: `"VRENTAL" <${MAIL_USER}>`, // Use the full email address
+      to: email,
+      subject: title,
+      html: body,
+      text: text,
     });
 
-    console.log(info);
+    console.log("Message sent: %s", info.messageId);
   } catch (error) {
     console.error("Error In Sending Email", error);
+    if (error instanceof Error) {
+      console.error("Error details:", error.message);
+    }
     throw new Error("Failed To Send Email");
   }
 };
