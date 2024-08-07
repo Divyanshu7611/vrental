@@ -93,13 +93,28 @@ export default function Page() {
   const searchParams = useSearchParams();
   const id = searchParams.get("apartmentID");
   const { data, loading } = useApartmentData(id);
-
+  // const dummyData = {
+  //   apartmentName: "Luxury Apartment",
+  //   image_urls: [
+  //     "/images/apartment1.jpg",
+  //     "/images/apartment2.jpg",
+  //     "/images/apartment3.jpg",
+  //     // Add more images if needed
+  //   ],
+  //   description: "A beautiful luxury apartment with all modern amenities.",
+  //   location: "1234 Luxury Lane, Beverly Hills, CA",
+  //   price: 5000,
+  //   contactNo: 1234567890,
+  //   category: "Luxury",
+  //   facility:
+  //     "Wifi, Swimming Pool, Gym, Parking, Elevator, Pet Friendly, 24/7 Security, Laundry Service, Garden, BBQ Area, Playground, Sauna, Spa, Business Center, Conference Room, Library, Concierge Service, Shuttle Service, Private Balcony, Air Conditioning, Heating, Dishwasher, Refrigerator, Washer/Dryer, Microwave, Oven, Gas Stove, Hardwood Floors, Carpet, Granite Countertops, Custom Cabinets, Walk-In Closet, Smart Home Technology, High-Speed Internet, Cable TV, Phone Service, Trash Removal, Cleaning Service, Pest Control, Snow Removal, Maintenance Service, Water, Electricity, Gas, Parking Garage, Bike Storage, Poolside Loungers, Tanning Beds, Hot Tub, Sauna, Steam Room, Yoga Studio, Fitness Classes, Personal Trainer, Massage Therapy, Nail Salon, Hair Salon, Grocery Delivery, Dry Cleaning, Shopping Discounts, Event Space",
+  // };
   return (
     <div className="min-w-screen min-h-screen bg-gradient-to-b from-[#F8F8F8] to-[#00E0FF]">
       {loading === false && data ? (
         <div className="min-w-screen min-h-screen">
           <Navbar />
-          <div className="flex w-full lg:flex-row flex-col justify-center items-center p-3 mx-auto pt-20 space-x-4 gap-5">
+          <div className="flex w-full lg:flex-row flex-col justify-center items-start p-3 mx-auto pt-20 space-x-4 gap-5">
             <ApartmentDetails data={data.apartment} />
 
             <OwnerDetails data={data.owner} />

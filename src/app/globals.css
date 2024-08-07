@@ -105,9 +105,11 @@ body {
 /* swipper */
 
 
-.swiper {
+/* .swiper {
   width: 100%;
-  height: 100%;
+  background-position: center;
+  object-position: center;
+  object-fit: contain;
 }
 
 .swiper-slide {
@@ -115,7 +117,8 @@ body {
   font-size: 18px;
   background: #fff;
 
-  /* Center slide text vertically */
+
+
   display: flex;
   justify-content: center;
   align-items: center;
@@ -126,4 +129,65 @@ body {
   width: 100%;
   height: 100%;
   object-fit: cover;
+} */
+
+
+
+/* General Swiper styles */
+/* General Swiper styles */
+.swiper {
+  width: 100%;
+  background-position: center;
+  object-position: center;
+  object-fit: contain;
+}
+
+.swiper-slide {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background: #fff;
+  height: 474px;
+  /* Set the height to the desired value */
+  max-height: 474px;
+  /* Ensure it does not exceed this height */
+}
+
+.swiper-slide img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  /* Make the image fit the container */
+  object-fit: cover;
+  /* Cover the container while maintaining aspect ratio */
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .swiper {
+    width: 100%;
+    height: 100%;
+  }
+
+  .swiper-slide {
+    height: 474px;
+    max-height: 474px;
+  }
+
+  .swiper-slide img {
+    height: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .swiper-slide {
+    font-size: 16px;
+    height: 474px;
+    max-height: 474px;
+  }
+
+  .swiper-slide img {
+    height: 100%;
+  }
 }
