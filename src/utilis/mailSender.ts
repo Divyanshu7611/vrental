@@ -25,7 +25,7 @@ const mailerSender = async ({ email, title, body, text }: EmailOptions) => {
         user: MAIL_USER,
         pass: MAIL_PASSWORD,
       },
-      connectionTimeout: 10000, // 60 seconds
+      // connectionTimeout: 10000, // 60 seconds
       tls: {
         rejectUnauthorized: false,
       },
