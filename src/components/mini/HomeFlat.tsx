@@ -73,13 +73,13 @@ const FlatCard: React.FC<FlatCardProps> = ({
           </button>
         </div>
       </div>
-      <div>
+      <div className="max-w-[500px] max-h-[315px] overflow-hidden">
         <Image
           src={image}
           alt="flatcard"
           height={315}
           width={500}
-          className="rounded-lg"
+          className="max-w-[500px] max-h-[315px] rounded-lg"
         />
       </div>
     </motion.div>

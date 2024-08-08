@@ -177,7 +177,7 @@ export default function Navbar() {
           <li
             className="text-base font-semibold text-[#000000]"
             onClick={() => {
-              router.push("/category?category=LIVING");
+              router.push("/category?category=CO-LIVING");
             }}
           >
             Living
