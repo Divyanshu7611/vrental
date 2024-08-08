@@ -19,18 +19,13 @@ const mailerSender = async ({ email, title, body, text }: EmailOptions) => {
 
     let transporter = nodemailer.createTransport({
       host: HOST_NAME || "smtpout.secureserver.net",
-      port: parseInt(EMAIL_PORT, 10),
+      port: parseInt(EMAIL_PORT),
       secure: false, // Use TLS
       auth: {
         user: MAIL_USER,
         pass: MAIL_PASSWORD,
       },
-      // connectionTimeout: 10000, // 60 seconds
-      tls: {
-        rejectUnauthorized: false,
-      },
-      debug: NODE_ENV !== "production", // Enable debugging in non-production environments
-      logger: NODE_ENV !== "production", // Enable logging in non-production environments
+      // connectionTimeout: 10000, // 60 secon
     });
 
     // Verify connection configuration
