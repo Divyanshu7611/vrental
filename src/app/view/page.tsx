@@ -117,7 +117,7 @@ export default function Page() {
           <div className="flex w-full lg:flex-row flex-col justify-center items-start p-3 mx-auto pt-20 space-x-4 gap-5">
             <ApartmentDetails data={data.apartment} />
 
-            <OwnerDetails data={data.owner} />
+            <OwnerDetails data={data.owner} apartment={data.apartment} />
           </div>
           <Footer />
         </div>
