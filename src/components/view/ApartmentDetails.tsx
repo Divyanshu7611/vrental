@@ -60,6 +60,7 @@ interface ApartmentDetailsProps {
     contactNo: number;
     category: string;
     facility: string;
+    availableFor: string;
     // other apartment details
   };
 }
@@ -90,6 +91,7 @@ const ApartmentDetails: React.FC<ApartmentDetailsProps> = ({ data }) => {
           Price: ${data.price}
         </p>
       </div>
+      <p className="text-lg font-medium">Available For: {data.availableFor}</p>
       <p className="text-lg font-medium">Location: {data.location}</p>
 
       <div className="bg-gradient-to-b from-[#00FFFF] to-[#009999] w-full rounded-xl p-4 mt-12">
