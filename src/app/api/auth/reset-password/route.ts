@@ -39,7 +39,7 @@ export async function POST(request: NextRequest) {
       { new: true }
     );
     // make url and attach token into it
-    const url = `http://localhost:3000/update-password/${token}`;
+    const url = `http://vrental.in/update-password?user=${token}`;
     // send token to user mail id
     await mailerSender({
       email: email,

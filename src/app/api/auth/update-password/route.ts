@@ -5,25 +5,15 @@ import { Underdog } from "next/font/google";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
-  const { newPassword, confirmPassword, resetToken } = await request.json();
+  const { newPassword, resetToken } = await request.json();
   try {
     await ConnectMongoDB();
     // validatte
-    if (!confirmPassword || !newPassword || !resetToken) {
+    if (!newPassword || !resetToken) {
       return NextResponse.json(
         {
           success: false,
           message: "All Fields Are Required",
-        },
-        { status: 403 }
-      );
-    }
-    // check password
-    if (confirmPassword != newPassword) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Password Does Not match",
         },
         { status: 403 }
       );
