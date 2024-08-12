@@ -41,7 +41,7 @@ export default function ProfileDetails() {
       </div>
       <div>
         <img
-          src={userContext?.userAuthData?.image}
+          src={`https://api.dicebear.com/5.x/initials/svg?seed=${userContext?.userAuthData?.firstName} ${userContext?.userAuthData?.lastName}&backgroundColor=418FA9`}
           alt=""
           width={180}
           height={180}

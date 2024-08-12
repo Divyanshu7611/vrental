@@ -14,7 +14,7 @@ export default function ProfileRating() {
       </div>
       <div className="justify-between items-center flex w-full lg:flex-row flex-wrap">
         <button
-          className="rounded-xl py-3 px-6 bg-white lg:text-2xl text-lg font-medium border-[5px] transition-all hover:scale-105 duration-200 border-gradient-to-b from-[#00FFFF] to-[#009999]"
+          className="rounded-xl py-3 px-6 bg-gray-300 lg:text-2xl text-lg font-medium border-[5px] transition-all hover:scale-105 duration-200 border-gradient-to-b from-[#00FFFF] to-[#009999]"
           onClick={() => {
             router.push(`/updateProfile?id=${userContext?.userAuthData?._id}`);
           }}
@@ -22,8 +22,10 @@ export default function ProfileRating() {
           Edit Profile
         </button>
         <button
-          className="rounded-xl py-3 px-6 bg-white lg:text-2xl text-lg font-medium border-[5px] transition-all hover:scale-105 duration-200 border-gradient-to-b from-[#00FFFF] to-[#009999]"
-          onClick={() => {}}
+          className="rounded-xl py-3 px-6 bg-gray-300 lg:text-2xl text-lg font-medium border-[5px] transition-all hover:scale-105 duration-200 border-gradient-to-b from-[#00FFFF] to-[#009999]"
+          onClick={() => {
+            router.push("/test");
+          }}
         >
           Apartments
         </button>

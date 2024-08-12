@@ -137,7 +137,7 @@ export async function POST(request: NextRequest) {
       email,
       password: hashedPassword,
       phone,
-      image: `https://api.dicebear.com/5.x/initials/svg?seed=${firstName} ${lastName}`,
+      image: `https://api.dicebear.com/5.x/initials/svg?seed=${firstName} ${lastName}&backgroundColor=418FA9`,
       clientID,
       adharNo,
       role: "USER",

@@ -52,10 +52,10 @@ export default function Page() {
           <div className="w-full h-full flex justify-center items-center bg-[#f8ecec]">
             <ProfileDetails />
           </div>
-          <div className="bg-gradient-to-b from-[#03E9F7] to-[#c9c0c0] w-full h-full px-1 py-8">
+          <div className="bg-gradient-to-b from-[#03E9F7] to-[#ffffff] w-full h-full px-1 py-8">
             <ProfileRating />
           </div>
-          <div className="py-2 bg-gradient-to-b from-[#FFFFFF] to-[#00F0FF] w-full">
+          <div className="py-2 bg-gradient-to-b from-[#FFFFFF] to-[#00F0FF] w-full shadow-gray-500 shadow-upper">
             <h1 className="text-2xl font-medium text-center">Apartments</h1>
           </div>
           <div className="p-1 w-full">

@@ -7,7 +7,11 @@ const config: Config = {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      boxShadow: {
+        upper: "0 -4px 10px  rgba(0, 0, 0, 0.1)", // Define custom shadow class
+      },
+    },
   },
   plugins: [],
 };

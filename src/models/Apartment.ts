@@ -13,6 +13,12 @@ export interface IApartment extends Document {
   contactNo: number;
   ownerID: Types.ObjectId; // Owner ID of the user
   participants: Types.ObjectId[];
+  ratings: {
+    user: Types.ObjectId;
+    rating: number;
+    comment?: string;
+  }[];
+  averageRating: number;
 }
 
 const apartmentSchema: Schema = new Schema<IApartment>({
@@ -67,8 +73,35 @@ const apartmentSchema: Schema = new Schema<IApartment>({
     ref: "User",
     required: true,
   },
+  ratings: [
+    {
+      user: { type: Schema.Types.ObjectId, ref: "User", required: true },
+      rating: { type: Number, required: true, min: 1, max: 5 },
+      comment: { type: String },
+    },
+  ],
+  averageRating: {
+    type: Number,
+    default: 0,
+  },
 });
 
+// Middleware to calculate average rating before saving
+apartmentSchema.pre<IApartment>("save", function (next) {
+  const apartment = this as IApartment;
+
+  if (apartment.ratings.length > 0) {
+    const ratingsSum = apartment.ratings.reduce(
+      (sum, rating) => sum + rating.rating,
+      0
+    );
+    apartment.averageRating = ratingsSum / apartment.ratings.length;
+  } else {
+    apartment.averageRating = 0;
+  }
+
+  next();
+});
 const Apartment: Model<IApartment> =
   mongoose.models.Apartment ||
   mongoose.model<IApartment>("Apartment", apartmentSchema);
