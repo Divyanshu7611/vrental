@@ -149,96 +149,57 @@ export default function Navbar() {
           &times;
         </button>
         <ul className="flex flex-col gap-6 mt-10 px-4">
-          <li
-            className="text-base font-semibold text-[#000000]"
-            onClick={() => {
-              router.push("/category?category=ROOM");
-            }}
-          >
-            Rooms
+          <li className="text-base font-semibold text-[#000000]">
+            <a href="/category?category=ROOM">Rooms</a>
           </li>
-          <li
-            className="text-base font-semibold text-[#000000]"
-            onClick={() => {
-              router.push("/category?category=FLAT");
-            }}
-          >
-            Flats
+          <li className="text-base font-semibold text-[#000000]">
+            <a href="/category?category=FLAT"> Flats</a>
           </li>
-          <li
-            className="text-base font-semibold text-[#000000]"
-            onClick={() => {
-              router.push("/category?category=HOSTEL");
-            }}
-          >
-            Hostels
+          <li className="text-base font-semibold text-[#000000]">
+            <a href="/category?category=HOSTEL">Hostels</a>
           </li>
-          <li
-            className="text-base font-semibold text-[#000000]"
-            onClick={() => {
-              router.push("/category?category=CO-LIVING");
-            }}
-          >
-            Living
+          <li className="text-base font-semibold text-[#000000]">
+            <a className="/category?category=CO-LIVING">Living</a>
           </li>
-          <li
-            className="text-base font-semibold text-[#000000]"
-            onClick={() => {
-              router.push("/category?category=PG");
-            }}
-          >
-            P-G
+          <li className="text-base font-semibold text-[#000000]">
+            <a href="/category?category=PG">P-G</a>
           </li>
           {isToken ? (
             <>
-              <li
-                className="text-base font-semibold text-[#000000] cursor-pointer"
-                onClick={() => {
-                  router.push("/profile");
-                }}
-              >
-                Profile
+              <li className="text-base font-semibold text-[#000000] cursor-pointer">
+                <a href="/profile">Profile</a>
               </li>
-              <li
-                className="text-base font-semibold text-[#000000] cursor-pointer"
-                onClick={() => {
-                  router.push("/test");
-                }}
-              >
-                Register Apartment
+              <li className="text-base font-semibold text-[#000000] cursor-pointer">
+                <a href="/test">Register Apartment</a>
               </li>
-              <li
-                className="text-base font-semibold text-[#000000] cursor-pointer"
-                onClick={() => {
-                  toast.success("Logout Successfully");
-                  localStorage.removeItem("token");
-                  localStorage.removeItem("userAuthData");
-                  window.location.reload();
+              <li className="text-base font-semibold text-[#000000] cursor-pointer">
+                <a
+                  onClick={() => {
+                    toast.success("Logout Successfully");
+                    localStorage.removeItem("token");
+                    localStorage.removeItem("userAuthData");
+                    window.location.reload();
 
-                  router.push("/");
-                }}
-              >
-                Logout
+                    router.push("/");
+                  }}
+                >
+                  Logout
+                </a>
               </li>
             </>
           ) : (
             <>
-              <li
+              <li className="text-base font-semibold text-[#000000] cursor-pointer">
+                <a href="/auth">Login</a>
+              </li>
+              {/* <li
                 className="text-base font-semibold text-[#000000] cursor-pointer"
                 onClick={() => {
                   router.push("/auth");
                 }}
               >
-                Login
-              </li>
-              <li
-                className="text-base font-semibold text-[#000000] cursor-pointer"
-                onClick={() => {
-                  router.push("/auth");
-                }}
-              >
-                Signup
-              </li>
+                <a href="">Signup</a>
+              </li> */}
             </>
           )}
         </ul>
