@@ -50,6 +50,9 @@ export async function POST(request: NextRequest) {
     confirmPassword,
     otp,
     adharNo,
+    profession,
+    age,
+    bio,
   } = await request.json();
 
   try {
@@ -138,6 +141,9 @@ export async function POST(request: NextRequest) {
       clientID,
       adharNo,
       role: "USER",
+      profession: profession || "",
+      age: age || "",
+      bio: bio || "",
     });
     // send tharID to user Email
     await sendMail(email, clientID, firstName);

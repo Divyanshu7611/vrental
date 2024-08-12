@@ -23,11 +23,13 @@ export async function PUT(req: NextRequest) {
       firstName,
       lastName,
     });
+    const updatedUser = await User.findById(userID).lean(); // Use lean() to get a plain JS object
     await DisconnectMongoDB();
     return NextResponse.json(
       {
         message: "Profile Updated Successfully",
         success: true,
+        User: updatedUser,
       },
       { status: 200 }
     );

@@ -17,7 +17,7 @@ export default function ProfileDetails() {
   }, [userContext?.userAuthData]);
 
   return (
-    <div className="max-w-[1080px] mx-auto flex justify-between w-full mt-20 px-1">
+    <div className="max-w-[1080px] mx-auto flex justify-between w-full mt-20 mb-10 px-1">
       <div className="flex flex-col justify-center items-start">
         <div>
           <h1 className="lg:text-3xl text-2xl font-semibold">
@@ -28,12 +28,14 @@ export default function ProfileDetails() {
           <h1 className="lg:text-2xl text-base font-medium">
             Name:{userContext?.userAuthData?.firstName}
           </h1>
-          <h1 className="lg:text-2xl text-base font-medium">Age:42</h1>
           <h1 className="lg:text-2xl text-base font-medium">
-            Profession : {userContext?.userAuthData?.firstName}
+            Age:{userContext?.userAuthData?.age}
           </h1>
           <h1 className="lg:text-2xl text-base font-medium">
-            Bio :True Engineer
+            Profession :{userContext?.userAuthData?.profession}
+          </h1>
+          <h1 className="lg:text-2xl text-base font-medium">
+            Bio : {userContext?.userAuthData?.bio}
           </h1>
         </div>
       </div>

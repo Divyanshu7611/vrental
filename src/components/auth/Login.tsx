@@ -33,7 +33,7 @@ export default function Login() {
         const token = response.data.token;
         localStorage.setItem("token", token);
         userContext?.AuthDataHandler(response.data.existingUser);
-        console.log("User Data", userContext?.userAuthData);
+
         toast.success(response.data.message);
         router.push("/");
       } else {

@@ -19,6 +19,9 @@ interface UserAuthData {
   participated: any[];
   role: string;
   __v: number;
+  age: number;
+  profession: string;
+  bio: string;
 }
 
 interface UserContextType {

@@ -98,14 +98,17 @@ const userSchema: Schema = new Schema<IUser>({
     type: String,
     trim: true,
     uppercase: true,
+    default: "",
   },
 
   age: {
     type: Number,
+    default: 0,
   },
   bio: {
     type: String,
     trim: true,
+    default: "",
   },
 });
 
