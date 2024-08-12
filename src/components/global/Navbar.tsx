@@ -35,15 +35,14 @@ export default function Navbar() {
 
   return (
     <div>
-      <div className="min-w-full lg:h-16 h-12 bg-gradient-to-b from-[#F8F8F8] to-[#00E0FF] fixed z-50 flex justify-between items-center px-4 lg:px-8">
+      <div className="min-w-full lg:h-16 h-12 bg-gradient-to-b from-[#F8F8F8] to-[#00E0FF] fixed z-50 flex justify-between items-center px-3 lg:px-8">
         <div className="text-2xl font-bold text-[#00E0FF]">
-          <Image
+          <img
             src="/assets/Logo.png"
             alt="Logo"
-            width={45}
-            height={45}
-            className="rounded-full cursor-pointer"
-            quality={100}
+            width={80}
+            height={80}
+            className="cursor-pointer"
             onClick={() => {
               router.push("/");
             }}

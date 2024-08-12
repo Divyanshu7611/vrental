@@ -65,11 +65,11 @@ body {
 
 /* Hero */
 .Hero {
-  background-image: url('/assets/Hero.png');
+  background-image: url('/assets/BANNER.gif');
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
-  object-fit: contain;
+  object-fit: cover;
 }
 
 
