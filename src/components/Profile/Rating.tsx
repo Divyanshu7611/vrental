@@ -2,8 +2,8 @@ import { useState } from "react";
 import axios from "axios";
 
 interface StarRatingProps {
-  apartmentId: any; // ID of the apartment to rate
-  userId: any; // ID of the user submitting the rating
+  apartmentId: any;
+  userId: any;
 }
 
 const StarRating: React.FC<StarRatingProps> = ({ apartmentId, userId }) => {
@@ -33,7 +33,7 @@ const StarRating: React.FC<StarRatingProps> = ({ apartmentId, userId }) => {
       alert("Rating submitted successfully!");
     } catch (error) {
       console.error("Error submitting rating", error);
-      setError("Failed to submit rating.");
+      setError("Rating Already Exist");
     } finally {
       setLoading(false);
     }

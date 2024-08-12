@@ -1,5 +1,9 @@
-import React from "react";
+"use client";
+import React, { useEffect, useState } from "react";
 import Swipper from "./Swiper";
+import StarRating from "../Profile/StarRating";
+import axios from "axios";
+import { useSearchParams } from "next/navigation";
 
 interface ApartmentDetailsProps {
   data: {
@@ -12,7 +16,7 @@ interface ApartmentDetailsProps {
     category: string;
     facility: string;
     availableFor: string;
-    // other apartment details
+    averageRating: number;
   };
 }
 
@@ -27,6 +31,26 @@ const ApartmentDetails: React.FC<ApartmentDetailsProps> = ({ data }) => {
   const facilityColumns = Array.from({ length: columns }, (_, columnIndex) =>
     facilityList.slice(columnIndex * 5, (columnIndex + 1) * 5)
   );
+  // const [rating, setRating] = useState<number>(0);
+  // useEffect(() => {
+  //   const fetchRating = async () => {
+  //     if (data._id) {
+  //       try {
+  //         const response = await axios.get(
+  //           `/api/apartment/rating?id=${data._id}`
+  //         );
+  //         console.log("ratying", response);
+  //         if (response) {
+  //           setRating(response.data.averageRating);
+  //         }
+  //       } catch (error) {
+  //         console.error("Failed to fetch rating:", error);
+  //       }
+  //     }
+  //   };
+
+  //   fetchRating();
+  // }, [data._id]);
 
   return (
     <div className="bg-gradient-to-b from-[#00FFFF] to-[#009999] lg:w-3/4 p-5 rounded-lg shadow-lg w-full">
@@ -38,12 +62,15 @@ const ApartmentDetails: React.FC<ApartmentDetailsProps> = ({ data }) => {
           </h1>
           <p className="lg:text-sm text-xs">{data.category}</p>
         </div>
-        <p className="text-[#FF0000] font-semibold lg:text-2xl text-lg">
-          Price: ${data.price}
-        </p>
+        <div className="flex flex-col">
+          <p className="text-[#FF0000] font-semibold lg:text-2xl text-lg">
+            Price: ${data.price}
+          </p>
+        </div>
       </div>
       <p className="text-lg font-medium">Available For: {data.availableFor}</p>
       <p className="text-lg font-medium">Location: {data.location}</p>
+      <StarRating rating={data.averageRating} />
 
       <div className="bg-gradient-to-b from-[#00FFFF] to-[#009999] w-full rounded-xl p-4 mt-12">
         <p className="text-lg font-medium mb-2">Facilities:</p>

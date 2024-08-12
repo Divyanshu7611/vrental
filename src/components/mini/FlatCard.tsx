@@ -22,6 +22,7 @@ interface FlatCardProps {
   availableFor: string;
   furniture: boolean;
   client: string[];
+  averageRating: number;
 }
 
 const FlatCard: React.FC<FlatCardProps> = ({
@@ -33,6 +34,7 @@ const FlatCard: React.FC<FlatCardProps> = ({
   image,
   flexProp,
   category,
+  averageRating,
 }) => {
   const controls = useAnimation();
   const router = useRouter();
@@ -71,7 +73,7 @@ const FlatCard: React.FC<FlatCardProps> = ({
       onClick={() => {
         router.push(`/view?apartmentID=${id}`);
       }}
-      className={`bg-white lg:rounded-lg w-full lg:max-w-[1000px] mx-auto flex justify-between ${
+      className={`bg-white lg:rounded-lg rounded-lg w-full lg:max-w-[1000px] mx-auto flex justify-between ${
         flexProp === "row" ? "lg:flex-row" : "lg:flex-row-reverse"
       } flex-col-reverse mb-10`}
     >
@@ -80,7 +82,11 @@ const FlatCard: React.FC<FlatCardProps> = ({
           <h1 className="text-2xl font-normal">{title}</h1>
           <p className="text-sm text-black opacity-50">{description}</p>
           <p className="text-sm text-black opacity-50">{location}</p>
-          <p className="text-base text-black opacity-100">{price}</p>
+          <div className="flex items-center gap-1">
+            <p className="text-base text-black opacity-100">Rating: </p>
+            <p className="text-base text-black opacity-100">{averageRating}</p>
+          </div>
+          <p className="text-lg text-black opacity-100">{price}</p>
         </div>
         <div>
           <button
@@ -93,13 +99,13 @@ const FlatCard: React.FC<FlatCardProps> = ({
           </button>
         </div>
       </div>
-      <div>
+      <div className="max-w-[500px] max-h-[315px] overflow-hidden">
         <Image
           src={image}
           alt="flatcard"
           height={315}
           width={500}
-          className="rounded-lg"
+          className="max-w-[500px] max-h-[315px] rounded-lg"
         />
       </div>
     </motion.div>
