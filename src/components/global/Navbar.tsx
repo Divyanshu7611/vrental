@@ -120,14 +120,14 @@ export default function Navbar() {
             </div>
           ) : (
             <div className="flex justify-center items-center gap-3">
-              <button
+              {/* <button
                 className="bg-[#156f6f] text-white px-4 py-2 rounded-md font-medium"
                 onClick={() => {
                   router.push("/auth");
                 }}
               >
                 SignUp
-              </button>
+              </button> */}
               <button
                 className="bg-[#156f6f] text-white px-4 py-2 rounded-md font-medium"
                 onClick={() => {

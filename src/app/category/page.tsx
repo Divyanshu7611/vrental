@@ -253,88 +253,91 @@ export default function Page() {
 
   return (
     <div className="w-full min-h-screen bg-gradient-to-b from-[#F8F8F8] to-[#00E0FF]">
-      <Navbar />
-      <div className="mx-auto max-w-[1080px] pt-20 px-4">
-        <div className="bg-white p-4 rounded-lg shadow-md mb-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-            <input
-              type="text"
-              placeholder="Search apartments"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="p-2 border rounded-md w-full"
-            />
-            <input
-              type="text"
-              placeholder="Location"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              className="p-2 border rounded-md w-full"
-            />
-            <input
-              type="number"
-              placeholder="Min Price"
-              value={minPrice}
-              onChange={(e) => setMinPrice(e.target.value)}
-              className="p-2 border rounded-md w-full"
-            />
-            <input
-              type="number"
-              placeholder="Max Price"
-              value={maxPrice}
-              onChange={(e) => setMaxPrice(e.target.value)}
-              className="p-2 border rounded-md w-full"
-            />
-          </div>
-          <div className="flex justify-between items-center">
-            <select
-              value={sortOrder}
-              onChange={(e) => setSortOrder(e.target.value)}
-              className="p-2 border rounded-md"
-            >
-              <option value="default">Sort by</option>
-              <option value="lowToHigh">Price: Low to High</option>
-              <option value="highToLow">Price: High to Low</option>
-            </select>
-            <button
-              onClick={applyFilters}
-              className="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
-            >
-              Search
-            </button>
-          </div>
+      {loading ? (
+        <div className="min-w-screen min-h-screen flex justify-center items-center">
+          <div className="loader"></div>
         </div>
-        {loading ? (
-          <div className="min-w-screen min-h-screen flex justify-center items-center">
-            <div className="loader"></div>
+      ) : (
+        <div>
+          <Navbar />
+          <div className="mx-auto max-w-[1080px] pt-20 px-4">
+            <div className="bg-white p-4 rounded-lg shadow-md mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+                <input
+                  type="text"
+                  placeholder="Search apartments"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="p-2 border rounded-md w-full"
+                />
+                <input
+                  type="text"
+                  placeholder="Location"
+                  value={location}
+                  onChange={(e) => setLocation(e.target.value)}
+                  className="p-2 border rounded-md w-full"
+                />
+                <input
+                  type="number"
+                  placeholder="Min Price"
+                  value={minPrice}
+                  onChange={(e) => setMinPrice(e.target.value)}
+                  className="p-2 border rounded-md w-full"
+                />
+                <input
+                  type="number"
+                  placeholder="Max Price"
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(e.target.value)}
+                  className="p-2 border rounded-md w-full"
+                />
+              </div>
+              <div className="flex justify-between items-center">
+                <select
+                  value={sortOrder}
+                  onChange={(e) => setSortOrder(e.target.value)}
+                  className="p-2 border rounded-md"
+                >
+                  <option value="default">Sort by</option>
+                  <option value="lowToHigh">Price: Low to High</option>
+                  <option value="highToLow">Price: High to Low</option>
+                </select>
+                <button
+                  onClick={applyFilters}
+                  className="p-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+                >
+                  Search
+                </button>
+              </div>
+            </div>
+
+            <div className="flex-wrap flex">
+              {filteredData.map((flat, index) => (
+                <FlatCard
+                  key={flat._id}
+                  title={flat.apartmentName}
+                  id={flat._id}
+                  contactNo={flat.contactNo}
+                  facility={flat.facility}
+                  furnitureDescription={flat.furnitureDescription}
+                  availableFor={flat.availableFor}
+                  furniture={flat.furniture}
+                  parking={flat.parking}
+                  electricity={flat.electricity}
+                  client={flat.client}
+                  description={flat.description}
+                  location={flat.location}
+                  price={`₹${flat.price}/month`}
+                  image={flat.image_urls[0]}
+                  category={flat.category}
+                  flexProp={index % 2 === 0 ? "row" : "row-reverse"}
+                />
+              ))}
+            </div>
           </div>
-        ) : (
-          <div className="flex-wrap flex">
-            {filteredData.map((flat, index) => (
-              <FlatCard
-                key={flat._id}
-                title={flat.apartmentName}
-                id={flat._id}
-                contactNo={flat.contactNo}
-                facility={flat.facility}
-                furnitureDescription={flat.furnitureDescription}
-                availableFor={flat.availableFor}
-                furniture={flat.furniture}
-                parking={flat.parking}
-                electricity={flat.electricity}
-                client={flat.client}
-                description={flat.description}
-                location={flat.location}
-                price={`₹${flat.price}/month`}
-                image={flat.image_urls[0]}
-                category={flat.category}
-                flexProp={index % 2 === 0 ? "row" : "row-reverse"}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-      <Footer />
+          <Footer />
+        </div>
+      )}
     </div>
   );
 }
