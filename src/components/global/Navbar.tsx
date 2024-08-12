@@ -8,6 +8,7 @@ import { RxCross2 } from "react-icons/rx";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { FaHeart } from "react-icons/fa";
 
 export default function Navbar() {
   const [isToken, setToken] = useState<boolean>(false);
@@ -114,6 +115,11 @@ export default function Navbar() {
                     >
                       <TbLogout /> Profile
                     </li>
+                    <li className="text-black flex items-center gap-2 px-4 py-2 hover:bg-gray-200 cursor-pointer">
+                      <a href="/wishlist" className="flex items-center gap-2">
+                        <FaHeart /> Wishlist
+                      </a>
+                    </li>
                   </ul>
                 </div>
               )}
@@ -159,7 +165,7 @@ export default function Navbar() {
             <a href="/category?category=HOSTEL">Hostels</a>
           </li>
           <li className="text-base font-semibold text-[#000000]">
-            <a className="/category?category=CO-LIVING">Living</a>
+            <a className="/category?category=CO-LIVING">Co-Living</a>
           </li>
           <li className="text-base font-semibold text-[#000000]">
             <a href="/category?category=PG">P-G</a>
@@ -171,6 +177,9 @@ export default function Navbar() {
               </li>
               <li className="text-base font-semibold text-[#000000] cursor-pointer">
                 <a href="/test">Register Apartment</a>
+              </li>
+              <li className="text-base font-semibold text-[#000000] cursor-pointer">
+                <a href="/wishlist">Wishlist</a>
               </li>
               <li className="text-base font-semibold text-[#000000] cursor-pointer">
                 <a
