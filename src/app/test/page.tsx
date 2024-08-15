@@ -12,7 +12,7 @@ const Page = () => {
     <div className="bg-gradient-to-b from-[#F8F8F8] to-[#00E0FF] min-w-screen min-h-screen">
       <Navbar />
       <div className="overflow-x-hidden flex justify-center items-center">
-        <div className="mx-auto my-24">
+        <div className="mx-auto my-24 w-full h-full">
           <Step1 />
         </div>
       </div>

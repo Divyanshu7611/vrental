@@ -9,6 +9,9 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FaHeart } from "react-icons/fa";
+import { CgProfile } from "react-icons/cg";
+import { MdOutlineAddHomeWork } from "react-icons/md";
+import { PiShoppingCart } from "react-icons/pi";
 
 export default function Navbar() {
   const [isToken, setToken] = useState<boolean>(false);
@@ -118,7 +121,7 @@ export default function Navbar() {
                         router.push("/test");
                       }}
                     >
-                      <TbLogout /> Registration
+                      <MdOutlineAddHomeWork /> Registration
                     </li>
                     <li
                       className="text-black flex items-center gap-2 px-4 py-2 hover:bg-gray-200 cursor-pointer"
@@ -126,11 +129,11 @@ export default function Navbar() {
                         router.push("/profile");
                       }}
                     >
-                      <TbLogout /> Profile
+                      <CgProfile /> Profile
                     </li>
                     <li className="text-black flex items-center gap-2 px-4 py-2 hover:bg-gray-200 cursor-pointer">
                       <a href="/wishlist" className="flex items-center gap-2">
-                        <FaHeart /> Wishlist
+                        <PiShoppingCart /> Wishlist
                       </a>
                     </li>
                   </ul>

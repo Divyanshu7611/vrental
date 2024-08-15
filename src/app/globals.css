@@ -18,7 +18,7 @@ body {
   background-color: white;
 }
 
-/* loader
+/* loader */
 .loader {
   color: #FFF;
   position: relative;
@@ -60,18 +60,9 @@ body {
     box-shadow: 0 -2em;
     height: 10em;
   }
-} */
-
-
-.loader {
-  background-image: url('/assets/loader.gif');
-  background-repeat: no-repeat;
-  background-size: cover;
-  background-position: center;
-  /* object-fit: cover; */
-  width: 100vw;
-  height: 100vh;
 }
+
+
 
 /* Hero */
 .Hero {

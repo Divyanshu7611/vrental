@@ -19,6 +19,7 @@ export interface IApartment extends Document {
     comment?: string;
   }[];
   averageRating: number;
+  furniture: string;
 }
 
 const apartmentSchema: Schema = new Schema<IApartment>({
@@ -36,6 +37,10 @@ const apartmentSchema: Schema = new Schema<IApartment>({
     required: true,
   },
   facility: {
+    type: String, // This will store comma-separated facilities
+    required: true,
+  },
+  furniture: {
     type: String, // This will store comma-separated facilities
     required: true,
   },
