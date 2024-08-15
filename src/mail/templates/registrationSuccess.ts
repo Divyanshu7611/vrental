@@ -70,16 +70,16 @@ const otpTemplate = (tharID: string, name: string): string => {
   
   <body>
     <div class="container">
-      <a href="https://www.rtuthar.in"><img class="logo" src="${imageUrl}" alt="THAR Logo"></a>
+      <a href="https://www.vrental.in"><img class="logo" src="${imageUrl}" alt="vrental"></a>
       <div class="message">Registration Successful ||  THAR25</div>
       <div class="body">
         <p>Dear ${name},</p>
-        <p>Thank you for registering with THAR. Your THAR ID is</p>
+        <p>Thank you for registering with VRENTAL. Your VRENTAL ID is</p>
         <h2 class="highlight">${tharID}</h2>
-        <p>Register For THAR Standalone Events & Win Upto 1Lakh Rupees.</p>
+        <p>Search Apartments on your desired loaction at best prices.</p>
       </div>
       <div class="support">If you have any questions or need assistance, please feel free to reach out to us at <a
-          href="mailto:divyanshu.22cse285@rtu.ac.in">divyanshu.22cse285@rtu.ac.in</a>. We are here to help!</div>
+          href="mailto:support@vrental.in">support@vrental.in</a>. We are here to help!</div>
     </div>
   </body>
   
