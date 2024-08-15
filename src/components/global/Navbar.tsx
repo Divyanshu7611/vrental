@@ -36,13 +36,13 @@ export default function Navbar() {
 
   return (
     <div>
-      <div className="min-w-full lg:h-16 h-12 bg-gradient-to-b from-[#F8F8F8] to-[#00E0FF] fixed z-50 flex justify-between items-center px-3 lg:px-8">
+      <div className="min-w-full lg:h-16 h-12 bg-gradient-to-b from-[#b1b0b0] to-[#7ce3f1] fixed z-50 flex justify-between items-center px-3 lg:px-8">
         <div className="text-2xl font-bold text-[#00E0FF]">
           <img
             src="/assets/Logo.png"
             alt="Logo"
-            width={80}
-            height={80}
+            width={60}
+            height={60}
             className="cursor-pointer"
             onClick={() => {
               router.push("/");
@@ -76,14 +76,27 @@ export default function Navbar() {
         <div className="relative hidden lg:flex items-center">
           {isToken ? (
             <div className="relative flex items-center">
-              <img
-                src={ProfileImage}
-                alt="Profile"
-                width={45}
-                height={45}
-                className="rounded-full cursor-pointer"
-                onClick={toggleDropdown}
-              />
+              <div className="flex items-center aspect-auto">
+                <img
+                  src="/assets/cart.png"
+                  alt=""
+                  width={50}
+                  height={50}
+                  className="aspect-auto relative top-1 hover:scale-110 cursor-pointer"
+                  onClick={() => {
+                    router.push("/wishlist");
+                  }}
+                />
+
+                <img
+                  src={ProfileImage}
+                  alt="Profile"
+                  width={38}
+                  height={38}
+                  className="rounded-full cursor-pointer"
+                  onClick={toggleDropdown}
+                />
+              </div>
               {isSelectDrop && (
                 <div className="absolute top-14 right-0 bg-white shadow-md rounded-md w-48 py-2 z-10">
                   <ul>
@@ -165,7 +178,7 @@ export default function Navbar() {
             <a href="/category?category=HOSTEL">Hostels</a>
           </li>
           <li className="text-base font-semibold text-[#000000]">
-            <a className="/category?category=CO-LIVING">Co-Living</a>
+            <a href="/category?category=CO-LIVING">Co-Living</a>
           </li>
           <li className="text-base font-semibold text-[#000000]">
             <a href="/category?category=PG">P-G</a>

@@ -303,7 +303,7 @@ export default function Page() {
   return (
     <div className="w-full min-h-screen bg-gradient-to-b from-[#F8F8F8] to-[#00E0FF]">
       {loading ? (
-        <div className="min-w-screen min-h-screen flex justify-center items-center">
+        <div className="min-w-screen min-h-screen flex justify-center items-center bg-transparent">
           <div className="loader"></div>
         </div>
       ) : (

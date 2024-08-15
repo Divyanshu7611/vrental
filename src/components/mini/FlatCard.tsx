@@ -275,7 +275,9 @@ const FlatCard: React.FC<FlatCardProps> = ({
           alt="flatcard"
           height={315}
           width={500}
-          className="max-w-[500px] max-h-[315px] rounded-lg"
+          layout="intrinsic" // Or use "fill" if you want the image to fill the container
+          objectFit="cover"
+          className="rounded-lg"
         />
       </div>
     </motion.div>

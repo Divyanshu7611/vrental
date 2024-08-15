@@ -504,7 +504,7 @@ const Step1: React.FC = () => {
           <div className="loader"></div>
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center gap-5">
+        <div className="flex flex-col items-center justify-center gap-5 max-w-[1200px] mx-auto">
           <div className="w-full bg-white rounded-xl p-6 sm:p-8 lg:p-10 shadow">
             <h1 className="mb-4 text-2xl font-bold">General Information</h1>
             <div className="flex flex-col sm:flex-row sm:justify-between gap-6 w-full mt-4">
@@ -673,7 +673,7 @@ const Step1: React.FC = () => {
                     Add
                   </button>
                 </div>
-                <div className="mt-2 flex flex-wrap">
+                <div className="mt-2 flex flex-wrap max-w-[680px] mx-auto gap-1">
                   {facilities.map((facility, index) => (
                     <div
                       key={index}
