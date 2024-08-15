@@ -12,9 +12,45 @@ const roboto = Roboto({
   display: "swap",
 });
 
+// export const metadata: Metadata = {
+//   title: "Vrental",
+//   description:
+//     "Vrental makes turning your house into a rental property simple and profitable. Manage your property with ease, attract tenants, and maximize your rental income with our all-in-one platform.",
+// };
+
 export const metadata: Metadata = {
   title: "Vrental",
-  description: "Turning Your House Into Rental",
+  description:
+    "Vrental makes turning your house into a rental property simple and profitable. Manage your property with ease, attract tenants, and maximize your rental income with our all-in-one platform.",
+  // Add more metadata for SEO
+  keywords:
+    "rental property, house rental, property management, Vrental, rental income, real estate",
+  authors: [{ name: "Vrental Team" }],
+  openGraph: {
+    title: "Vrental - Turn Your House Into a Rental Property",
+    description:
+      "Transform your home into a profitable rental property with Vrental. Simplify property management, attract tenants, and maximize your rental income.",
+    url: "https://vrental.in",
+    siteName: "Vrental",
+    images: [
+      {
+        url: "https://vrental.in",
+        width: 1200,
+        height: 630,
+        alt: "Vrental - Turning Your House Into Rental",
+      },
+    ],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Vrental - Turn Your House Into a Rental Property",
+    description:
+      "Discover how Vrental can help you transform your house into a rental property. Simplify management, attract tenants, and maximize your rental income.",
+    images: ["https://vrental.in"],
+    site: "@vrental",
+  },
 };
 
 export default function RootLayout({
