@@ -23,32 +23,27 @@ export async function POST(req: NextRequest) {
     const imageFiles = formData.getAll("image") as File[];
     const category = formData.get("category") as string;
 
-    console.log(
-      `Received ${imageFiles.length} image files:`,
-      imageFiles.map((f) => f.name)
-    );
-
     // Validation
-    if (
-      !apartmentName ||
-      !description ||
-      !price ||
-      imageFiles.length === 0 ||
-      !location ||
-      !facility ||
-      !furniture ||
-      !category ||
-      !availableFor ||
-      !contactNo
-    ) {
-      return NextResponse.json(
-        {
-          message: "All Fields Are Mandatory",
-          success: false,
-        },
-        { status: 400 }
-      );
-    }
+    // if (
+    //   !apartmentName ||
+    //   !description ||
+    //   !price ||
+    //   imageFiles.length === 0 ||
+    //   !location ||
+    //   !facility ||
+    //   !furniture ||
+    //   !category ||
+    //   !availableFor ||
+    //   !contactNo
+    // ) {
+    //   return NextResponse.json(
+    //     {
+    //       message: "All Fields Are Mandatory",
+    //       success: false,
+    //     },
+    //     { status: 400 }
+    //   );
+    // }
 
     // Check if the number of images exceeds the limit
     if (imageFiles.length > 5) {
@@ -69,9 +64,6 @@ export async function POST(req: NextRequest) {
         const imageUrl = await uploadImage(imageFile, "VRENTAL");
         if (imageUrl) {
           image_urls.push(imageUrl);
-          console.log(
-            `Successfully uploaded ${imageFile.name}. URL: ${imageUrl}`
-          );
         } else {
           console.error(`Failed to upload ${imageFile.name}: No URL returned`);
         }

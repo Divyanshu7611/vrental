@@ -59,24 +59,24 @@ export async function POST(request: NextRequest) {
     await ConnectMongoDB();
 
     // Validation
-    if (
-      !firstName ||
-      !lastName ||
-      !email ||
-      !password ||
-      !confirmPassword ||
-      !phone ||
-      !otp ||
-      !adharNo
-    ) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Please fill all details",
-        },
-        { status: 400 }
-      );
-    }
+    // if (
+    //   !firstName ||
+    //   !lastName ||
+    //   !email ||
+    //   !password ||
+    //   !confirmPassword ||
+    //   !phone ||
+    //   !otp ||
+    //   !adharNo
+    // ) {
+    //   return NextResponse.json(
+    //     {
+    //       success: false,
+    //       message: "Please fill all details",
+    //     },
+    //     { status: 400 }
+    //   );
+    // }
 
     // Check if user already exists
     const existingUser = await User.findOne({ email });
