@@ -1,6 +1,6 @@
 import Apartment from "@/models/Apartment";
 import { NextRequest, NextResponse } from "next/server";
-import { ConnectMongoDB, DisconnectMongoDB } from "@/utilis/dbConnect";
+import { connectMongoDB } from "@/utilis/dbConnect";
 
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
   const apartmentID = url.searchParams.get("apartmentID");
 
   try {
-    await ConnectMongoDB();
+    await connectMongoDB();
 
     if (!userID && !apartmentID) {
       return NextResponse.json(
@@ -50,7 +50,5 @@ export async function GET(req: NextRequest) {
       { error: "Internal server error" },
       { status: 500 }
     );
-  } finally {
-    await DisconnectMongoDB();
   }
 }
