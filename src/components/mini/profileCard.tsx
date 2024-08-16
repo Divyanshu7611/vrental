@@ -45,7 +45,7 @@ const ProfileCard: React.FC<ICardDetails> = ({
         className="bg-gray-700 text-white text-sm px-4 py-2 rounded-lg hover:bg-black transition-all duration-200"
         onClick={() => {
           alert(
-            "This Feature Not Available Yet. If You Want Delete, Contact snupport@vrental.in"
+            "This Feature is Not Available Yet. If You Want Delete, Contact support@vrental.in"
           );
         }}
       >
