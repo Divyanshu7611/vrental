@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { ConnectMongoDB, DisconnectMongoDB } from "@/utilis/dbConnect";
+import { connectMongoDB } from "@/utilis/dbConnect";
 import User from "@/models/User";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
@@ -12,7 +12,7 @@ export async function POST(NextRequest: NextRequest) {
   const JwtKey = process.env.JWT_SECRET || "Divyanshu";
 
   try {
-    await ConnectMongoDB();
+    await connectMongoDB();
 
     // Validation
     // if (!email || !password) {
@@ -56,7 +56,7 @@ export async function POST(NextRequest: NextRequest) {
         expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
         httpOnly: true,
       };
-      await DisconnectMongoDB();
+
       return NextResponse.json(
         {
           success: true,

@@ -1,12 +1,12 @@
 import OTP from "@/models/OTP";
 import { NextRequest, NextResponse } from "next/server";
-import { ConnectMongoDB, DisconnectMongoDB } from "@/utilis/dbConnect";
+import { connectMongoDB } from "@/utilis/dbConnect";
 import otpGenerator from "otp-generator";
 
 export async function POST(request: NextRequest) {
   const { email } = await request.json();
   try {
-    await ConnectMongoDB();
+    await connectMongoDB();
     // checkk user already exist or not
     const existUser = await OTP.findOne({ email });
     if (existUser) {
@@ -49,9 +49,9 @@ export async function POST(request: NextRequest) {
       },
       { status: 200 }
     );
-    await DisconnectMongoDB();
+    // await DisconnectMongoDB();
   } catch (error) {
-    await DisconnectMongoDB();
+    // await DisconnectMongoDB();
     console.log(error);
     return NextResponse.json(
       {
@@ -60,7 +60,5 @@ export async function POST(request: NextRequest) {
       },
       { status: 500 }
     );
-  } finally {
-    await DisconnectMongoDB();
   }
 }

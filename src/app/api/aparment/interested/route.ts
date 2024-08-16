@@ -116,7 +116,7 @@
 import User, { IUser } from "@/models/User";
 import Apartment, { IApartment } from "@/models/Apartment";
 import { NextRequest, NextResponse } from "next/server";
-import { ConnectMongoDB } from "@/utilis/dbConnect";
+import { connectMongoDB } from "@/utilis/dbConnect";
 import mailerSender from "@/utilis/mailSender";
 import apartmentRegistrationOwnerTemplate from "@/mail/templates/apartmentOwnerReg";
 import apartmentRegistrationTemplate from "@/mail/templates/apartmentReg";
@@ -169,7 +169,7 @@ export async function POST(req: NextRequest) {
   const { UserID, ApartmentID, ownerEmail } = await req.json();
 
   try {
-    await ConnectMongoDB();
+    await connectMongoDB();
 
     const user = await User.findById(UserID).exec();
     if (!user) {

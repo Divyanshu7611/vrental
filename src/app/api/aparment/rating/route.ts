@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import mongoose from "mongoose";
 import Apartment, { IApartment } from "@/models/Apartment";
-import { ConnectMongoDB, DisconnectMongoDB } from "@/utilis/dbConnect";
+import { connectMongoDB } from "@/utilis/dbConnect";
 import { NextRequest, NextResponse } from "next/server";
 import { URL } from "url";
 
@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
   const url = new URL(req.url);
   const apartmentID = url.searchParams.get("id");
   try {
-    await ConnectMongoDB();
+    await connectMongoDB();
     const { user, rating } = await req.json();
 
     if (!user || !rating) {
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
     apartment.ratings.push({ user, rating });
 
     await apartment.save();
-    await DisconnectMongoDB();
+
     return NextResponse.json(
       { success: true, data: apartment },
       { status: 200 }
@@ -62,7 +62,7 @@ export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const apartmentID = url.searchParams.get("id");
   try {
-    await ConnectMongoDB();
+    await connectMongoDB();
 
     const findAppartment = await Apartment.findById(apartmentID);
 

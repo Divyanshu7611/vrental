@@ -1,5 +1,5 @@
 import User from "@/models/User";
-import { ConnectMongoDB, DisconnectMongoDB } from "@/utilis/dbConnect";
+import { connectMongoDB } from "@/utilis/dbConnect";
 import bcrypt from "bcrypt";
 import { Underdog } from "next/font/google";
 import { NextRequest, NextResponse } from "next/server";
@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(request: NextRequest) {
   const { newPassword, resetToken } = await request.json();
   try {
-    await ConnectMongoDB();
+    await connectMongoDB();
     // validatte
     if (!newPassword || !resetToken) {
       return NextResponse.json(
@@ -38,7 +38,6 @@ export async function POST(request: NextRequest) {
     user.resetToken = undefined;
     user.resetTokenExpires = undefined;
     await user.save();
-    await DisconnectMongoDB();
 
     return NextResponse.json(
       {

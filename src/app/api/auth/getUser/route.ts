@@ -1,12 +1,12 @@
 import User from "@/models/User";
 import { NextRequest, NextResponse } from "next/server";
-import { ConnectMongoDB, DisconnectMongoDB } from "@/utilis/dbConnect";
+import { connectMongoDB } from "@/utilis/dbConnect";
 
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const id = url.searchParams.get("id");
   try {
-    await ConnectMongoDB();
+    await connectMongoDB();
     const users = await User.findById(id);
     return NextResponse.json(
       {
@@ -16,7 +16,6 @@ export async function GET(req: NextRequest) {
       },
       { status: 200 }
     );
-    await DisconnectMongoDB();
   } catch (error) {
     console.log(error);
     return NextResponse.json(

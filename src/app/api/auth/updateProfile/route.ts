@@ -1,11 +1,11 @@
 import User from "@/models/User";
-import { ConnectMongoDB, DisconnectMongoDB } from "@/utilis/dbConnect";
+import { connectMongoDB } from "@/utilis/dbConnect";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function PUT(req: NextRequest) {
   const { phone, profession, age, bio, firstName, lastName } = await req.json();
   try {
-    await ConnectMongoDB();
+    await connectMongoDB();
     const url = new URL(req.url);
     const userID = url.searchParams.get("id");
     const existUserId = await User.findById(userID);
@@ -24,7 +24,7 @@ export async function PUT(req: NextRequest) {
       lastName,
     });
     const updatedUser = await User.findById(userID).lean(); // Use lean() to get a plain JS object
-    await DisconnectMongoDB();
+
     return NextResponse.json(
       {
         message: "Profile Updated Successfully",
@@ -34,7 +34,6 @@ export async function PUT(req: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    await DisconnectMongoDB();
     console.log(error);
     return NextResponse.json(
       { message: "Internal Server Error", success: false },

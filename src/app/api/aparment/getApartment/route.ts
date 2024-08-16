@@ -1,12 +1,12 @@
 import Apartment from "@/models/Apartment";
 import { NextRequest, NextResponse } from "next/server";
-import { ConnectMongoDB, DisconnectMongoDB } from "@/utilis/dbConnect";
+import { connectMongoDB } from "@/utilis/dbConnect";
 
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const category = url.searchParams.get("category");
   try {
-    await ConnectMongoDB();
+    await connectMongoDB();
     if (!category) {
       return NextResponse.json(
         {
@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
       );
     }
     const apartments = await Apartment.find({ category: category });
-    await DisconnectMongoDB();
+
     return NextResponse.json(
       {
         success: true,
@@ -27,8 +27,6 @@ export async function GET(req: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    await DisconnectMongoDB();
-
     console.error(error);
     return NextResponse.json(
       { error: "Internal server error" },

@@ -1,4 +1,4 @@
-import { ConnectMongoDB, DisconnectMongoDB } from "@/utilis/dbConnect";
+import { connectMongoDB } from "@/utilis/dbConnect";
 import { NextRequest, NextResponse } from "next/server";
 import Category from "@/models/Category";
 
@@ -6,7 +6,7 @@ export async function POST(request: NextRequest) {
   const { category } = await request.json();
 
   try {
-    await ConnectMongoDB();
+    await connectMongoDB();
 
     // Validation
     if (!category) {
@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
       },
       { status: 200 }
     );
-    await DisconnectMongoDB();
+    // await DisconnectMongoDB();
   } catch (error) {
     console.error("Error:", error);
     return NextResponse.json(
@@ -59,7 +59,7 @@ export async function POST(request: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
-    await ConnectMongoDB();
+    await connectMongoDB();
     const categories = await Category.find({});
     return NextResponse.json(
       {
@@ -68,7 +68,7 @@ export async function GET(req: NextRequest) {
       },
       { status: 200 }
     );
-    await DisconnectMongoDB();
+    // await DisconnectMongoDB();
   } catch (error) {
     console.log(error);
     NextResponse.error();

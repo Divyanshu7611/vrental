@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { uploadImage } from "@/utilis/uploadImage";
 import Apartment from "@/models/Apartment";
-import { ConnectMongoDB, DisconnectMongoDB } from "@/utilis/dbConnect";
+import { connectMongoDB } from "@/utilis/dbConnect";
 import User from "@/models/User";
 
 export async function POST(req: NextRequest) {
@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
   const userId = url.searchParams.get("id");
 
   try {
-    await ConnectMongoDB();
+    await connectMongoDB();
     const formData = await req.formData();
 
     const apartmentName = formData.get("apartmentName") as string;
@@ -117,7 +117,7 @@ export async function POST(req: NextRequest) {
       { status: 201 }
     );
   } catch (error) {
-    await DisconnectMongoDB();
+    // await DisconnectMongoDB();
     console.error("Server error:", error);
     return NextResponse.json(
       {

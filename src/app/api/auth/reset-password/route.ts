@@ -2,11 +2,11 @@ import User from "@/models/User";
 import { nanoid } from "nanoid";
 import mailerSender from "@/utilis/mailSender";
 import { NextRequest, NextResponse } from "next/server";
-import { ConnectMongoDB, DisconnectMongoDB } from "@/utilis/dbConnect";
+import { connectMongoDB } from "@/utilis/dbConnect";
 export async function POST(request: NextRequest) {
   const { email } = await request.json();
   try {
-    await ConnectMongoDB();
+    await connectMongoDB();
     // validate
     if (!email) {
       return NextResponse.json(
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
       title: "Reset Password Link",
       body: `Password-Reset-Link:${url}`,
     });
-    await DisconnectMongoDB();
+
     return NextResponse.json(
       {
         success: true,
@@ -55,7 +55,6 @@ export async function POST(request: NextRequest) {
       { status: 200 }
     );
   } catch (error) {
-    await DisconnectMongoDB();
     console.log(error);
     NextResponse.json(
       {

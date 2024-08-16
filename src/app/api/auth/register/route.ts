@@ -1,4 +1,4 @@
-import { ConnectMongoDB, DisconnectMongoDB } from "@/utilis/dbConnect";
+import { connectMongoDB } from "@/utilis/dbConnect";
 import User from "@/models/User";
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
   } = await request.json();
 
   try {
-    await ConnectMongoDB();
+    await connectMongoDB();
 
     // Validation
     // if (
@@ -147,7 +147,7 @@ export async function POST(request: NextRequest) {
     });
     // send tharID to user Email
     await sendMail(email, clientID, firstName);
-    await DisconnectMongoDB();
+
     return NextResponse.json(
       {
         success: true,
