@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import ProfileCard from "@/components/mini/profileCard";
 
 export default function Page() {
   const [aparmentData, handleApartmentData] = useState<any>([]);
@@ -62,7 +63,7 @@ export default function Page() {
             <div className="max-w-[1080px] mx-auto flex flex-wrap justify-start items-item-start py-5 gap-5">
               {aparmentData.map(
                 (data: any, index: React.Key | null | undefined) => (
-                  <SmallCard
+                  <ProfileCard
                     key={index}
                     price={data.price}
                     timePeriod="Month"

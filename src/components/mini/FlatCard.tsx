@@ -245,10 +245,12 @@ const FlatCard: React.FC<FlatCardProps> = ({
         flexProp === "row" ? "lg:flex-row" : "lg:flex-row-reverse"
       } flex-col-reverse mb-10`}
     >
-      <div className="flex flex-col justify-between lg:max-h-[315px] p-5">
+      <div className="flex flex-col justify-between lg:max-h-[315px] p-5 overflow-hidden">
         <div className="flex flex-col gap-3">
           <h1 className="text-2xl font-normal">{title}</h1>
-          <p className="text-sm text-black opacity-50">{description}</p>
+          <p className="text-sm text-black opacity-50 text-wrap">
+            {description}
+          </p>
           <p className="text-sm text-black opacity-50">{location}</p>
           <div className="flex items-center gap-1">
             <p className="text-base text-black opacity-100">Rating: </p>

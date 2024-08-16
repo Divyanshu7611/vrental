@@ -71,14 +71,14 @@ export default function Login() {
           <input
             type="email"
             placeholder="Email"
-            className="border w-full px-2 text-sm rounded-md py-1"
+            className="border w-full px-2 text-sm rounded-md py-2"
             {...register("email", { required: "Email is required" })}
           />
 
           <input
             type="password"
             placeholder="Password"
-            className="border w-full px-2 text-sm rounded-md py-1"
+            className="border w-full px-2 text-sm rounded-md py-2"
             {...register("password", {
               required: "Password is required",
               minLength: {
@@ -90,7 +90,7 @@ export default function Login() {
 
           <button
             type="submit"
-            className="bg-[#68ACFD] w-full font-light text-lg text-white rounded-md py-1 hover:scale-105 transition-all duration-200"
+            className="bg-[#68ACFD] w-full font-light text-lg text-white rounded-md py-2 hover:scale-105 transition-all duration-200"
           >
             LOGIN
           </button>

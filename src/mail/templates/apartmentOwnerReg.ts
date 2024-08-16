@@ -5,7 +5,7 @@ const apartmentRegistrationOwnerTemplate = (
   userPhone: string
 ): string => {
   const imageUrl =
-    "https://res.cloudinary.com/dtp9j0ypi/image/upload/v1721746505/VRENTAL/bbb1qeehsxkhyur7imh6.jpg"; // Ensure this path is publicly accessible
+    "https://res.cloudinary.com/dtp9j0ypi/image/upload/v1723781193/VRENTAL/lvv5fk4wng5cugrx8odk.png"; // Ensure this path is publicly accessible
 
   return `<!DOCTYPE html>
   <html>

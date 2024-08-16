@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useForm, SubmitHandler, FieldErrors } from "react-hook-form";
 import { toast, ToastContainer } from "react-toastify";
 import Spinner from "../global/Spinner";
@@ -24,7 +25,7 @@ export default function Signup() {
     formState: { errors },
     getValues,
   } = useForm<FormValues>();
-
+  const router = useRouter();
   const [isEmailSent, setIsEmailSent] = useState(false);
   const [isLoading, setLoading] = useState(false);
   const [countdown, setCountdown] = useState(0);
@@ -44,6 +45,7 @@ export default function Signup() {
       if (response.data.success) {
         setLoading(false);
         toast.success(response.data.message);
+        router.push("/auth");
       } else {
         setLoading(false);
         toast.error("User Already Exist");
@@ -127,20 +129,20 @@ export default function Signup() {
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
           <input
             {...register("firstName", { required: "First name is required" })}
-            className="border w-full px-2 text-sm rounded-md py-1"
+            className="border w-full px-2 text-sm rounded-md py-2"
             placeholder="First Name"
           />
 
           <input
             {...register("lastName", { required: "Last name is required" })}
             placeholder="Last Name"
-            className="border w-full px-2 text-sm rounded-md py-1"
+            className="border w-full px-2 text-sm rounded-md py-2"
           />
 
           <input
             type="email"
             placeholder="Email"
-            className="border w-full px-2 text-sm rounded-md py-1"
+            className="border w-full px-2 text-sm rounded-md py-2"
             {...register("email", { required: "Email is required" })}
             disabled={isOtpVerified} // Disable email input if OTP is verified
           />
@@ -164,7 +166,7 @@ export default function Signup() {
               <input
                 type="text"
                 placeholder="OTP"
-                className="border w-full px-2 text-sm rounded-md py-1"
+                className="border w-full px-2 text-sm rounded-md py-2"
                 {...register("otp", {
                   required: "OTP is required",
                   minLength: {
@@ -178,7 +180,7 @@ export default function Signup() {
                 <button
                   type="button"
                   onClick={verifyOtp}
-                  className="bg-green-600 text-white px-4 py-1 rounded-md hover:scale-105 transition-all duration-200 font-light text-sm"
+                  className="bg-green-600 text-white px-4 py-2 rounded-md hover:scale-105 transition-all duration-200 font-light text-sm"
                 >
                   Verify OTP
                 </button>
@@ -189,7 +191,7 @@ export default function Signup() {
           <input
             type="password"
             placeholder="Password"
-            className="border w-full px-2 text-sm rounded-md py-1"
+            className="border w-full px-2 text-sm rounded-md py-2"
             {...register("password", {
               required: "Password is required",
               minLength: {
@@ -202,7 +204,7 @@ export default function Signup() {
           <input
             type="password"
             placeholder="Confirm Password"
-            className="border w-full px-2 text-sm rounded-md py-1"
+            className="border w-full px-2 text-sm rounded-md py-2"
             {...register("confirmPassword", {
               required: "Please confirm your password",
               minLength: {
@@ -214,7 +216,7 @@ export default function Signup() {
 
           <input
             type="tel"
-            className="border w-full px-2 text-sm rounded-md py-1"
+            className="border w-full px-2 text-sm rounded-md py-2"
             placeholder="Phone No"
             {...register("phone", {
               required: "Phone number is required",
@@ -232,7 +234,7 @@ export default function Signup() {
           <input
             type="text"
             placeholder="Aadhar No"
-            className="border w-full px-2 text-sm rounded-md py-1"
+            className="border w-full px-2 text-sm rounded-md py-2"
             {...register("adharNo", {
               required: "Aadhar number is required",
               minLength: {
@@ -248,7 +250,7 @@ export default function Signup() {
 
           <button
             type="submit"
-            className="bg-[#68ACFD] w-full font-light text-lg text-white rounded-md py-1 hover:scale-105 transition-all duration-200"
+            className="bg-[#68ACFD] w-full font-light text-lg text-white rounded-md py-2 hover:scale-105 transition-all duration-200"
           >
             SIGN UP
           </button>
