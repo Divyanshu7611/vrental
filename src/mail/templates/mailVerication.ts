@@ -7,7 +7,7 @@ const otpTemplate = (otp: string): string => {
   
   <head>
     <meta charset="UTF-8">
-    <title>OTP Verification Email - THAR</title>
+    <title>OTP Verification Email - VRENTAL</title>
     <style>
       body {
         background-color: #000000;
@@ -70,7 +70,7 @@ const otpTemplate = (otp: string): string => {
   
   <body>
     <div class="container">
-      <a href="https://your-website-url.com"><img class="logo" src="${imageUrl}" alt="vrental"></a>
+      <a href="https://vrental.in"><img class="logo" src="${imageUrl}" alt="vrental"></a>
       <div class="message">OTP Verification Email - VRENTAL</div>
       <div class="body">
         <p>Dear User,</p>
@@ -81,7 +81,7 @@ const otpTemplate = (otp: string): string => {
         Once your account is verified, you will have access to our platform and its features.</p>
       </div>
       <div class="support">If you have any questions or need assistance, please feel free to reach out to us at <a
-          href="mailto:info@yourdomain.com">info@yourdomain.com</a>. We are here to help!</div>
+          href="mailto:support@vrental.in">support@vrental.in</a>. We are here to help!</div>
     </div>
   </body>
   

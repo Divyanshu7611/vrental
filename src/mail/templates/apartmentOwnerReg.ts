@@ -74,7 +74,7 @@ const apartmentRegistrationOwnerTemplate = (
   
   <body>
     <div class="container">
-      <a href="https://www.yourwebsite.com"><img class="logo" src="${imageUrl}" alt="Company Logo"></a>
+      <a href="https://www.vrental.in"><img class="logo" src="${imageUrl}" alt="Company Logo"></a>
       <div class="message">New Apartment Registration</div>
       <div class="body">
         <p>Dear Owner,</p>
@@ -84,7 +84,7 @@ const apartmentRegistrationOwnerTemplate = (
         <p>Phone: <span class="highlight">${userPhone}</span></p>
         <p>Please contact the user for further details.</p>
       </div>
-      <div class="support">If you have any questions or need assistance, please feel free to reach out to us at <a href="mailto:support@yourwebsite.com">support@yourwebsite.com</a>. We are here to help!</div>
+      <div class="support">If you have any questions or need assistance, please feel free to reach out to us at <a href="mailto:support@vrental.in">support@vrental.in</a>. We are here to help!</div>
     </div>
   </body>
   

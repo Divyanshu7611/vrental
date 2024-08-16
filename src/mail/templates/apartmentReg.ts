@@ -80,7 +80,7 @@ const apartmentRegistrationTemplate = (
         <p>Your apartment registration for <span class="highlight">${apartmentName}</span> located at <span class="highlight">${location}</span> has been successful.</p>
         <p>The apartment owner will contact you soon for further details.</p>
       </div>
-      <div class="support">If you have any questions or need assistance, please feel free to reach out to us at <a href="mailto:support@yourwebsite.com">support@yourwebsite.com</a>. We are here to help!</div>
+      <div class="support">If you have any questions or need assistance, please feel free to reach out to us at <a href="mailto:support@vrental.in">support@vrental.in</a>. We are here to help!</div>
     </div>
   </body>
   

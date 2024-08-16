@@ -7,7 +7,7 @@ const otpTemplate = (tharID: string, name: string): string => {
   
   <head>
     <meta charset="UTF-8">
-    <title>OTP Verification Email - THAR</title>
+    <title>OTP Verification Email - VRENTAL</title>
     <style>
       body {
         background-color: #ffffff;
@@ -71,7 +71,7 @@ const otpTemplate = (tharID: string, name: string): string => {
   <body>
     <div class="container">
       <a href="https://www.vrental.in"><img class="logo" src="${imageUrl}" alt="vrental"></a>
-      <div class="message">Registration Successful ||  THAR25</div>
+      <div class="message">Registration Successful ||  VRENTAL</div>
       <div class="body">
         <p>Dear ${name},</p>
         <p>Thank you for registering with VRENTAL. Your VRENTAL ID is</p>
