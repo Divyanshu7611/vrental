@@ -121,15 +121,13 @@ interface ApartmentData {
   description: string;
   price: number;
   contactNo: number;
-  furnitureDescription: string;
+  furniture: string;
   availableFor: string;
   facility: string;
   client: any[];
-  furniture: boolean;
-  parking: boolean;
-  electricity: boolean;
   category: string;
   ownerID: { $oid: string };
+  averageRating: number;
   __v: number;
 }
 
@@ -155,7 +153,6 @@ function useApartmentData(id: string | null) {
         const apartmentResponse = await axios.get<{ data: ApartmentData }>(
           `/api/aparment/apartments?apartmentID=${id}`
         );
-        console.log(apartmentResponse.data.data);
 
         if (!apartmentResponse.data.data) {
           router.push("/");
@@ -168,7 +165,6 @@ function useApartmentData(id: string | null) {
         const ownerResponse = await axios.get<{ data: UserData }>(
           `/api/auth/getUser?id=${ownerID}`
         );
-        console.log(ownerResponse.data.data);
 
         setData({
           apartment: apartmentData,
