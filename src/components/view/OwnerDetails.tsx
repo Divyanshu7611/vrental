@@ -4,6 +4,7 @@ import React, { useState, useContext } from "react";
 import { UserContext } from "@/context/UserContext";
 import { useSearchParams } from "next/navigation";
 import StarRating from "../Profile/Rating";
+import ShareButton from "../mini/ShareButton";
 
 interface OwnerDetailsProps {
   data: {
@@ -65,11 +66,9 @@ const OwnerDetails: React.FC<OwnerDetailsProps> = ({ data }) => {
             Call Now
           </button>
         </a>
-        <a>
-          <button className="mb-2 bg-[#00F0FF] border border-black rounded-2xl text-black font-semibold py-2 px-8 hover:scale-105 transition-all w-full">
-            Save
-          </button>
-        </a>
+
+        <ShareButton />
+
         <a>
           <button
             className="bg-[#00F0FF] border border-black rounded-2xl text-black font-semibold py-2 px-8 hover:scale-105 transition-all w-full"
