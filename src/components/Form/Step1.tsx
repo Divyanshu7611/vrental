@@ -113,11 +113,11 @@ const Step1: React.FC = () => {
         setCity(""); // Clear city
         setState(""); // Clear state
       } else toast.error("Something Went Error");
-    } catch (error) {
+    } catch (error: any) {
       setLoading(false);
       toast.error("Something Went Wrong");
+      console.log(error);
       console.error("Error:", error.response?.data || error.message);
-      // Handle error response
     }
   };
 

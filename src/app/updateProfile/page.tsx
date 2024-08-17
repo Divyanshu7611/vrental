@@ -94,7 +94,7 @@ export default function UpdateProfile() {
               placeholder="Phone"
               className="border w-full px-2 text-sm rounded-md py-1 border-gray-400"
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              onChange={(e) => setPhone(Number(e.target.value))}
               required
             />
             <input
@@ -110,7 +110,7 @@ export default function UpdateProfile() {
               placeholder="Age"
               className="border w-full px-2 text-sm rounded-md py-1 border-gray-400"
               value={age}
-              onChange={(e) => setAge(e.target.value)}
+              onChange={(e) => setAge(Number(e.target.value))}
               required
             />
             <textarea

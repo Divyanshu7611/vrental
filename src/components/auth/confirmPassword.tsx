@@ -45,7 +45,7 @@ export default function Page() {
   };
 
   useEffect(() => {
-    Object.values(errors).forEach((error) => {
+    Object.values(errors).forEach((error: any) => {
       if (error.message) {
         toast.error(error.message);
       }

@@ -40,9 +40,9 @@ export default function Login() {
         setLoading(false);
         toast.error(response.data.message);
       }
-    } catch (error) {
+    } catch (error: any) {
       setLoading(false);
-      toast.error("Something Went Wrong");
+      toast.error("Something Went Wrong", error);
     }
   };
 

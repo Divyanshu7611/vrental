@@ -1,6 +1,5 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import MultiStepForm from "@/components/Form/MultiStepForm";
 import Step1 from "@/components/Form/Step1";
 import Navbar from "@/components/global/Navbar";
 import Footer from "@/components/global/Footer";

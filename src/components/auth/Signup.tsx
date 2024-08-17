@@ -6,6 +6,7 @@ import { toast, ToastContainer } from "react-toastify";
 import Spinner from "../global/Spinner";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
+import { response } from "express";
 
 interface FormValues {
   firstName: string;
@@ -50,9 +51,9 @@ export default function Signup() {
         setLoading(false);
         toast.error("User Already Exist");
       }
-    } catch (error) {
+    } catch (error: any) {
       setLoading(false);
-      toast.error("Something Went Wrong");
+      toast.error("Something Went Wrong", error);
     }
   };
 
@@ -93,9 +94,9 @@ export default function Signup() {
         setLoading(false);
         toast.error("Failed to send OTP");
       }
-    } catch (error) {
+    } catch (error: any) {
       setLoading(false);
-      toast.error("An error occurred while sending OTP");
+      toast.error("An error occurred while sending OTP", error);
     }
   };
 
