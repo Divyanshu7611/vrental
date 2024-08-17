@@ -59,13 +59,13 @@ const Swipper: React.FC<SwipperProps> = ({ images }) => {
       {images.map((image, index) => (
         <SwiperSlide key={index} className="h-[474px]">
           <div className="relative w-full h-full">
-            <Image
+            <img
               src={image}
               height={474}
               width={1024}
-              objectFit="cover"
+              loading="lazy"
               alt={`Slide ${index + 1}`}
-              className="w-full max-h-[474px]"
+              className="w-full max-h-[474px] object-cover"
             />
           </div>
         </SwiperSlide>
