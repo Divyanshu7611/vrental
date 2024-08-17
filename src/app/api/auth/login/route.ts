@@ -14,17 +14,6 @@ export async function POST(NextRequest: NextRequest) {
   try {
     await connectMongoDB();
 
-    // Validation
-    // if (!email || !password) {
-    //   return NextResponse.json(
-    //     {
-    //       success: false,
-    //       message: "All fields are required",
-    //     },
-    //     { status: 401 }
-    //   );
-    // }
-
     // Verification
     const existingUser = await User.findOne({ email });
 

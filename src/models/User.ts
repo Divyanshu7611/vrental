@@ -18,6 +18,7 @@ export interface IUser extends Document {
   profession: string;
   age: number;
   bio: string;
+  token?: string;
 }
 
 const userSchema: Schema = new Schema<IUser>({
