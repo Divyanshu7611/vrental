@@ -49,7 +49,7 @@ const OwnerDetails: React.FC<OwnerDetailsProps> = ({ data }) => {
     <div className="lg:w-1/4 flex lg:flex-col items-center flex-row gap-5">
       <div className="flex flex-col justify-center items-center">
         <img
-          src={data.image}
+          src={`https://api.dicebear.com/5.x/initials/svg?seed=${data.firstName} ${data.lastName}&backgroundColor=418FA9`}
           alt="Owner"
           height={200}
           width={200}

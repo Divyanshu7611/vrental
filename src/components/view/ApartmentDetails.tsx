@@ -4,6 +4,7 @@ import Swipper from "./Swiper";
 import StarRating from "../Profile/StarRating";
 import axios from "axios";
 import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 interface ApartmentDetailsProps {
   data: {
@@ -22,6 +23,7 @@ interface ApartmentDetailsProps {
 }
 
 const ApartmentDetails: React.FC<ApartmentDetailsProps> = ({ data }) => {
+  const router = useRouter();
   // Split the facility string into an array
   const facilityList = data.facility.split(", ");
   const furnitureList = data.furniture.split(", ");
@@ -34,8 +36,22 @@ const ApartmentDetails: React.FC<ApartmentDetailsProps> = ({ data }) => {
     facilityList.slice(columnIndex * 5, (columnIndex + 1) * 5)
   );
 
+  const furnitureColumns = Array.from(
+    { length: Math.ceil(furnitureList.length / 5) },
+    (_, columnIndex) =>
+      furnitureList.slice(columnIndex * 5, (columnIndex + 1) * 5)
+  );
+
   return (
     <div className="bg-gradient-to-b from-[#00FFFF] to-[#009999] lg:w-3/4 p-5 rounded-lg shadow-lg w-full">
+      <button
+        className="px-3 py-1 bg-gray-600 text-white rounded-lg mb-2 hover:scale-105 transition-all duration-200"
+        onClick={() => {
+          router.back();
+        }}
+      >
+        Back Menu
+      </button>
       <Swipper images={data.image_urls} />
       <div className="flex w-full justify-between mt-6">
         <div className="flex flex-col">
@@ -83,9 +99,9 @@ const ApartmentDetails: React.FC<ApartmentDetailsProps> = ({ data }) => {
       <div className="bg-gradient-to-b from-[#00FFFF] to-[#009999] w-full rounded-xl p-4 mt-12">
         <p className="text-lg font-medium mb-2">Furniture:</p>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 max-h-[300px] overflow-y-auto">
-          {facilityColumns.map((column, columnIndex) => (
+          {furnitureColumns.map((column, columnIndex) => (
             <div key={columnIndex} className="flex flex-col">
-              {column.map((facility, index) => (
+              {column.map((furniture, index) => (
                 <div key={index} className="flex items-center mb-2">
                   <input
                     type="checkbox"
@@ -97,7 +113,7 @@ const ApartmentDetails: React.FC<ApartmentDetailsProps> = ({ data }) => {
                     htmlFor={`facility-${columnIndex}-${index}`}
                     className="text-lg"
                   >
-                    {facility}
+                    {furniture}
                   </label>
                 </div>
               ))}

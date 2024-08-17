@@ -60,6 +60,9 @@ export default function Navbar() {
         <div className="hidden lg:flex mx-auto">
           <ul className="flex items-center gap-6 mx-auto justify-center">
             <li className="text-base font-semibold text-[#000000] cursor-pointer hover:scale-110 hover:font-bold">
+              <a href="/">Home</a>
+            </li>
+            <li className="text-base font-semibold text-[#000000] cursor-pointer hover:scale-110 hover:font-bold">
               <a href="/category?category=ROOM">Rooms</a>
             </li>
             <li className="text-base font-semibold text-[#000000] cursor-pointer hover:scale-110 hover:font-bold">
@@ -92,7 +95,7 @@ export default function Navbar() {
                 />
 
                 <img
-                  src={ProfileImage}
+                  src={`https://api.dicebear.com/5.x/initials/svg?seed=${userContext?.userAuthData?.firstName} ${userContext?.userAuthData?.lastName}&backgroundColor=418FA9`}
                   alt="Profile"
                   width={38}
                   height={38}
