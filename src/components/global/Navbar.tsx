@@ -175,6 +175,9 @@ export default function Navbar() {
         </button>
         <ul className="flex flex-col gap-6 mt-10 px-4">
           <li className="text-base font-semibold text-[#000000]">
+            <a href="/">Go to Home</a>
+          </li>
+          <li className="text-base font-semibold text-[#000000]">
             <a href="/category?category=ROOM">Rooms</a>
           </li>
           <li className="text-base font-semibold text-[#000000]">

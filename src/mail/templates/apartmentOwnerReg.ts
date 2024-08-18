@@ -83,6 +83,7 @@ const apartmentRegistrationOwnerTemplate = (
         <p>Name: <span class="highlight">${userName}</span></p>
         <p>Phone: <span class="highlight">${userPhone}</span></p>
         <p>Please contact the user for further details.</p>
+         <p><strong>If your apartment is not available for rent, please go to your profile and select 'Delete' or 'Not Available' for the apartment.</strong></p>
       </div>
       <div class="support">If you have any questions or need assistance, please feel free to reach out to us at <a href="mailto:support@vrental.in">support@vrental.in</a>. We are here to help!</div>
     </div>

@@ -127,6 +127,7 @@ interface ApartmentData {
   client: any[];
   category: string;
   ownerID: { $oid: string };
+  status: string;
   averageRating: number;
   __v: number;
 }

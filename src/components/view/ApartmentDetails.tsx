@@ -19,6 +19,7 @@ interface ApartmentDetailsProps {
     furniture: string;
     availableFor: string;
     averageRating: number;
+    status: string;
   };
 }
 
@@ -52,6 +53,9 @@ const ApartmentDetails: React.FC<ApartmentDetailsProps> = ({ data }) => {
       >
         Back Menu
       </button>
+      <p className="text-[#FF0000] font-semibold lg:text-2xl text-lg mb-2">
+        Status: {data.status}
+      </p>
       <Swipper images={data.image_urls} />
       <div className="flex w-full justify-between mt-6">
         <div className="flex flex-col">

@@ -82,7 +82,7 @@ const apartmentSchema: Schema = new Schema<IApartment>({
   status: {
     type: String,
     enum: ["Not Available For Rent", "Available For Rent"],
-    default: "Available",
+    default: "Available For Rent",
   },
   ratings: [
     {

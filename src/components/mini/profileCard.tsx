@@ -1,5 +1,6 @@
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
+import axios from "axios";
 
 interface ICardDetails {
   price: number;
@@ -9,6 +10,8 @@ interface ICardDetails {
   date: string;
   size: string;
   image: string;
+  id: string;
+  status: string;
 }
 
 const ProfileCard: React.FC<ICardDetails> = ({
@@ -19,7 +22,33 @@ const ProfileCard: React.FC<ICardDetails> = ({
   date,
   size,
   image,
+  id,
+  status,
 }) => {
+  const [deleting, setDelete] = useState<boolean>(false);
+  const handleDelete = async (id: string) => {
+    if (confirm("Are you sure you want to delete this apartment?")) {
+      try {
+        setDelete(true);
+        const response = await axios.delete(
+          `/api/aparment/deleteApartment?id=${id}`
+        );
+
+        if (response) {
+          setDelete(false);
+          alert("Apartment deleted successfully");
+          window.location.reload();
+        } else {
+          setDelete(false);
+          console.error("Failed to delete Apartment");
+        }
+      } catch (error: any) {
+        setDelete(false);
+        alert("Failed to delete Apartment");
+        console.error("Error deleting Apartment:", error);
+      }
+    }
+  };
   return (
     <div className="p-2 border flex flex-col bg-white justify-between gap-5 rounded-lg hover:scale-105 transition-all duration-200 cursor-pointer mx-auto">
       <div>
@@ -37,20 +66,26 @@ const ProfileCard: React.FC<ICardDetails> = ({
           {price}₹/{timePeriod}
         </h1>
         <h3 className="text-sm">{category} for Rent</h3>
+        <h3 className="text-sm">{status}</h3>
+
         <h3 className="text-[10px] text-[#000000] opacity-50">{address}</h3>
         <h3 className="text-[10px] text-[#000000] opacity-50">{date}</h3>
         <h3 className="text-[10px]">{size}</h3>
       </div>
-      <button
-        className="bg-gray-700 text-white text-sm px-4 py-2 rounded-lg hover:bg-black transition-all duration-200"
-        onClick={() => {
-          alert(
-            "This Feature is Not Available Yet. If You Want Delete, Contact support@vrental.in"
-          );
-        }}
-      >
-        Delete
-      </button>
+      <div className="flex items-center gap-2">
+        <button
+          className="bg-gray-700 text-white text-sm px-4 py-2 rounded-lg hover:bg-black transition-all duration-200"
+          onClick={() => handleDelete(id)}
+        >
+          {deleting ? "Deleting..." : "Not Available"}
+        </button>
+        <button
+          className="bg-gray-700 text-white text-sm px-4 py-2 rounded-lg hover:bg-black transition-all duration-200"
+          onClick={() => handleDelete(id)}
+        >
+          {deleting ? "Deleting..." : "Delete Apartment"}
+        </button>
+      </div>
     </div>
   );
 };
