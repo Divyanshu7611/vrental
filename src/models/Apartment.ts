@@ -20,6 +20,7 @@ export interface IApartment extends Document {
   }[];
   averageRating: number;
   furniture: string;
+  status: string;
 }
 
 const apartmentSchema: Schema = new Schema<IApartment>({
@@ -77,6 +78,11 @@ const apartmentSchema: Schema = new Schema<IApartment>({
     type: Schema.Types.ObjectId,
     ref: "User",
     required: true,
+  },
+  status: {
+    type: String,
+    enum: ["Not Available For Rent", "Available For Rent"],
+    default: "Available",
   },
   ratings: [
     {

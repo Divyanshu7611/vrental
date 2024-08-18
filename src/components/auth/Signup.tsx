@@ -33,10 +33,13 @@ export default function Signup() {
   const [otp, setOTP] = useState("");
   const [enteredOtp, setEnteredOtp] = useState("");
   const [isOtpVerified, setIsOtpVerified] = useState(false);
-
+  const handleError = (message: string) => {
+    toast.error(message);
+    setLoading(false);
+  };
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     if (data.password !== data.confirmPassword) {
-      toast.error("Password and Confirm Password do not match");
+      handleError("Password and Confirm Password do not match");
       return;
     }
     console.log(data);
@@ -49,27 +52,20 @@ export default function Signup() {
         router.push("/auth");
       } else {
         setLoading(false);
-        toast.error("User Already Exist");
+        handleError("User Already Exist");
       }
     } catch (error: any) {
       setLoading(false);
-      toast.error("Something Went Wrong", error);
+      handleError("Something Went Wrong");
+      console.error(error); // Log the actual error for debugging purposes
     }
   };
 
   useEffect(() => {
-    // Type assertion for `errors` to match FieldErrors type
+    // Handle form errors from react-hook-form validation
     Object.values(errors).forEach((error: any) => {
       if (error.message) {
-        toast.error(error.message);
-      } else if (error.type === "minLength" && error.ref) {
-        toast.error(
-          `${error.ref.name} must be at least ${error.ref.minLength} characters`
-        );
-      } else if (error.type === "maxLength" && error.ref) {
-        toast.error(
-          `${error.ref.name} must be at most ${error.ref.maxLength} characters`
-        );
+        handleError(error.message);
       }
     });
   }, [errors]);
@@ -77,7 +73,7 @@ export default function Signup() {
   const validateEmail = async () => {
     const email = getValues("email");
     if (!email) {
-      toast.error("Please enter an email address");
+      handleError("Please enter an email address");
       return;
     }
 
@@ -92,11 +88,12 @@ export default function Signup() {
         toast.success("OTP sent to your email");
       } else {
         setLoading(false);
-        toast.error("Failed to send OTP");
+        handleError("Failed to send OTP");
       }
     } catch (error: any) {
       setLoading(false);
-      toast.error("An error occurred while sending OTP", error);
+      handleError("An error occurred while sending OTP");
+      console.error(error);
     }
   };
 
@@ -105,7 +102,7 @@ export default function Signup() {
       toast.success("OTP verified successfully");
       setIsOtpVerified(true);
     } else {
-      toast.error("Invalid OTP");
+      handleError("Invalid OTP");
     }
   };
 

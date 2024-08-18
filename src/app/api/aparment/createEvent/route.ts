@@ -98,6 +98,7 @@ export async function POST(req: NextRequest) {
       availableFor,
       contactNo,
       ownerID: userId,
+      status: "Available For Rent",
     });
 
     await User.findByIdAndUpdate(

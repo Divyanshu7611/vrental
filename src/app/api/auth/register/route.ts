@@ -91,15 +91,15 @@ export async function POST(request: NextRequest) {
     }
 
     // Match password
-    if (password !== confirmPassword) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Passwords do not match",
-        },
-        { status: 400 }
-      );
-    }
+    // if (password !== confirmPassword) {
+    //   return NextResponse.json(
+    //     {
+    //       success: false,
+    //       message: "Passwords do not match",
+    //     },
+    //     { status: 400 }
+    //   );
+    // }
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
