@@ -5,6 +5,7 @@ import { toast, ToastContainer } from "react-toastify";
 import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
 import { UserContext } from "@/context/UserContext";
+import { useRouter } from "next/navigation";
 
 type FormValues = {
   apartmentName: string;
@@ -45,6 +46,7 @@ const Step1: React.FC = () => {
   const [pincode, setPincode] = useState<string>("");
   const [city, setCity] = useState<string>("");
   const [state, setState] = useState<string>("");
+  const router = useRouter();
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -106,12 +108,13 @@ const Step1: React.FC = () => {
         setLoading(false);
         toast.success("Apartment created successfully");
         reset(); // Reset the form
-        setSelectedImages([]); // Clear selected images
-        setFacilities([]); // Clear selected facilities
-        setLocalAddress(""); // Clear localAddress
-        setPincode(""); // Clear pincode
-        setCity(""); // Clear city
-        setState(""); // Clear state
+        // setSelectedImages([]); // Clear selected images
+        // setFacilities([]); // Clear selected facilities
+        // setLocalAddress(""); // Clear localAddress
+        // setPincode(""); // Clear pincode
+        // setCity(""); // Clear city
+        // setState(""); // Clear state
+        router.push("/profile");
       } else toast.error("Something Went Error");
     } catch (error: any) {
       setLoading(false);
