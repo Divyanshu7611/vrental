@@ -400,6 +400,15 @@ const FlatCard: React.FC<FlatCardProps> = ({
     }
   };
 
+  const handleCardClick = () => {
+    // Save the current scroll position
+    const scrollPosition = window.scrollY;
+    sessionStorage.setItem("scrollPosition", scrollPosition.toString());
+
+    // Navigate to the apartment details page
+    router.push(`/view?apartmentID=${id}`);
+  };
+
   return (
     <motion.div
       ref={ref}
@@ -407,9 +416,10 @@ const FlatCard: React.FC<FlatCardProps> = ({
       animate={controls}
       variants={cardVariants}
       whileHover={{ scale: 1.05 }}
-      onClick={() => {
-        router.push(`/view?apartmentID=${id}`);
-      }}
+      // onClick={() => {
+      //   router.push(`/view?apartmentID=${id}`);
+      // }}
+      onClick={handleCardClick}
       className={`bg-white lg:rounded-lg rounded-lg w-full max-w-[1000px] mx-auto flex flex-col-reverse justify-between ${
         flexProp === "row" ? "lg:flex-row" : "lg:flex-row-reverse"
       } md:flex-col-reverse mb-10`}

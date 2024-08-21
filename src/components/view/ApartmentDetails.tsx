@@ -42,7 +42,19 @@ const ApartmentDetails: React.FC<ApartmentDetailsProps> = ({ data }) => {
     (_, columnIndex) =>
       furnitureList.slice(columnIndex * 5, (columnIndex + 1) * 5)
   );
+  const handleBackClick = () => {
+    // Navigate back
+    history.back();
 
+    // Restore the scroll position after a short delay
+    setTimeout(() => {
+      const scrollPosition = sessionStorage.getItem("scrollPosition");
+      if (scrollPosition) {
+        window.scrollTo(0, parseInt(scrollPosition, 10));
+        sessionStorage.removeItem("scrollPosition"); // Optional: Remove the scroll position after using it
+      }
+    }, 0);
+  };
   return (
     <div className="bg-gradient-to-b from-[#00FFFF] to-[#009999] lg:w-3/4 p-5 rounded-lg shadow-lg w-full">
       {/* <button
@@ -55,9 +67,10 @@ const ApartmentDetails: React.FC<ApartmentDetailsProps> = ({ data }) => {
       </button> */}
       <button
         className="px-3 py-1 bg-gray-600 text-white rounded-lg mb-2 hover:scale-105 transition-all duration-200"
-        onClick={() => {
-          history.back();
-        }}
+        // onClick={() => {
+        //   history.back();
+        // }}
+        onClick={handleBackClick}
       >
         Back Menu
       </button>
