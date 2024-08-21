@@ -45,10 +45,18 @@ const ApartmentDetails: React.FC<ApartmentDetailsProps> = ({ data }) => {
 
   return (
     <div className="bg-gradient-to-b from-[#00FFFF] to-[#009999] lg:w-3/4 p-5 rounded-lg shadow-lg w-full">
-      <button
+      {/* <button
         className="px-3 py-1 bg-gray-600 text-white rounded-lg mb-2 hover:scale-105 transition-all duration-200"
         onClick={() => {
           router.back();
+        }}
+      >
+        Back Menu
+      </button> */}
+      <button
+        className="px-3 py-1 bg-gray-600 text-white rounded-lg mb-2 hover:scale-105 transition-all duration-200"
+        onClick={() => {
+          history.back();
         }}
       >
         Back Menu
