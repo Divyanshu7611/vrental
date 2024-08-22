@@ -62,7 +62,10 @@ const OwnerDetails: React.FC<OwnerDetailsProps> = ({ data }) => {
       </div>
       <div className="flex flex-col gap-3">
         <a href="tel:9950156755">
-          <button className="mb-2 bg-[#00F0FF] border border-black rounded-2xl text-black font-semibold py-2 px-8 hover:scale-105 transition-all w-full">
+          <button
+            className="mb-2 bg-[#00F0FF] border border-black rounded-2xl text-black font-semibold py-2 px-8 hover:scale-105 transition-all w-full"
+            onClick={handleInterestedClick}
+          >
             Call Now
           </button>
         </a>
