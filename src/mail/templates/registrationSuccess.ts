@@ -1,6 +1,6 @@
 const otpTemplate = (tharID: string, name: string): string => {
   const imageUrl =
-    "https://res.cloudinary.com/dtp9j0ypi/image/upload/v1723781193/VRENTAL/lvv5fk4wng5cugrx8odk.png"; // Ensure this path is publicly accessible
+    "https://res.cloudinary.com/dofgibf4m/image/upload/v1724346841/VRENTAL/vqhl5sfzlkc8iogdhz2g.png"; // Ensure this path is publicly accessible
 
   return `<!DOCTYPE html>
   <html>
