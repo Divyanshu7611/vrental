@@ -99,6 +99,7 @@ export default function Page() {
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
+      // alert
       alert("Please Login Before Visiting To Apartment");
       router.push("/auth");
     }
