@@ -36,7 +36,7 @@ import mongoose from "mongoose";
 
 const mongoDBUrl =
   process.env.MONGODB_URL ||
-  "mongodb+srv://dvyanshudb:t4cNwb8WoHuqg8hJ@cluster0.0ikjeoq.mongodb.net/vrental";
+  "mongodb+srv://vrental91:MIWlZTCXn9FfZwGj@vrental0.uwbul.mongodb.net/vrental";
 
 let isConnected = false; // Track the connection status globally
 
