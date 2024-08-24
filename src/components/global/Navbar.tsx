@@ -39,7 +39,7 @@ export default function Navbar() {
 
   return (
     <div>
-      <div className="min-w-full lg:h-16 h-12 bg-gradient-to-b from-[#b1b0b0] to-[#7ce3f1] fixed z-50 flex justify-between items-center px-3 lg:px-8">
+      <div className="min-w-full lg:h-16 h-12 bg-gradient-to-b from-[#FFFFFF] to-[#00E0FF] fixed z-50 flex justify-between items-center px-3 lg:px-8">
         <div className="text-2xl font-bold text-[#00E0FF]">
           <img
             src="/assets/Logo.png"
