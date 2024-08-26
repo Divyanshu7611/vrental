@@ -7,8 +7,6 @@ interface ICardDetails {
   timePeriod: string;
   category: string;
   address: string;
-  date: string;
-  size: string;
   image: string;
   id: string;
   status: string;
@@ -19,8 +17,6 @@ const ProfileCard: React.FC<ICardDetails> = ({
   timePeriod,
   category,
   address,
-  date,
-  size,
   image,
   id,
   status,
@@ -69,23 +65,16 @@ const ProfileCard: React.FC<ICardDetails> = ({
         <h3 className="text-sm">{status}</h3>
 
         <h3 className="text-[10px] text-[#000000] opacity-50">{address}</h3>
-        <h3 className="text-[10px] text-[#000000] opacity-50">{date}</h3>
-        <h3 className="text-[10px]">{size}</h3>
+        {/* <h3 className="text-[10px] text-[#000000] opacity-50">{date}</h3> */}
+        {/* <h3 className="text-[10px]">{size}</h3> */}
       </div>
-      <div className="flex items-center gap-2">
-        <button
-          className="bg-gray-700 text-white text-sm px-4 py-2 rounded-lg hover:bg-black transition-all duration-200"
-          onClick={() => handleDelete(id)}
-        >
-          {deleting ? "Deleting..." : "Not Available"}
-        </button>
-        <button
-          className="bg-gray-700 text-white text-sm px-4 py-2 rounded-lg hover:bg-black transition-all duration-200"
-          onClick={() => handleDelete(id)}
-        >
-          {deleting ? "Deleting..." : "Delete Apartment"}
-        </button>
-      </div>
+
+      <button
+        className="bg-gray-700 text-white text-sm px-4 py-2 rounded-lg hover:bg-black transition-all duration-200"
+        onClick={() => handleDelete(id)}
+      >
+        {deleting ? "Deleting..." : "Delete Apartment"}
+      </button>
     </div>
   );
 };

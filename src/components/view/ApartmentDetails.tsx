@@ -56,43 +56,34 @@ const ApartmentDetails: React.FC<ApartmentDetailsProps> = ({ data }) => {
     }, 0);
   };
   return (
-    <div className="bg-gradient-to-b from-[#00FFFF] to-[#009999] lg:w-3/4 p-5 rounded-lg shadow-lg w-full">
-      {/* <button
-        className="px-3 py-1 bg-gray-600 text-white rounded-lg mb-2 hover:scale-105 transition-all duration-200"
-        onClick={() => {
-          router.back();
-        }}
-      >
-        Back Menu
-      </button> */}
+    <div className="lg:w-3/4 p-5 rounded-lg shadow-lg w-full bg-[#adceda]">
       <button
-        className="px-3 py-1 bg-gray-600 text-white rounded-lg mb-2 hover:scale-105 transition-all duration-200"
-        // onClick={() => {
-        //   history.back();
-        // }}
+        className="px-3 py-1 bg-blue-600 text-white rounded-lg mb-2 hover:scale-105 transition-all duration-200"
         onClick={handleBackClick}
       >
         Back Menu
       </button>
-      <p className="text-[#FF0000] font-semibold lg:text-2xl text-lg mb-2">
+      <p className="text-[#283a82] font-semibold lg:text-2xl text-lg mb-2">
         Status: {data.status}
       </p>
       <Swipper images={data.image_urls} />
       <div className="flex w-full justify-between mt-6">
         <div className="flex flex-col">
-          <h1 className="lg:text-2xl text-lg font-bold">
+          <h1 className="lg:text-2xl text-lg font-bold capitalize">
             {data.apartmentName}
           </h1>
           <p className="lg:text-sm text-xs">{data.category}</p>
         </div>
         <div className="flex flex-col">
-          <p className="text-[#FF0000] font-semibold lg:text-2xl text-lg">
-            Price: ₹{data.price}
+          <p className="text-[#283a82] font-semibold lg:text-2xl text-lg">
+            Price: ₹{data.price}/Month
           </p>
         </div>
       </div>
       <p className="text-lg font-medium">Available For: {data.availableFor}</p>
-      <p className="text-lg font-medium">Location: {data.location}</p>
+      <p className="text-lg font-medium capitalize">
+        Location: {data.location}
+      </p>
       <StarRating rating={data.averageRating} />
 
       <div className="bg-gradient-to-b from-[#00FFFF] to-[#009999] w-full rounded-xl p-4 mt-12">

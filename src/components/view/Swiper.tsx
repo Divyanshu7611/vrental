@@ -112,7 +112,10 @@ const Swipper: React.FC<SwipperProps> = ({ images }) => {
       className="mySwiper"
     >
       {images.map((image, index) => (
-        <SwiperSlide key={index} className="flex justify-center items-center">
+        <SwiperSlide
+          key={index}
+          className="flex justify-center items-center rounded-xl"
+        >
           <div className="relative w-full lg:h-[474px] h-[374px] max-h-[474px]">
             <Image
               src={image}
@@ -120,7 +123,7 @@ const Swipper: React.FC<SwipperProps> = ({ images }) => {
               loading={index === 0 ? "eager" : "lazy"}
               priority={index === 0}
               alt={`Slide ${index + 1}`}
-              className="object-cover h-full"
+              className="object-cover h-full rounded-xl"
             />
           </div>
         </SwiperSlide>

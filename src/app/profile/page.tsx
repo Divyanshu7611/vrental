@@ -67,12 +67,10 @@ export default function Page() {
                     key={index}
                     price={data.price}
                     timePeriod="Month"
-                    size="15 X 25"
                     status={data.status}
                     category={data.category}
                     id={data._id}
                     address={data.address}
-                    date="15 JULY 2024"
                     image={data.image_urls[0]}
                   />
                 )

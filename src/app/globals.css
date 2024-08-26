@@ -192,3 +192,54 @@ body {
     height: 100%;
   }
 }
+
+
+
+
+
+/* Global styles for Swiper navigation buttons */
+.mySwiper .swiper-button-next,
+.mySwiper .swiper-button-prev {
+  color: #fff;
+  /* Arrow color */
+  background-color: rgba(0, 0, 0, 0.5);
+  /* Semi-transparent background */
+  border-radius: 50%;
+  /* Circular buttons */
+  padding: 10px;
+  /* Padding for size */
+  width: 40px;
+  height: 40px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Hover effect */
+.mySwiper .swiper-button-next:hover,
+.mySwiper .swiper-button-prev:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+  /* Darker background on hover */
+  color: #ffdf00;
+  /* Change color on hover */
+}
+
+/* Position adjustments */
+.mySwiper .swiper-button-next {
+  right: 10px;
+  /* Adjust position for next button */
+}
+
+.mySwiper .swiper-button-prev {
+  left: 10px;
+  /* Adjust position for prev button */
+}
+
+/* Make buttons larger on larger screens */
+@media (min-width: 1024px) {
+
+  .mySwiper .swiper-button-next,
+  .mySwiper .swiper-button-prev {
+    width: 50px;
+    height: 50px;
+    padding: 15px;
+  }
+}

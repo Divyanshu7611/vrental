@@ -6,25 +6,6 @@ import mailerSender from "@/utilis/mailSender";
 import apartmentRegistrationOwnerTemplate from "@/mail/templates/apartmentOwnerReg";
 import apartmentRegistrationTemplate from "@/mail/templates/apartmentReg";
 
-async function sendMailUser(
-  email: string,
-  apartmentName: string,
-  name: string,
-  location: string
-) {
-  try {
-    await mailerSender({
-      email: email,
-      title: "Apartment Registration Successful",
-      body: apartmentRegistrationTemplate(apartmentName, location, name),
-    });
-    console.log("Email sent to user successfully");
-  } catch (error) {
-    console.error("Error occurred while sending email to user:", error);
-    throw new Error("Error occurred while sending email to user");
-  }
-}
-
 async function sendMailOwner(
   email: string,
   apartmentName: string,
@@ -74,28 +55,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Perform updates in parallel
-    await Promise.all([
-      User.findByIdAndUpdate(
-        UserID,
-        { $addToSet: { participated: ApartmentID } },
-        { new: true }
-      ).exec(),
-      Apartment.findByIdAndUpdate(
-        ApartmentID,
-        { $addToSet: { participants: UserID } },
-        { new: true }
-      ).exec(),
-    ]);
-
     // Send emails in parallel
     await Promise.all([
-      sendMailUser(
-        user.email,
-        apartment.apartmentName,
-        `${user.firstName} ${user.lastName}`,
-        apartment.location
-      ),
       sendMailOwner(
         ownerEmail,
         apartment.apartmentName,
@@ -106,13 +67,13 @@ export async function POST(req: NextRequest) {
     ]);
 
     return NextResponse.json(
-      { success: true, message: "User added to apartment successfully" },
+      { success: true, message: "Email Sent successfully" },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Error adding user to apartment:", error);
+    console.error("Sending Email to Owner:", error);
     return NextResponse.json(
-      { success: false, message: "Error adding user to apartment" },
+      { success: false, message: "Error Sending Email" },
       { status: 500 }
     );
   }

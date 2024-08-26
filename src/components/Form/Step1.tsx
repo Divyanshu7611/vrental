@@ -176,8 +176,11 @@ const Step1: React.FC = () => {
                 )}
               </label>
 
-              <label htmlFor="price" className="flex flex-col w-full">
-                Price
+              <label
+                htmlFor="price"
+                className="flex flex-col w-full font-semibold"
+              >
+                Rent/Month
                 <input
                   type="number"
                   {...register("price", { required: "Price is required" })}
@@ -263,7 +266,7 @@ const Step1: React.FC = () => {
                   className="w-full flex flex-col font-semibold"
                   htmlFor="LocalAddress"
                 >
-                  Street No./House No
+                  Address
                   <input
                     value={localAddress}
                     onChange={(e) => setLocalAddress(e.target.value)}
@@ -349,7 +352,7 @@ const Step1: React.FC = () => {
                   {facilities.map((facility, index) => (
                     <div
                       key={index}
-                      className="bg-blue-100 text-blue-500 px-4 py-1 rounded-full flex items-center gap-2"
+                      className="bg-blue-200 text-blue-500 px-4 py-1 rounded-full flex items-center gap-2"
                     >
                       <span>{facility}</span>
                       <button
@@ -402,7 +405,7 @@ const Step1: React.FC = () => {
                   {furnitures.map((furniture, index) => (
                     <div
                       key={index}
-                      className="bg-blue-100 text-blue-500 px-4 py-1 rounded-full flex items-center gap-2"
+                      className="bg-blue-200 text-blue-500 px-4 py-1 rounded-full flex items-center gap-2"
                     >
                       <span>{furniture}</span>
                       <button

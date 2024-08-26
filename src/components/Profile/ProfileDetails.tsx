@@ -21,12 +21,16 @@ export default function ProfileDetails() {
       <div className="flex flex-col justify-center items-start">
         <div>
           <h1 className="lg:text-3xl text-2xl font-semibold">
-            {userContext?.userAuthData?.clientID}
+            ID:
+            <span className="text-[#418FA9]">
+              {userContext?.userAuthData?.clientID}
+            </span>
           </h1>
         </div>
         <div className="flex flex-col gap-1">
-          <h1 className="lg:text-2xl text-base font-medium">
-            Name:{userContext?.userAuthData?.firstName}
+          <h1 className="lg:text-2xl text-base font-semibold text-[#418FA9]">
+            {userContext?.userAuthData?.firstName}{" "}
+            {userContext?.userAuthData?.lastName}
           </h1>
           <h1 className="lg:text-2xl text-base font-medium">
             Age:{userContext?.userAuthData?.age}

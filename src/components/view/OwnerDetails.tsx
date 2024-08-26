@@ -13,11 +13,16 @@ interface OwnerDetailsProps {
     image: string;
     email: string;
   };
+  contactNo: number;
 }
 
-const OwnerDetails: React.FC<OwnerDetailsProps> = ({ data }) => {
+const OwnerDetails: React.FC<OwnerDetailsProps> = ({ data, contactNo }) => {
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isCallProcessing, setCallProcessing] = useState(false);
+
   const [isApplied, setIsApplied] = useState(false);
+  const [isCall, setIsCall] = useState(false);
+
   const userContext = useContext(UserContext);
   const searchParams = useSearchParams();
   const id = searchParams.get("apartmentID");
@@ -44,6 +49,27 @@ const OwnerDetails: React.FC<OwnerDetailsProps> = ({ data }) => {
       setIsProcessing(false);
     }
   };
+  // calling function
+  const handleCallClick = async () => {
+    try {
+      setCallProcessing(true);
+      const response = await axios.post("/api/aparment/call", {
+        UserID: userContext?.userAuthData?._id, // Replace with actual user ID
+        ApartmentID: id, // Replace with actual apartment ID
+        ownerEmail: data.email,
+      });
+
+      if (response.status === 200) {
+        // Handle success (e.g., show a success message)
+        setIsCall(true);
+      }
+    } catch (error) {
+      // Handle error (e.g., show an error message)
+      console.error("Error registering interest:", error);
+    } finally {
+      setCallProcessing(false);
+    }
+  };
 
   return (
     <div className="lg:w-1/4 flex lg:flex-col items-center flex-row gap-5">
@@ -61,10 +87,10 @@ const OwnerDetails: React.FC<OwnerDetailsProps> = ({ data }) => {
         </h2>
       </div>
       <div className="flex flex-col gap-3">
-        <a href="tel:9950156755">
+        <a href={`tel:${contactNo}`}>
           <button
             className="mb-2 bg-[#00F0FF] border border-black rounded-2xl text-black font-semibold py-2 px-8 hover:scale-105 transition-all w-full"
-            onClick={handleInterestedClick}
+            onClick={handleCallClick}
           >
             Call Now
           </button>
