@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     "Vrental makes turning your house into a rental property simple and profitable. Manage your property with ease, attract tenants, and maximize your rental income with our all-in-one platform.",
   // Add more metadata for SEO
   keywords:
-    "rental property, house rental, property management, Vrental, rental income, real estate",
+    "rental property, house rental, property management, Vrental, rental income, real estate,rental",
   authors: [{ name: "Vrental Team" }],
   openGraph: {
     title: "Vrental - Turn Your House Into a Rental Property",
@@ -60,6 +60,31 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link
+          rel="icon"
+          href="/assets/Logo.png"
+          type="image/png"
+          sizes="32x32"
+        />
+        <link
+          rel="icon"
+          href="/assets/Logo.png"
+          type="image/png"
+          sizes="16x16"
+        />
+        <link rel="apple-touch-icon" href="/assets/Logo.png" sizes="180x180" />
+        <link rel="manifest" href="/site.webmanifest" />
+        <meta name="msapplication-TileColor" content="#ffffff" />
+        <meta name="theme-color" content="#ffffff" />
+        <title>Vrental</title>
+        <meta
+          name="description"
+          content={metadata.description ?? "Default Description"}
+        />
+        {/* Add other SEO-related meta tags here */}
+      </head>
       <UserContextProvider>
         <body className={roboto.className}>
           {children}
