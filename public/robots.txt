@@ -1,0 +1,14 @@
+import { NextResponse } from 'next/server';
+
+export async function GET() {
+  const robotsTxt = `User-agent: *
+Disallow:
+Sitemap: https://vrental.in/sitemap.xml
+`;
+
+  return NextResponse.json(robotsTxt, {
+    headers: {
+      'Content-Type': 'text/plain',
+    },
+  });
+}

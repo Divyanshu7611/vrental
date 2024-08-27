@@ -19,12 +19,11 @@ const roboto = Roboto({
 // };
 
 export const metadata: Metadata = {
-  title: "Vrental",
+  title: "Vrental - Turn Your House Into a Rental Property",
   description:
-    "Vrental makes turning your house into a rental property simple and profitable. Manage your property with ease, attract tenants, and maximize your rental income with our all-in-one platform.",
-  // Add more metadata for SEO
+    "Transform your home into a profitable rental property with Vrental. Simplify property management, attract tenants, and maximize your rental income.",
   keywords:
-    "rental property, house rental, property management, Vrental, rental income, real estate,rental",
+    "rental property, house rental, property management, Vrental, rental income, real estate, rental,Kota real estate,Kota property rental,Kota apartments,Kota student accommodation,Kota hostels,Kota room rentals,Kota PG accommodation,Kota flat rentals,Kota housing market",
   authors: [{ name: "Vrental Team" }],
   openGraph: {
     title: "Vrental - Turn Your House Into a Rental Property",
@@ -34,10 +33,10 @@ export const metadata: Metadata = {
     siteName: "Vrental",
     images: [
       {
-        url: "https://vrental.in",
-        width: 1200,
-        height: 630,
-        alt: "Vrental - Turning Your House Into Rental",
+        url: "https://opengraph.b-cdn.net/production/images/1fbc7bfd-9778-49c2-8a2b-871aedd4038e.png?token=EAAc_2pd4fiKUy-S2S4qwo9TtD4Qi5ZSrcQciLSJp9U&height=500&width=500&expires=33260741968",
+        width: 500,
+        height: 500,
+        alt: "Vrental - Turn Your House Into a Rental Property",
       },
     ],
     locale: "en_US",
@@ -47,9 +46,12 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Vrental - Turn Your House Into a Rental Property",
     description:
-      "Discover how Vrental can help you transform your house into a rental property. Simplify management, attract tenants, and maximize your rental income.",
-    images: ["https://vrental.in"],
+      "Transform your home into a profitable rental property with Vrental. Simplify property management, attract tenants, and maximize your rental income.",
+    images: [
+      "https://opengraph.b-cdn.net/production/images/1fbc7bfd-9778-49c2-8a2b-871aedd4038e.png?token=EAAc_2pd4fiKUy-S2S4qwo9TtD4Qi5ZSrcQciLSJp9U&height=500&width=500&expires=33260741968",
+    ],
     site: "@vrental",
+    creator: "@vrental",
   },
 };
 
