@@ -56,7 +56,7 @@ const ApartmentDetails: React.FC<ApartmentDetailsProps> = ({ data }) => {
     }, 0);
   };
   return (
-    <div className="lg:w-3/4 p-5 rounded-lg shadow-lg w-full bg-[#adceda]">
+    <div className="lg:w-3/4 p-5 rounded-lg shadow-lg w-full bg-gradient-to-b from-[#00FFFF] via-[#FFFFFF] to-[#00FFFF]">
       <button
         className="px-3 py-1 bg-blue-600 text-white rounded-lg mb-2 hover:scale-105 transition-all duration-200"
         onClick={handleBackClick}
