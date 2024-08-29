@@ -5,7 +5,7 @@ export interface IUser extends Document {
   firstName: string;
   lastName: string;
   email: string;
-  adharNo: number;
+  adharNo?: number;
   password: string;
   image: string;
   phone: number;
@@ -47,7 +47,6 @@ const userSchema: Schema = new Schema<IUser>({
   },
   adharNo: {
     type: Number,
-    required: true,
   },
   image: {
     type: String,

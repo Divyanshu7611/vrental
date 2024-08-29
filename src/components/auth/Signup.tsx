@@ -499,7 +499,7 @@ export default function Signup() {
             })}
           />
 
-          <input
+          {/* <input
             type="text"
             placeholder="Aadhar No"
             className="border w-full px-2 text-sm rounded-md py-2"
@@ -514,7 +514,7 @@ export default function Signup() {
                 message: "Aadhar number must be 12 digits",
               },
             })}
-          />
+          /> */}
 
           <button
             type="submit"

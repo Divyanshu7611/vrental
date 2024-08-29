@@ -40,7 +40,6 @@ export async function POST(request: NextRequest) {
     password,
     confirmPassword,
     otp,
-    adharNo,
     profession,
     age,
     bio,
@@ -57,8 +56,7 @@ export async function POST(request: NextRequest) {
       !password ||
       !confirmPassword ||
       !phone ||
-      !otp ||
-      !adharNo
+      !otp
     ) {
       return NextResponse.json(
         { success: false, message: "Please fill all details" },
@@ -110,7 +108,7 @@ export async function POST(request: NextRequest) {
       phone,
       image: `https://api.dicebear.com/5.x/initials/svg?seed=${firstName} ${lastName}&backgroundColor=418FA9`,
       clientID,
-      adharNo,
+      adharNo: "",
       role: "USER",
       profession: profession || "",
       age: age || "",
