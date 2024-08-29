@@ -168,7 +168,7 @@ function CategoryShowcase({ categories }: { categories: string }) {
               ))}
       </div>
       <a
-        className="font-normal text-blue-900 text-sm lg:mx-0 mt-3 hover:underline hover:text-blue-600 ml-1"
+        className="font-normal text-blue-900 text-sm lg:mx-0 mt-3 hover:underline hover:text-blue-600 ml-3"
         href={`/category?category=${categories}`}
       >
         See all
