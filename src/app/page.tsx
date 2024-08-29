@@ -7,7 +7,6 @@ import Footer from "@/components/global/Footer";
 import FlatCard from "@/components/mini/FlatCard";
 import Navbar from "@/components/global/Navbar";
 import HomeFlat from "@/components/mini/HomeFlat";
-import FlatShowCase from "@/components/HomePage/FlatShowCase";
 
 function Home() {
   const newLocal = "PG";
