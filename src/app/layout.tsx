@@ -66,26 +66,30 @@ export default function RootLayout({
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link
           rel="icon"
-          href="/assets/Logo.png"
+          href="/favicon-32x32.png"
           type="image/png"
           sizes="32x32"
         />
         <link
           rel="icon"
-          href="/assets/Logo.png"
+          href="/favicon-16x16.png"
           type="image/png"
           sizes="16x16"
         />
-        <link rel="apple-touch-icon" href="/assets/Logo.png" sizes="180x180" />
+        <link
+          rel="apple-touch-icon"
+          href="/apple-touch-icon.png"
+          sizes="180x180"
+        />
+
         <link rel="manifest" href="/site.webmanifest" />
-        <meta name="msapplication-TileColor" content="#ffffff" />
-        <meta name="theme-color" content="#ffffff" />
+        {/* <meta name="msapplication-TileColor" content="#ffffff" />
+        <meta name="theme-color" content="#ffffff" /> */}
         <title>Vrental</title>
         <meta
           name="description"
           content={metadata.description ?? "Default Description"}
         />
-        {/* Add other SEO-related meta tags here */}
       </head>
       <UserContextProvider>
         <body className={roboto.className}>
