@@ -7,8 +7,10 @@ import Footer from "@/components/global/Footer";
 import FlatCard from "@/components/mini/FlatCard";
 import Navbar from "@/components/global/Navbar";
 import HomeFlat from "@/components/mini/HomeFlat";
+import FlatShowCase from "@/components/HomePage/FlatShowCase";
 
 function Home() {
+  const newLocal = "PG";
   return (
     <Suspense fallback={<Loading />}>
       <div className="min-h-screen min-w-screen flex flex-col">
@@ -16,9 +18,15 @@ function Home() {
         <Hero />
         <div className="bg-gradient-to-b from-[#F8F8F8] to-[#00E0FF]">
           <div className="max-w-[1200px] mx-auto mt-10">
-            <CategoryShowcase categories="Rooms" />
-            <CategoryShowcase categories="Hostels" />
-            <MapAd />
+            <CategoryShowcase categories="ROOM" />
+            <CategoryShowcase categories="HOSTEL" />
+            <CategoryShowcase categories="PG" />
+            <CategoryShowcase categories="FLAT" />
+
+            {/* <FlatShowCase categories="FLAT" /> */}
+            {/* <CategoryShowcase categories={newLocal} /> */}
+
+            {/* <MapAd />
             <HomeFlat
               title="Lotus Flats"
               description="Enjoy stunning city views from this modern loft with open space."
@@ -27,7 +35,7 @@ function Home() {
               image="/assets/flat.png"
               category="FLAT"
               flexProp="row"
-            />
+            /> */}
           </div>
         </div>
         <Footer />

@@ -8,7 +8,7 @@ interface FlatCardProps {
   title: string;
   description: string;
   location: string;
-  price: string;
+  price: number;
   image: string;
   flexProp: string;
   category: string;
