@@ -110,6 +110,7 @@ export async function POST(request: NextRequest) {
       clientID,
       adharNo: "",
       role: "USER",
+      termsAndConditions: true,
       profession: profession || "",
       age: age || "",
       bio: bio || "",

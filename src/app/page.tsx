@@ -21,6 +21,7 @@ function Home() {
             <CategoryShowcase categories="HOSTEL" />
             <CategoryShowcase categories="PG" />
             <CategoryShowcase categories="FLAT" />
+            <CategoryShowcase categories="CO-LIVING" />
 
             {/* <FlatShowCase categories="FLAT" /> */}
             {/* <CategoryShowcase categories={newLocal} /> */}

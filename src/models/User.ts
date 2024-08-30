@@ -19,6 +19,7 @@ export interface IUser extends Document {
   age: number;
   bio: string;
   token?: string;
+  termsAndConditions: boolean;
 }
 
 const userSchema: Schema = new Schema<IUser>({
@@ -109,6 +110,11 @@ const userSchema: Schema = new Schema<IUser>({
     type: String,
     trim: true,
     default: "",
+  },
+  termsAndConditions: {
+    type: Boolean,
+    trim: true,
+    default: false,
   },
 });
 

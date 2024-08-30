@@ -65,17 +65,18 @@ export default function Navbar() {
             <li className="text-base font-semibold text-[#000000] cursor-pointer hover:scale-110 hover:font-bold">
               <a href="/category?category=ROOM">Rooms</a>
             </li>
-            <li className="text-base font-semibold text-[#000000] cursor-pointer hover:scale-110 hover:font-bold">
-              <a href="/category?category=FLAT">Flats</a>
-            </li>
+
             <li className="text-base font-semibold text-[#000000] cursor-pointer hover:scale-110 hover:font-bold">
               <a href="/category?category=HOSTEL">Hostels</a>
             </li>
             <li className="text-base font-semibold text-[#000000] cursor-pointer hover:scale-110 hover:font-bold">
-              <a href="/category?category=CO-LIVING">Co-Living</a>
+              <a href="/category?category=PG">P-G</a>
             </li>
             <li className="text-base font-semibold text-[#000000] cursor-pointer hover:scale-110 hover:font-bold">
-              <a href="/category?category=PG">P-G</a>
+              <a href="/category?category=FLAT">Flats</a>
+            </li>
+            <li className="text-base font-semibold text-[#000000] cursor-pointer hover:scale-110 hover:font-bold">
+              <a href="/category?category=CO-LIVING">Co-Living</a>
             </li>
           </ul>
         </div>
@@ -180,17 +181,18 @@ export default function Navbar() {
           <li className="text-base font-semibold text-[#000000]">
             <a href="/category?category=ROOM">Rooms</a>
           </li>
-          <li className="text-base font-semibold text-[#000000]">
-            <a href="/category?category=FLAT"> Flats</a>
-          </li>
+
           <li className="text-base font-semibold text-[#000000]">
             <a href="/category?category=HOSTEL">Hostels</a>
           </li>
           <li className="text-base font-semibold text-[#000000]">
-            <a href="/category?category=CO-LIVING">Co-Living</a>
+            <a href="/category?category=PG">P-G</a>
           </li>
           <li className="text-base font-semibold text-[#000000]">
-            <a href="/category?category=PG">P-G</a>
+            <a href="/category?category=FLAT"> Flats</a>
+          </li>
+          <li className="text-base font-semibold text-[#000000]">
+            <a href="/category?category=CO-LIVING">Co-Living</a>
           </li>
           {isToken ? (
             <>
