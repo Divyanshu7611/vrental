@@ -557,10 +557,11 @@ export default function Signup() {
             </h2>
             <div className="overflow-y-auto h-64 mb-4">
               <p>
-                1. Introduction Welcome to VRENTAL ("Company", "we", "our",
-                "us")! As you have just clicked to our Terms of Service, please
-                pause, grab a cup of coffee and carefully read the following
-                pages. It will take you approximately 20 minutes.
+                1. Introduction Welcome to VRENTAL (&quot;Company&quot;,
+                &quot;we&quot;, &quot;our&quot;, &quot;us&quot;)! As you have
+                just clicked to our Terms of Service, please pause, grab a cup
+                of coffee and carefully read the following pages. It will take
+                you approximately 20 minutes.
               </p>
               <p className="mt-4">
                 2. Eligibility To use our services, you must be at least 18
@@ -582,12 +583,12 @@ export default function Signup() {
                 post, upload, or transmit on our Site.
               </p>
               <p className="mt-4">
-                5. Listing and Booking Property owners ("Owners") must provide
-                accurate and complete information about their properties.
-                Tenants or users searching for properties ("Tenants") must
-                conduct their due diligence before entering into any rental
-                agreements. VRENTAL is not responsible for any disputes or
-                damages arising between Owners and Tenants.
+                5. Listing and Booking Property owners (&quot;Owners&quot;) must
+                provide accurate and complete information about their
+                properties. Tenants or users searching for properties
+                (&quot;Tenants&quot;) must conduct their due diligence before
+                entering into any rental agreements. VRENTAL is not responsible
+                for any disputes or damages arising between Owners and Tenants.
               </p>
               <p className="mt-4">
                 6. Fees and Payment We do not charge any additional fees for
