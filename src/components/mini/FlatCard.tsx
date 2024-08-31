@@ -162,7 +162,7 @@ const FlatCard: React.FC<FlatCardProps> = ({
           </button>
         </div>
       </div>
-      <div className="overflow-hidden md:w-full lg:w-2/4 w-full lg:max-w-[500px] lg:max-h-[315px] max-h-[400px]">
+      <div className="overflow-hidden md:w-full lg:w-2/4 w-full lg:max-w-[500px] lg:max-h-[315px] max-h-[380px]">
         <Image
           src={image}
           alt="flatcard"
