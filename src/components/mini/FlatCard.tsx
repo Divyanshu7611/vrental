@@ -77,7 +77,7 @@ const FlatCard: React.FC<FlatCardProps> = ({
   }, [userContext?.wishlist, id]);
 
   const handleWishlistToggle = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevents triggering the card's onClick
+    e.stopPropagation();
     if (userContext?.userAuthData) {
       const apartment = {
         id,
@@ -89,7 +89,7 @@ const FlatCard: React.FC<FlatCardProps> = ({
         flexProp,
         category,
         averageRating,
-        contactNo: 0, // Default value, update as needed
+        contactNo: 0,
         furnitureDescription: "",
         parking: false,
         electricity: false,
@@ -162,7 +162,7 @@ const FlatCard: React.FC<FlatCardProps> = ({
           </button>
         </div>
       </div>
-      <div className="overflow-hidden md:w-full lg:w-2/4 w-full lg:max-w-[500px] lg:max-h-[315px]">
+      <div className="overflow-hidden md:w-full lg:w-2/4 w-full lg:max-w-[500px] lg:max-h-[315px] max-h-[400px]">
         <Image
           src={image}
           alt="flatcard"
