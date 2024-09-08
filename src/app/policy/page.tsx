@@ -94,7 +94,7 @@ export default function PrivacyPolicy() {
             </li>
             <li>
               To Improve Our Website: To analyze usage patterns and improve our
-              website's functionality and content.
+              website&apos;s functionality and content.
             </li>
             <li>
               To Communicate With You: To send you updates, newsletters, and
