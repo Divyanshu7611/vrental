@@ -63,6 +63,9 @@ export default function Navbar() {
               <a href="/">Home</a>
             </li>
             <li className="text-base font-semibold text-[#000000] cursor-pointer hover:scale-110 hover:font-bold">
+              <a href="/about">About Us</a>
+            </li>
+            <li className="text-base font-semibold text-[#000000] cursor-pointer hover:scale-110 hover:font-bold">
               <a href="/category?category=ROOM">Rooms</a>
             </li>
 
@@ -177,6 +180,9 @@ export default function Navbar() {
         <ul className="flex flex-col gap-6 mt-10 px-4">
           <li className="text-base font-semibold text-[#000000]">
             <a href="/">Go to Home</a>
+          </li>
+          <li className="text-base font-semibold text-[#000000]">
+            <a href="/about">About Us</a>
           </li>
           <li className="text-base font-semibold text-[#000000]">
             <a href="/category?category=ROOM">Rooms</a>

@@ -32,8 +32,17 @@ function Footer() {
         <hr className="opacity-40" />
         <div className="w-full flex lg:justify-between justify-center gap-5 flex-wrap mt-5">
           <ul className="flex gap-2 items-center text-sm list-none font-normal text-gray-400">
-            <li>Privacy & Policy</li> |<li>Terms & Conditions</li>|
-            <li>Services</li>
+            <li>
+              <a href="/about">About Us</a>
+            </li>{" "}
+            |
+            <li>
+              <a href="/policy">Terms & Conditions</a>
+            </li>
+            |
+            <li>
+              <a href="category?category=ROOM">Services</a>
+            </li>
           </ul>
           <p className="text-sm list-none font-normal text-gray-400">
             All Copyrights Reserved to VRENTAL
