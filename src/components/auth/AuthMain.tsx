@@ -50,8 +50,8 @@ import Login from "./Login";
 import ResetPassword from "./ResetLink"; // Import the ResetPassword component
 
 export default function AuthMain() {
-  const [view, setView] = useState<"login" | "signup" | "resetPassword">(
-    "login"
+  const [view, setView] = useState<"signup" | "login" | "resetPassword">(
+    "signup"
   );
 
   return (
@@ -71,8 +71,8 @@ export default function AuthMain() {
         <span className="w-[150px] opacity-20 h-[1px] bg-black"></span>
       </div>
 
-      {view === "login" && <Login />}
       {view === "signup" && <Signup />}
+      {view === "login" && <Login />}
       {view === "resetPassword" && <ResetPassword />}
 
       {view === "login" ? (
