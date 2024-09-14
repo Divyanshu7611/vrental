@@ -62,9 +62,7 @@ export default function Navbar() {
             <li className="text-base font-semibold text-[#000000] cursor-pointer hover:scale-110 hover:font-bold">
               <a href="/">Home</a>
             </li>
-            <li className="text-base font-semibold text-[#000000] cursor-pointer hover:scale-110 hover:font-bold">
-              <a href="/about">About Us</a>
-            </li>
+
             <li className="text-base font-semibold text-[#000000] cursor-pointer hover:scale-110 hover:font-bold">
               <a href="/category?category=ROOM">Rooms</a>
             </li>
@@ -181,9 +179,7 @@ export default function Navbar() {
           <li className="text-base font-semibold text-[#000000]">
             <a href="/">Go to Home</a>
           </li>
-          <li className="text-base font-semibold text-[#000000]">
-            <a href="/about">About Us</a>
-          </li>
+
           <li className="text-base font-semibold text-[#000000]">
             <a href="/category?category=ROOM">Rooms</a>
           </li>

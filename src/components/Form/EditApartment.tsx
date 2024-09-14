@@ -5,7 +5,9 @@ import { toast, ToastContainer } from "react-toastify";
 import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
 import { UserContext } from "@/context/UserContext";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { cookies } from "next/headers";
+import { Cookie } from "next/font/google";
 
 type FormValues = {
   apartmentName: string;
@@ -18,26 +20,26 @@ type FormValues = {
   availableFor: string;
   contactNo: number;
   furniture: string;
+  image_urls: string;
+  id: string;
 };
 
-const Step1: React.FC = () => {
+const EditApartment: React.FC = () => {
   const userContext = useContext(UserContext);
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    console.log("Token:", token);
-    if (!token) {
-      window.location.href = "/auth";
-    }
-  }, []);
+  const searchParams = useSearchParams();
+  const apartmentId = searchParams.get("id");
+  const router = useRouter();
 
   const {
     register,
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
   } = useForm<FormValues>();
-  const [selectedImages, setSelectedImages] = useState<File[]>([]);
-  const [handleLoading, setLoading] = useState<boolean>(false);
+
+  // const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [handleLoading, setLoading] = useState<boolean>(true);
   const [facilities, setFacilities] = useState<string[]>([]);
   const [furnitures, setFurniture] = useState<string[]>([]);
 
@@ -47,14 +49,84 @@ const Step1: React.FC = () => {
   const [pincode, setPincode] = useState<string>("");
   const [city, setCity] = useState<string>("");
   const [state, setState] = useState<string>("");
-  const router = useRouter();
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      const filesArray = Array.from(e.target.files).slice(0, 5); // limit to 5 files
-      setSelectedImages(filesArray);
+  const [token, setToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (storedToken) {
+      setToken(storedToken);
+      console.log("Token set:", storedToken);
+    } else {
+      console.log("No token found");
+      router.push("/auth");
+    }
+  }, []);
+
+  useEffect(() => {
+    if (token) {
+      console.log("Token is available:", token);
+      fetchApartment();
+    }
+  }, [token]);
+  const fetchApartment = async () => {
+    if (!apartmentId && !token) {
+      setLoading(false);
+      return;
+    }
+    try {
+      const response = await axios.get(
+        `/api/aparment/profileApartment?id=${apartmentId}`
+      );
+      const apartment = response.data.data;
+
+      reset({
+        apartmentName: apartment.apartmentName || "",
+        description: apartment.description || "",
+        price: apartment.price || 0,
+        facility: apartment.facility || "",
+        location: apartment.location || "",
+        category: apartment.category || "",
+        availableFor: apartment.availableFor || "",
+        contactNo: apartment.contactNo || 0,
+        furniture: apartment.furniture || "",
+      });
+
+      setFacilities(apartment.facility ? apartment.facility.split(", ") : []);
+      setFurniture(apartment.furniture ? apartment.furniture.split(", ") : []);
+
+      if (apartment.location) {
+        const [
+          address = "",
+          cityValue = "",
+          stateValue = "",
+          pincodeValue = "",
+        ] = apartment.location.split(", ");
+        setLocalAddress(address);
+        setCity(cityValue);
+        setState(stateValue);
+        setPincode(pincodeValue);
+      } else {
+        setLocalAddress("");
+        setCity("");
+        setState("");
+        setPincode("");
+      }
+
+      setLoading(false);
+    } catch (error) {
+      console.log("Something went Wrong", error);
+      setLoading(false);
+      toast.error("Failed to fetch apartment data");
     }
   };
+
+  // const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  //   if (e.target.files) {
+  //     const filesArray = Array.from(e.target.files).slice(0, 5); // limit to 5 files
+  //     setSelectedImages(filesArray);
+  //   }
+  // };
 
   const handleAddFacility = () => {
     if (facilityInput && !facilities.includes(facilityInput)) {
@@ -90,18 +162,19 @@ const Step1: React.FC = () => {
     formData.append("availableFor", data.availableFor.toString());
     formData.append("category", data.category);
 
-    selectedImages.forEach((file) => formData.append("image", file));
+    // selectedImages.forEach((file) => formData.append("image", file));
     formData.forEach((value, key) => {
       console.log(`${key}: ${value}`);
     });
     try {
       setLoading(true);
-      const response = await axios.post(
-        `/api/aparment/createEvent?id=${userContext?.userAuthData?._id}`,
+      const response = await axios.put(
+        `/api/aparment/updateApartments?id=${apartmentId}`,
         formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
           },
         }
       );
@@ -109,12 +182,7 @@ const Step1: React.FC = () => {
         setLoading(false);
         toast.success("Apartment created successfully");
         reset(); // Reset the form
-        // setSelectedImages([]); // Clear selected images
-        // setFacilities([]); // Clear selected facilities
-        // setLocalAddress(""); // Clear localAddress
-        // setPincode(""); // Clear pincode
-        // setCity(""); // Clear city
-        // setState(""); // Clear state
+
         router.push("/profile");
       } else toast.error("Something Went Error");
     } catch (error: any) {
@@ -124,6 +192,14 @@ const Step1: React.FC = () => {
       console.error("Error:", error.response?.data || error.message);
     }
   };
+
+  if (handleLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen">
+        <div className="loader"></div>
+      </div>
+    );
+  }
 
   return (
     <form
@@ -137,7 +213,7 @@ const Step1: React.FC = () => {
       ) : (
         <div className="flex flex-col items-center justify-center gap-5 max-w-[1200px] mx-auto">
           <div className="w-full bg-white rounded-xl p-6 sm:p-8 lg:p-10 shadow-xl">
-            <h1 className="mb-4 text-2xl font-bold">General Information</h1>
+            <h1 className="mb-4 text-2xl font-bold">Update Apartment</h1>
             <div className="flex flex-col sm:flex-row sm:justify-between gap-6 w-full mt-4">
               <label
                 className="w-full flex flex-col font-semibold"
@@ -460,7 +536,7 @@ const Step1: React.FC = () => {
               )}
             </div>
           </div>
-          <div className="w-full bg-white rounded-xl p-6 sm:p-8 lg:p-10 shadow">
+          {/* <div className="w-full bg-white rounded-xl p-6 sm:p-8 lg:p-10 shadow">
             <h1 className="mb-4 text-2xl font-bold">Other Details</h1>
 
             <div className="flex flex-col mt-6 font-semibold">
@@ -474,7 +550,6 @@ const Step1: React.FC = () => {
                   multiple
                   accept="image/*"
                   {...register("images", {
-                    required: "Please upload images",
                     validate: {
                       lessThanFive: (files) =>
                         files.length <= 5 ||
@@ -511,7 +586,7 @@ const Step1: React.FC = () => {
                 )}
               </label>
             </div>
-          </div>
+          </div> */}
           <button
             type="submit"
             className="bg-blue-500 text-white px-6 py-3 mt-4 rounded-lg font-semibold hover:bg-blue-600"
@@ -525,4 +600,4 @@ const Step1: React.FC = () => {
   );
 };
 
-export default Step1;
+export default EditApartment;

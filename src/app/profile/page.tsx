@@ -72,6 +72,12 @@ export default function Page() {
                     id={data._id}
                     address={data.address}
                     image={data.image_urls[0]}
+                    apartmentName={data.apartmentName}
+                    description={data.description}
+                    facility={data.facility}
+                    furniture={data.furniture}
+                    location={data.location}
+                    availableFor={data.availableFor}
                   />
                 )
               )}

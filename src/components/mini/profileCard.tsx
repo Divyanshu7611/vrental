@@ -10,6 +10,12 @@ interface ICardDetails {
   image: string;
   id: string;
   status: string;
+  apartmentName: string;
+  description: string;
+  facility: string;
+  furniture: string;
+  location: string;
+  availableFor: string;
 }
 
 const ProfileCard: React.FC<ICardDetails> = ({
@@ -20,8 +26,17 @@ const ProfileCard: React.FC<ICardDetails> = ({
   image,
   id,
   status,
+  apartmentName,
+  description,
+  facility,
+  furniture,
+  location,
+  availableFor,
 }) => {
   const [deleting, setDelete] = useState<boolean>(false);
+  // handleEdit
+
+  // handle Delete
   const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to delete this apartment?")) {
       try {
@@ -44,6 +59,11 @@ const ProfileCard: React.FC<ICardDetails> = ({
         console.error("Error deleting Apartment:", error);
       }
     }
+  };
+
+  // handle edit fucntion
+  const handleEdit = async (id: string) => {
+    window.location.href = `/edit?id=${id}`;
   };
   return (
     <div className="p-2 border flex flex-col bg-white justify-between gap-5 rounded-lg hover:scale-105 transition-all duration-200 cursor-pointer mx-auto">
@@ -68,13 +88,20 @@ const ProfileCard: React.FC<ICardDetails> = ({
         {/* <h3 className="text-[10px] text-[#000000] opacity-50">{date}</h3> */}
         {/* <h3 className="text-[10px]">{size}</h3> */}
       </div>
-
-      <button
-        className="bg-gray-700 text-white text-sm px-4 py-2 rounded-lg hover:bg-black transition-all duration-200"
-        onClick={() => handleDelete(id)}
-      >
-        {deleting ? "Deleting..." : "Delete Apartment"}
-      </button>
+      <div className="flex gap-3">
+        <button
+          className="bg-gray-700 w-2/4 text-white text-sm px-4 py-2 rounded-lg hover:bg-black transition-all duration-200"
+          onClick={() => handleEdit(id)}
+        >
+          Edit
+        </button>
+        <button
+          className="bg-gray-700 w-2/4 text-white text-sm px-4 py-2 rounded-lg hover:bg-black transition-all duration-200"
+          onClick={() => handleDelete(id)}
+        >
+          {deleting ? "Deleting..." : "Delete"}
+        </button>
+      </div>
     </div>
   );
 };
