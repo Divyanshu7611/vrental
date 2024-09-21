@@ -1,5 +1,7 @@
 import User from "@/models/User";
 import { connectMongoDB } from "@/utilis/dbConnect";
+import { verifyJwtToken } from "@/utilis/jwt";
+import { verifyToken } from "@/utilis/middleware";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function PUT(req: NextRequest) {
@@ -13,6 +15,29 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json(
         { error: "User not found", success: false },
         { status: 404 }
+      );
+    }
+    // Verify the token and get the userId from the token
+    const { isValid, userId, response } = await verifyToken(req);
+
+    // Handle invalid token case
+    if (!isValid) {
+      return response; // Return the appropriate response if the token is invalid
+    }
+
+    // Check if userId is defined before proceeding
+    if (!userId) {
+      return NextResponse.json(
+        { message: "Unauthorized: Invalid token payload", success: false },
+        { status: 401 }
+      );
+    }
+
+    // Check if the userID from the URL matches the userId from the token
+    if (userID !== userId) {
+      return NextResponse.json(
+        { message: "Unauthorized: User mismatch", success: false },
+        { status: 403 }
       );
     }
     await User.findByIdAndUpdate(userID, {

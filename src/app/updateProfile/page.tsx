@@ -5,6 +5,7 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { UserContext } from "@/context/UserContext";
+import { headers } from "next/headers";
 
 export default function UpdateProfile() {
   const userContext = useContext(UserContext);
@@ -20,6 +21,17 @@ export default function UpdateProfile() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const userId = searchParams.get("id");
+  const [token, setToken] = useState<string | null>(null); // State for storing token
+
+  useEffect(() => {
+    const storedToken = localStorage.getItem("token");
+    if (!storedToken) {
+      router.push("/");
+    } else {
+      setToken(storedToken);
+      console.log("Token is", storedToken);
+    }
+  }, [router]);
 
   useEffect(() => {
     if (userContext?.userAuthData) {
@@ -34,17 +46,25 @@ export default function UpdateProfile() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+    if (!token) return; // Ensure the token is present before proceeding
     try {
       setIsLoading(true);
-      const response = await axios.put(`/api/auth/updateProfile?id=${userId}`, {
-        phone,
-        profession,
-        age,
-        bio,
-        firstName,
-        lastName,
-      });
+      const response = await axios.put(
+        `/api/auth/updateProfile?id=${userId}`,
+        {
+          phone,
+          profession,
+          age,
+          bio,
+          firstName,
+          lastName,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.data.success) {
         toast.success("Profile Updated Successfully");
