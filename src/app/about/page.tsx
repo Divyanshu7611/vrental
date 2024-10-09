@@ -32,7 +32,7 @@ export default function AboutUs() {
           </p>
         </section>
 
-        <section className="grid grid-cols-2 md:grid-cols-2 gap-12 mb-16">
+        <section className="gap-12 mb-16">
           <div className="bg-white p-10 rounded-xl shadow-xl transform transition-transform duration-500 hover:scale-105">
             <h2 className="text-3xl font-semibold text-gray-800 mb-6">
               Meet the Team
