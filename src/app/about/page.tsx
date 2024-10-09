@@ -32,7 +32,7 @@ export default function AboutUs() {
           </p>
         </section>
 
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
+        <section className="grid grid-cols-2 md:grid-cols-2 gap-12 mb-16">
           <div className="bg-white p-10 rounded-xl shadow-xl transform transition-transform duration-500 hover:scale-105">
             <h2 className="text-3xl font-semibold text-gray-800 mb-6">
               Meet the Team
@@ -45,13 +45,22 @@ export default function AboutUs() {
                 <strong>Founder & Owner</strong>
               </p>
               <p className="text-gray-700 leading-relaxed">
-                Kushal Gaur is the innovative mind behind VRental. As a
-                third-year student with a strong passion for technology and
-                design, he has leveraged his skills to create a user-centric
-                platform that addresses the diverse needs of renters. Kushal is
-                also responsible for the website’s entire UI/UX design, ensuring
-                an intuitive and aesthetically pleasing experience for our
-                users.
+                Kushal Gaur, the 21-year-old founder of VRental, is a passionate
+                innovator currently pursuing a B-Tech degree in Aeronautical
+                Engineering at Rajasthan Technical University. While excelling
+                in his academic field, Kushal recognized the challenges in
+                finding quality rental accommodations, which inspired him to
+                launch VRental on August 1, 2024. His goal is to make the rental
+                process easier, more transparent, and accessible for everyone.
+                <br /> <br />
+                Kushal&apos;s unique blend of technical skills, creativity, and
+                a deep understanding of user needs has shaped VRental into a
+                platform that truly puts users first. From designing the UI/UX
+                to overseeing every detail of the platform, Kushal’s hands-on
+                approach ensures that VRental provides a seamless, enjoyable
+                experience for both renters and property owners alike. His
+                vision is to build a trusted, all-in-one rental platform where
+                users can find their perfect space with confidence and ease.
               </p>
             </div>
             <div>

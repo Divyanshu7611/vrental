@@ -1,7 +1,6 @@
 import User from "@/models/User";
 import { connectMongoDB } from "@/utilis/dbConnect";
-import { verifyJwtToken } from "@/utilis/jwt";
-import { verifyToken } from "@/utilis/middleware";
+import { verifyToken } from "@/utilis/jwt";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function PUT(req: NextRequest) {

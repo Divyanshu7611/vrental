@@ -448,9 +448,15 @@ const Step1: React.FC = () => {
               <textarea
                 {...register("description", {
                   required: "Description is required",
+                  validate: (value) => {
+                    const wordCount = value.trim().split(/\s+/).length;
+                    return (
+                      wordCount <= 500 || "Description cannot exceed 500 words"
+                    );
+                  },
                 })}
                 className="border border-gray-300 rounded-lg px-4 py-2 font-normal bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-                placeholder="A beautiful place to live in..."
+                placeholder="A beautiful place to live in...(Maximum 500 words)"
                 rows={4}
               ></textarea>
               {errors.description && (

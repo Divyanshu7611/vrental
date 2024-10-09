@@ -13,7 +13,7 @@ type Section = {
 
 function Footer() {
   return (
-    <div className="min-w-screen bg-gradient-to-b from-[#000000] to-[#014247] p-10">
+    <div className="min-w-screen bg-gradient-to-b from-[#000000] to-[#014247] p-10 px-5">
       <div className="max-w-[1200px] mx-auto flex flex-wrap gap-10 py-5 justify-between">
         {footerLinks.map((item: Section, index) => (
           <div key={index} className="flex flex-col gap-3">
