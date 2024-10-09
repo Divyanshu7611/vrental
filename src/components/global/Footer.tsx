@@ -45,6 +45,11 @@ function Footer() {
             </li>
           </ul>
           <p className="text-sm list-none font-normal text-gray-400">
+            <a href="https://portfolio-theta-two-64.vercel.app/">
+              Developed By Divyanshu Sharma
+            </a>
+          </p>
+          <p className="text-sm list-none font-normal text-gray-400">
             All Copyrights Reserved to VRENTAL
           </p>
         </div>
