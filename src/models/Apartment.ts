@@ -21,6 +21,8 @@ export interface IApartment extends Document {
   averageRating: number;
   furniture: string;
   status: string;
+  paymentStatus: string;
+  txnID: string;
 }
 
 const apartmentSchema: Schema = new Schema<IApartment>({
@@ -94,6 +96,17 @@ const apartmentSchema: Schema = new Schema<IApartment>({
   averageRating: {
     type: Number,
     default: 0,
+  },
+  paymentStatus: {
+    type: String,
+    enum: ["Pending", "Verified"],
+    default: "Pending",
+  },
+  txnID: {
+    type: String,
+    required: true,
+    trim: true,
+    uppercase: true,
   },
 });
 

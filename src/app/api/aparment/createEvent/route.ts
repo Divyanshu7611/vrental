@@ -22,6 +22,7 @@ export async function POST(req: NextRequest) {
     const availableFor = formData.get("availableFor") as string;
     const imageFiles = formData.getAll("image") as File[];
     const category = formData.get("category") as string;
+    const txnID = formData.get("txnID") as string;
 
     // Validation
     // if (
@@ -99,6 +100,8 @@ export async function POST(req: NextRequest) {
       contactNo,
       ownerID: userId,
       status: "Available For Rent",
+      paymentStatus: "Pending",
+      txnID,
     });
 
     await User.findByIdAndUpdate(

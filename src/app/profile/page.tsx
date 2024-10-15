@@ -78,6 +78,7 @@ export default function Page() {
                     furniture={data.furniture}
                     location={data.location}
                     availableFor={data.availableFor}
+                    paymentStatus={data.paymentStatus}
                   />
                 )
               )}

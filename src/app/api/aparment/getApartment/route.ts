@@ -16,12 +16,15 @@ export async function GET(req: NextRequest) {
         { status: 400 }
       );
     }
-    const apartments = await Apartment.find({ category: category });
+    const apartments = await Apartment.find({
+      category: category,
+      paymentStatus: "Verified",
+    });
 
     return NextResponse.json(
       {
         success: true,
-        message: "All Apartments Fetched Properly",
+        message: "Verified Apartments Fetched Successfully",
         data: apartments,
       },
       { status: 200 }

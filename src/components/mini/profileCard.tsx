@@ -16,6 +16,7 @@ interface ICardDetails {
   furniture: string;
   location: string;
   availableFor: string;
+  paymentStatus: string;
 }
 
 const ProfileCard: React.FC<ICardDetails> = ({
@@ -32,6 +33,7 @@ const ProfileCard: React.FC<ICardDetails> = ({
   furniture,
   location,
   availableFor,
+  paymentStatus,
 }) => {
   const [deleting, setDelete] = useState<boolean>(false);
   // handleEdit
@@ -81,8 +83,12 @@ const ProfileCard: React.FC<ICardDetails> = ({
         <h1 className="font-medium text-2xl">
           {price}₹/{timePeriod}
         </h1>
-        <h3 className="text-sm">{category} for Rent</h3>
-        <h3 className="text-sm">{status}</h3>
+        <h1 className="text-xl font-medium">{apartmentName}</h1>
+        <h3 className="text-sm font-semibold">{category} for Rent</h3>
+        {/* <h3 className="text-sm">{status}</h3> */}
+        <h3 className="text-sm font-semibold">
+          Verification Status: {paymentStatus}
+        </h3>
 
         <h3 className="text-[10px] text-[#000000] opacity-50">{address}</h3>
         {/* <h3 className="text-[10px] text-[#000000] opacity-50">{date}</h3> */}
