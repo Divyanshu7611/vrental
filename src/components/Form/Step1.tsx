@@ -35,7 +35,7 @@ const Step1: React.FC = () => {
   const {
     register,
     handleSubmit,
-    formState: { errors, isValid },
+    formState: { errors },
     reset,
     watch,
   } = useForm<FormValues>({ mode: "onChange" });
@@ -53,6 +53,9 @@ const Step1: React.FC = () => {
   const [txnID, settxnID] = useState<string>("");
 
   const [payment, setPayment] = useState<boolean>(false);
+  const watchAllFields = watch();
+  const [isFormComplete, setIsFormComplete] = useState<boolean>(false);
+
   const router = useRouter();
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -81,18 +84,38 @@ const Step1: React.FC = () => {
   const handleRemoveFurniture = (furniture: string) => {
     setFurniture(furnitures.filter((f) => f !== furniture));
   };
-  const isFormValid = () => {
-    return (
-      isValid &&
-      selectedImages.length > 0 &&
-      facilities.length > 0 &&
-      furnitures.length > 0 &&
-      localAddress &&
-      pincode &&
-      city &&
-      state
-    );
-  };
+
+  useEffect(() => {
+    const checkFormCompleteness = () => {
+      const isComplete =
+        !!watchAllFields.apartmentName &&
+        !!watchAllFields.description &&
+        !!watchAllFields.price &&
+        !!watchAllFields.contactNo &&
+        !!watchAllFields.category &&
+        !!watchAllFields.availableFor &&
+        selectedImages.length > 0 &&
+        facilities.length > 0 &&
+        furnitures.length > 0 &&
+        !!localAddress &&
+        !!pincode &&
+        !!city &&
+        !!state;
+
+      setIsFormComplete(isComplete);
+    };
+
+    checkFormCompleteness();
+  }, [
+    watchAllFields,
+    selectedImages,
+    facilities,
+    furnitures,
+    localAddress,
+    pincode,
+    city,
+    state,
+  ]);
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
     const formData = new FormData();
@@ -537,19 +560,20 @@ const Step1: React.FC = () => {
               </div>
 
               <button
+                type="button"
                 onClick={() => {
-                  if (isFormValid()) {
+                  if (isFormComplete) {
                     setPayment(true);
                   } else {
                     toast.error("Please fill all required fields");
                   }
                 }}
                 className={`px-6 py-3 mt-4 rounded-lg font-semibold ${
-                  isFormValid()
+                  isFormComplete
                     ? "bg-blue-500 text-white hover:bg-blue-600"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
                 }`}
-                disabled={!isFormValid()}
+                disabled={!isFormComplete}
               >
                 Next
               </button>
@@ -587,6 +611,7 @@ const Step1: React.FC = () => {
                 Submit
               </button>
               <button
+                type="button"
                 onClick={() => {
                   setPayment(false);
                 }}
