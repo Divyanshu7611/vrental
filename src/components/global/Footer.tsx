@@ -45,8 +45,8 @@ function Footer() {
             </li>
           </ul>
           <p className="text-sm list-none font-normal text-gray-400">
-            <a href="#">
-              Developed By Mohit Sharma
+            <a href="https://thedivyanshu.me">
+              Developed By Divyanshu Sharma
             </a>
           </p>
           <p className="text-sm list-none font-normal text-gray-400">

@@ -65,15 +65,15 @@ export default function AboutUs() {
             </div>
             <div>
               <h3 className="text-2xl font-semibold text-gray-700 mb-2">
-                Mohit Sharma
+                Divyanshu Sharma
               </h3>
               <p className="text-gray-600 mb-2">
                 <strong>Frontend & Backend Developer</strong>
               </p>
               <p className="text-gray-700 leading-relaxed">
                 The technical brilliance behind VRental’s smooth functionality
-                is thanks to Mohit Sharma. As the developer responsible for
-                both the frontend and backend of the platform, Mohit has
+                is thanks to Divyanshu Sharma. As the developer responsible for
+                both the frontend and backend of the platform, Divyanshuhas
                 played a crucial role in bringing Kushal’s vision to life,
                 ensuring that our website is both efficient and user-friendly.
               </p>
@@ -141,7 +141,7 @@ export default function AboutUs() {
               enjoyable browsing experience.
             </li>
             <li>
-              <strong>Efficient Development:</strong> Mohit Sharma’s
+              <strong>Efficient Development:</strong> Divyanshu Sharma’s
               expertise ensures that our website operates smoothly, with
               efficient navigation and reliable performance.
             </li>
