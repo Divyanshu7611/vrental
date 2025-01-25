@@ -45,7 +45,7 @@ function CategoryShowcase({ categories }: { categories: string }) {
         const response = await axios.get(
           `/api/aparment/getApartment?category=${categories}`
         );
-        console.log("apartment Data", response);
+        // console.log("apartment Data", response);
         if (response.data.data.length === 0) {
           router.push("/");
         }
