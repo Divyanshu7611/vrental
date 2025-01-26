@@ -104,7 +104,7 @@ const apartmentSchema: Schema = new Schema<IApartment>({
   },
   txnID: {
     type: String,
-    required: true,
+    // required: true,
     trim: true,
     uppercase: true,
   },

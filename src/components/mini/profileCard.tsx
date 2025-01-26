@@ -86,9 +86,9 @@ const ProfileCard: React.FC<ICardDetails> = ({
         <h1 className="text-xl font-medium">{apartmentName}</h1>
         <h3 className="text-sm font-semibold">{category} for Rent</h3>
         {/* <h3 className="text-sm">{status}</h3> */}
-        <h3 className="text-sm font-semibold">
+        {/* <h3 className="text-sm font-semibold">
           Verification Status: {paymentStatus}
-        </h3>
+        </h3> */}
 
         <h3 className="text-[10px] text-[#000000] opacity-50">{address}</h3>
         {/* <h3 className="text-[10px] text-[#000000] opacity-50">{date}</h3> */}

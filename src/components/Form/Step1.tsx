@@ -152,7 +152,9 @@ const Step1: React.FC = () => {
         toast.success("Apartment created successfully");
         reset(); // Reset the form
 
-        router.push("/test/success");
+        // router.push("/test/success");
+        router.push("/profile");
+
       } else toast.error("Something Went Error");
     } catch (error: any) {
       setLoading(false);
@@ -560,10 +562,10 @@ const Step1: React.FC = () => {
               </div>
 
               <button
-                type="button"
+                type="submit"
                 onClick={() => {
                   if (isFormComplete) {
-                    setPayment(true);
+                    // setPayment(true);
                   } else {
                     toast.error("Please fill all required fields");
                   }
@@ -575,7 +577,7 @@ const Step1: React.FC = () => {
                 }`}
                 disabled={!isFormComplete}
               >
-                Next
+                Submit
               </button>
             </div>
           )}
