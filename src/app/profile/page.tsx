@@ -60,7 +60,7 @@ export default function Page() {
             <h1 className="text-2xl font-medium text-center">Apartments</h1>
           </div>
           <div className="p-1 w-full">
-            <div className="max-w-[1080px] mx-auto flex flex-wrap justify-start items-item-start py-5 gap-5">
+            <div className="max-w-[1080px] mx-auto flex flex-wrap justify-start items-item-start py-5 gap-5 px-1">
               {aparmentData.map(
                 (data: any, index: React.Key | null | undefined) => (
                   <ProfileCard

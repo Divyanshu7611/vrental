@@ -18,7 +18,7 @@ export default function AboutUs() {
 
         <section className="bg-white p-10 rounded-xl shadow-xl mb-16 transform transition-transform duration-500 hover:scale-105">
           <h2 className="text-4xl font-semibold text-gray-800 mb-6">
-            Founder & Owner
+            Founder & Ceo
           </h2>
           <p className="text-gray-700 text-lg leading-relaxed">
             Welcome to VRental, your premier destination for finding and renting
