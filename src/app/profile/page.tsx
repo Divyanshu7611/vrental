@@ -13,6 +13,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ProfileCard from "@/components/mini/profileCard";
 
+
 export default function Page() {
   const [aparmentData, handleApartmentData] = useState<any>([]);
   const [loading, setLoading] = useState(true);
@@ -84,6 +85,7 @@ export default function Page() {
               )}
             </div>
           </div>
+         
         </div>
       )}
       <Footer />
