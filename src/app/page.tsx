@@ -97,7 +97,7 @@ function Home() {
         {/* Add Apartment Button */}
         {showButton && (
           <button
-            className="fixed bottom-8 right-8 p-3 flex justify-between items-center gap-3 px-5 text-xs bg-blue-500 text-white rounded-full shadow-lg hover:scale-105 transition-all duration-500"
+            className="fixed bottom-8 right-1 p-3 flex justify-between items-center gap-3 px-5 text-xs bg-blue-500 text-white rounded-full shadow-lg hover:scale-105 transition-all duration-500"
             onClick={() => {
               // alert("Add Apartment button clicked!");
               window.location.href = "/test";
