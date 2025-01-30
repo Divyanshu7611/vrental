@@ -7,7 +7,7 @@ import ResetPassword from "./ResetLink"; // Import the ResetPassword component
 
 export default function AuthMain() {
   const [view, setView] = useState<"signup" | "login" | "resetPassword">(
-    "signup"
+    "login"
   );
 
   return (

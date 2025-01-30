@@ -38,7 +38,6 @@ export async function POST(request: NextRequest) {
     email,
     phone,
     password,
-    confirmPassword,
     otp,
     profession,
     age,
@@ -48,13 +47,12 @@ export async function POST(request: NextRequest) {
   try {
     await connectMongoDB();
 
-    // Input validation
+    // // Input validation
     if (
       !firstName ||
       !lastName ||
       !email ||
       !password ||
-      !confirmPassword ||
       !phone ||
       !otp
     ) {
@@ -73,13 +71,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Match password
-    if (password !== confirmPassword) {
-      return NextResponse.json(
-        { success: false, message: "Passwords do not match" },
-        { status: 400 }
-      );
-    }
+
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
