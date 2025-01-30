@@ -65,7 +65,7 @@ function Home() {
   // Handle scrolling logic
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 300) {
+      if (window.scrollY > 100) {
         setShowButton(true);
       } else {
         setShowButton(false);
@@ -97,7 +97,7 @@ function Home() {
         {/* Add Apartment Button */}
         {showButton && (
           <button
-            className="fixed bottom-8 right-1 p-3 flex justify-between items-center gap-3 px-5 text-xs bg-blue-500 text-white rounded-full shadow-lg hover:scale-105 transition-all duration-500"
+            className="fixed bottom-8 right-5 p-3 flex justify-between items-center gap-3 px-5 text-xs bg-blue-500 text-white rounded-full shadow-lg hover:scale-105 transition-all duration-700 animate-bounce"
             onClick={() => {
               // alert("Add Apartment button clicked!");
               window.location.href = "/test";
@@ -106,7 +106,7 @@ function Home() {
           >
             {/* <ArrowUpCircle className="text-2xl" /> */}
             <SquarePenIcon className="text-xs"/>
-            Add Apartment
+            {/* Add Apartment */}
           </button>
         )}
       </div>
