@@ -317,7 +317,7 @@ export default function Page() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-gradient-to-b from-[#F0F4F8] to-[#D9E6F2]">
+    <div className="w-full min-h-screen">
       {loading ? (
         <div className="min-w-screen min-h-screen flex justify-center items-center bg-transparent">
           <div className="loader"></div>

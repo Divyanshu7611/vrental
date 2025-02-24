@@ -100,7 +100,7 @@ export async function POST(req: NextRequest) {
       contactNo,
       ownerID: userId,
       status: "Available For Rent",
-      paymentStatus: "Pending",
+      paymentStatus: "Verified",
       // txnID,
     });
 

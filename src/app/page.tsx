@@ -1,55 +1,3 @@
-// import React, { Suspense } from "react";
-// import Hero from "@/components/HomePage/Hero";
-// import CategoryShowcase from "@/components/HomePage/CategoryShowcase";
-// import Loading from "./loading";
-// import MapAd from "@/components/HomePage/MapAd";
-// import Footer from "@/components/global/Footer";
-// import FlatCard from "@/components/mini/FlatCard";
-// import Navbar from "@/components/global/Navbar";
-// import HomeFlat from "@/components/mini/HomeFlat";
-
-
-// function Home() {
-//   const newLocal = "PG";
-//   return (
-//     <Suspense fallback={<Loading />}>
-//       <div className="min-h-screen min-w-screen flex flex-col">
-//         <Navbar />
-//         <Hero />
-//         <div className="bg-gradient-to-b from-[#F8F8F8] to-[#00E0FF]">
-//           <div className="max-w-[1200px] mx-auto mt-10">
-//            {/* <MapAd/> */}
-//             <CategoryShowcase categories="ROOM" />
-//             <CategoryShowcase categories="HOSTEL" />
-//             <CategoryShowcase categories="PG" />
-//             <CategoryShowcase categories="FLAT" />
-//             <CategoryShowcase categories="CO-LIVING" />
-//             {/* <ApartmentShowcaseHome/> */}
-
-//             {/* <FlatShowCase categories="FLAT" /> */}
-//             {/* <CategoryShowcase categories={newLocal} /> */}
-
-//             {/* <MapAd />
-//             <HomeFlat
-//               title="Lotus Flats"
-//               description="Enjoy stunning city views from this modern loft with open space."
-//               location="Rohini Sector, New Delhi"
-//               price={40000}
-//               image="/assets/flat.png"
-//               category="FLAT"
-//               flexProp="row"
-//             />  */}
-//           </div>
-//         </div>
-//         <Footer />
-//       </div>
-//     </Suspense>
-//   );
-// }
-
-// export default Home;
-
-
 "use client";
 import React, { Suspense, useState, useEffect } from "react";
 import { SquarePenIcon } from "lucide-react"; // Importing the icon
@@ -83,7 +31,8 @@ function Home() {
       <div className="min-h-screen min-w-screen flex flex-col">
         <Navbar />
         <Hero />
-        <div className="bg-gradient-to-b from-[#F8F8F8] to-[#00E0FF]">
+        {/* <div className="bg-gradient-to-b from-[#F8F8F8] to-[#00E0FF]"> */}
+        <div className="bg-gray-100">
           <div className="max-w-[1200px] mx-auto mt-10">
             <CategoryShowcase categories="ROOM" />
             <CategoryShowcase categories="HOSTEL" />

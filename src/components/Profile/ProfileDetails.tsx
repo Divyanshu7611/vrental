@@ -78,7 +78,7 @@ export default function ProfileDetails() {
   }, [userContext?.userAuthData]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100 py-20 px-4">
+    <div className="min-h-screen min-w-screen py-20 px-4">
       <Card className="max-w-4xl mx-auto overflow-hidden">
         <CardContent className="p-0">
           {/* Header Banner */}

@@ -12,6 +12,8 @@ import { FaHeart } from "react-icons/fa";
 import { CgProfile } from "react-icons/cg";
 import { MdOutlineAddHomeWork } from "react-icons/md";
 import { PiShoppingCart } from "react-icons/pi";
+import { MdOutlineShoppingCart } from "react-icons/md";
+import Link from "next/link";
 
 export default function Navbar() {
   const [isToken, setToken] = useState<boolean>(false);
@@ -39,7 +41,7 @@ export default function Navbar() {
 
   return (
     <div>
-      <div className="min-w-full lg:h-16 h-12 bg-gradient-to-b from-[#FFFFFF] to-[#00E0FF] fixed z-50 flex justify-between items-center px-3 lg:px-8">
+      <div className="min-w-full lg:h-16 h-12 backdrop-blur-xl bg-transparent fixed z-50 flex justify-between items-center px-3 lg:px-8 shadow-md">
         <div className="text-2xl font-bold text-[#00E0FF]">
           <img
             src="/assets/Logo.png"
@@ -85,7 +87,7 @@ export default function Navbar() {
           {isToken ? (
             <div className="relative flex items-center">
               <div className="flex items-center aspect-auto">
-                <img
+                {/* <img
                   src="/assets/cart.png"
                   alt=""
                   width={50}
@@ -94,7 +96,11 @@ export default function Navbar() {
                   onClick={() => {
                     router.push("/wishlist");
                   }}
-                />
+                /> */}
+                <Link href="/wishlist" prefetch>
+                
+                <MdOutlineShoppingCart className="w-7 h-7 mr-3"/>
+                </Link>
 
                 <img
                   src={`https://api.dicebear.com/5.x/initials/svg?seed=${userContext?.userAuthData?.firstName} ${userContext?.userAuthData?.lastName}&backgroundColor=418FA9`}
