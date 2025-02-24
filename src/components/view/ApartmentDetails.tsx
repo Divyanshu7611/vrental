@@ -86,7 +86,7 @@ const ApartmentDetails: React.FC<ApartmentDetailsProps> = ({ data }) => {
       </p>
       <StarRating rating={data.averageRating} />
 
-      <div className="bg-gradient-to-b from-[#00FFFF] to-[#009999] w-full rounded-xl p-4 mt-12">
+      <div className="bg-gray-100 w-full rounded-xl p-4 mt-12">
         <p className="text-lg font-medium mb-2">Facilities:</p>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 max-h-[300px] overflow-y-auto">
           {facilityColumns.map((column, columnIndex) => (
@@ -112,7 +112,7 @@ const ApartmentDetails: React.FC<ApartmentDetailsProps> = ({ data }) => {
         </div>
       </div>
       {/* furniture */}
-      <div className="bg-gradient-to-b from-[#00FFFF] to-[#009999] w-full rounded-xl p-4 mt-12">
+      <div className="bg-gray-100 w-full rounded-xl p-4 mt-12">
         <p className="text-lg font-medium mb-2">Furniture:</p>
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 max-h-[300px] overflow-y-auto">
           {furnitureColumns.map((column, columnIndex) => (
@@ -138,7 +138,7 @@ const ApartmentDetails: React.FC<ApartmentDetailsProps> = ({ data }) => {
         </div>
       </div>
 
-      <div className="bg-gradient-to-b from-[#00FFFF] to-[#009999] w-full rounded-xl p-4 mt-12">
+      <div className="bg-gray-100 w-full rounded-xl p-4 mt-12">
         <p className="text-lg font-medium mb-2">Description:</p>
 
         {data.description}

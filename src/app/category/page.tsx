@@ -319,7 +319,7 @@ export default function Page() {
   return (
     <div className="w-full min-h-screen">
       {loading ? (
-        <div className="min-w-screen min-h-screen flex justify-center items-center bg-transparent">
+        <div className="min-w-screen min-h-screen flex justify-center items-center">
           <div className="loader"></div>
         </div>
       ) : (

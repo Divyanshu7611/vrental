@@ -304,7 +304,7 @@ const FlatCard: React.FC<FlatCardProps> = ({
       <div className="flex flex-col justify-between lg:max-h-[315px] p-5 overflow-hidden md:w-full lg:w-2/4">
         <div className="flex flex-col gap-3">
           <h1 className="text-2xl font-normal">{title}</h1>
-          <p className="text-sm text-black opacity-50">{description}</p>
+          <p className="text-sm text-black opacity-50 line-clamp-2">{description}</p>
           <div className="flex items-center gap-2">
             <MapPin size={16} className="text-[#28989e]" />
             <p className="text-sm text-black opacity-50">{location}</p>
