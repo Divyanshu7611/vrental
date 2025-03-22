@@ -29,7 +29,7 @@ export default function UpdateProfile() {
       router.push("/");
     } else {
       setToken(storedToken);
-      console.log("Token is", storedToken);
+      // console.log("Token is", storedToken);
     }
   }, [router]);
 

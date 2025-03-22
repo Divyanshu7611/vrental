@@ -81,6 +81,9 @@ export default function Navbar() {
             <li className="text-base font-semibold text-[#000000] cursor-pointer hover:scale-110 hover:font-bold">
               <a href="/category?category=CO-LIVING">Co-Living</a>
             </li>
+            <li className="text-base font-semibold text-[#000000] cursor-pointer hover:scale-110 hover:font-bold">
+              <a href="/category?category=SHOP">Shop</a>
+            </li>
           </ul>
         </div>
         <div className="relative hidden lg:flex items-center">
@@ -201,6 +204,9 @@ export default function Navbar() {
           </li>
           <li className="text-base font-semibold text-[#000000]">
             <a href="/category?category=CO-LIVING">Co-Living</a>
+          </li>
+          <li className="text-base font-semibold text-[#000000]">
+            <a href="/category?category=Shop">Shop</a>
           </li>
           {isToken ? (
             <>

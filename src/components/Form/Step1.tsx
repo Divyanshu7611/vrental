@@ -295,6 +295,17 @@ const Step1: React.FC = () => {
                         />
                         FLAT
                       </label>
+                      <label className="flex items-center gap-2 font-normal">
+                        <input
+                          type="radio"
+                          value="SHOP"
+                          className="bg-white"
+                          {...register("category", {
+                            required: "Category is required",
+                          })}
+                        />
+                        SHOP
+                      </label>
                     </div>
                   </div>
 

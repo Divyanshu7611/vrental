@@ -199,6 +199,14 @@ interface FlatCardProps {
   flexProp: string;
   category: string;
   averageRating: number;
+  contactNo: number
+  furnitureDescription: string;
+  parking: boolean;
+  electricity: boolean;
+  facility: string;
+  availableFor: string;
+  furniture: boolean;
+  client: string[];  
 }
 
 const FlatCard: React.FC<FlatCardProps> = ({
@@ -211,6 +219,14 @@ const FlatCard: React.FC<FlatCardProps> = ({
   flexProp,
   category,
   averageRating,
+  contactNo,
+  facility,
+  availableFor,
+  furniture,
+  furnitureDescription,
+  parking,
+  electricity,
+  client,
 }) => {
   const controls = useAnimation();
   const router = useRouter();
