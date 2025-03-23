@@ -4,8 +4,10 @@ import { SquarePenIcon } from "lucide-react"; // Importing the icon
 import Hero from "@/components/HomePage/Hero";
 import CategoryShowcase from "@/components/HomePage/CategoryShowcase";
 import Loading from "./loading";
+import FeaturesSection from "@/components/HomePage/Featured";
 import Footer from "@/components/global/Footer";
 import Navbar from "@/components/global/Navbar";
+import TestimonialSlider from "@/components/HomePage/Testimonials";
 
 function Home() {
   const [showButton, setShowButton] = useState(false);
@@ -39,6 +41,8 @@ function Home() {
             <CategoryShowcase categories="PG" />
             <CategoryShowcase categories="FLAT" />
             <CategoryShowcase categories="CO-LIVING" />
+            <FeaturesSection />
+            <TestimonialSlider />
           </div>
         </div>
         <Footer />

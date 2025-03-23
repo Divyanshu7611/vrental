@@ -19,7 +19,7 @@
 
     return (
       <div className="min-h-screen min-w-screen py-20 px-4">
-        <Card className="max-w-4xl mx-auto overflow-hidden">
+        <Card className="w-full max-w-screen-2xl mx-auto overflow-hidden">
           <CardContent className="p-0">
             {/* Header Banner */}
             <div className="h-32 bg-gradient-to-r from-cyan-500 to-blue-500" />
