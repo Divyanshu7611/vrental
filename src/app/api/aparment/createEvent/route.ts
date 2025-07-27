@@ -23,6 +23,9 @@ export async function POST(req: NextRequest) {
     const imageFiles = formData.getAll("image") as File[];
     const category = formData.get("category") as string;
     const txnID = formData.get("txnID") as string;
+    const paymentAmount = Number(formData.get("paymentAmount"));
+    const membershipDuration = Number(formData.get("membershipDuration"));
+
 
     // Validation
     // if (
@@ -100,8 +103,11 @@ export async function POST(req: NextRequest) {
       contactNo,
       ownerID: userId,
       status: "Available For Rent",
-      paymentStatus: "Verified",
-      // txnID,
+      paymentStatus: "Pending",
+      txnID,
+      paymentAmount,
+      membershipDuration,
+      memberShipExpiry: new Date(Date.now() + membershipDuration * 30 * 24 * 60 * 60 * 1000),
     });
 
     await User.findByIdAndUpdate(

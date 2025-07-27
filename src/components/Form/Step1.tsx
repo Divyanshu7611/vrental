@@ -20,6 +20,8 @@ type FormValues = {
   contactNo: number;
   furniture: string;
   txnID: string;
+  membershipPlan?: string;
+  planAmount?: number;
 };
 
 const Step1: React.FC = () => {
@@ -53,6 +55,8 @@ const Step1: React.FC = () => {
   const [txnID, settxnID] = useState<string>("");
 
   const [payment, setPayment] = useState<boolean>(false);
+  const [selectedPlan, setSelectedPlan] = useState<string>("");
+  const [planAmount, setPlanAmount] = useState<number>(0);
   const watchAllFields = watch();
   const [isFormComplete, setIsFormComplete] = useState<boolean>(false);
 
@@ -131,6 +135,8 @@ const Step1: React.FC = () => {
     formData.append("availableFor", data.availableFor.toString());
     formData.append("category", data.category);
     formData.append("txnID", data.txnID);
+    formData.append("membershipPlan", selectedPlan);
+    formData.append("planAmount", planAmount.toString());
 
     selectedImages.forEach((file) => formData.append("image", file));
     formData.forEach((value, key) => {
@@ -154,7 +160,6 @@ const Step1: React.FC = () => {
 
         // router.push("/test/success");
         router.push("/profile");
-
       } else toast.error("Something Went Error");
     } catch (error: any) {
       setLoading(false);
@@ -576,7 +581,7 @@ const Step1: React.FC = () => {
                 type="submit"
                 onClick={() => {
                   if (isFormComplete) {
-                    // setPayment(true);
+                    setPayment(true);
                   } else {
                     toast.error("Please fill all required fields");
                   }
@@ -595,10 +600,111 @@ const Step1: React.FC = () => {
           {payment && (
             <div className="flex flex-col items-center justify-center gap-5 border bg-white lg:p-10 md:p-10 p-5 rounded-xl text-black mx-auto">
               <h1 className="text-center font-semibold">
-                Pay Apartment Registration amount to <br />
-                Register Your Apartment
+                Choose Your Membership Plan
               </h1>
-              <FixedQrCode />
+
+              {/* Membership Plans */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-4xl">
+                <div
+                  className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                    selectedPlan === "1month"
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-gray-300 hover:border-blue-300"
+                  }`}
+                  onClick={() => {
+                    setSelectedPlan("1month");
+                    setPlanAmount(99);
+                  }}
+                >
+                  <div className="text-center">
+                    <h3 className="text-lg font-bold text-blue-600">1 Month</h3>
+                    <div className="text-3xl font-bold text-gray-800 mt-2">
+                      ₹99
+                    </div>
+                    <p className="text-sm text-gray-600 mt-1">Basic Plan</p>
+                    <ul className="text-xs text-gray-600 mt-3 space-y-1">
+                      <li>• Apartment listing for 1 month</li>
+                      <li>• Basic support</li>
+                      <li>• Standard features</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div
+                  className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                    selectedPlan === "6month"
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-gray-300 hover:border-blue-300"
+                  }`}
+                  onClick={() => {
+                    setSelectedPlan("6month");
+                    setPlanAmount(499);
+                  }}
+                >
+                  <div className="text-center">
+                    <h3 className="text-lg font-bold text-blue-600">
+                      6 Months
+                    </h3>
+                    <div className="text-3xl font-bold text-gray-800 mt-2">
+                      ₹499
+                    </div>
+                    <p className="text-sm text-gray-600 mt-1">Popular Plan</p>
+                    <div className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full mt-1">
+                      Save ₹95
+                    </div>
+                    <ul className="text-xs text-gray-600 mt-3 space-y-1">
+                      <li>• Apartment listing for 6 months</li>
+                      <li>• Priority support</li>
+                      <li>• Enhanced features</li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div
+                  className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                    selectedPlan === "12month"
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-gray-300 hover:border-blue-300"
+                  }`}
+                  onClick={() => {
+                    setSelectedPlan("12month");
+                    setPlanAmount(999);
+                  }}
+                >
+                  <div className="text-center">
+                    <h3 className="text-lg font-bold text-blue-600">
+                      12 Months
+                    </h3>
+                    <div className="text-3xl font-bold text-gray-800 mt-2">
+                      ₹999
+                    </div>
+                    <p className="text-sm text-gray-600 mt-1">Best Value</p>
+                    <div className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full mt-1">
+                      Save ₹189
+                    </div>
+                    <ul className="text-xs text-gray-600 mt-3 space-y-1">
+                      <li>• Apartment listing for 12 months</li>
+                      <li>• Premium support</li>
+                      <li>• All features included</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              {selectedPlan && (
+                <div className="text-center">
+                  <h2 className="text-xl font-semibold mb-4">
+                    Pay ₹{planAmount} to Register Your Apartment
+                  </h2>
+                  <FixedQrCode amount={planAmount} />
+                </div>
+              )}
+
+              {!selectedPlan && (
+                <div className="text-center text-red-500 text-sm">
+                  Please select a membership plan to continue
+                </div>
+              )}
               <label
                 className="w-full flex flex-col font-semibold"
                 htmlFor="txnId"
@@ -619,7 +725,12 @@ const Step1: React.FC = () => {
               </label>
               <button
                 type="submit"
-                className="bg-blue-500 text-white px-6 py-3 mt-4 rounded-lg font-semibold hover:bg-blue-600 w-full"
+                disabled={!selectedPlan}
+                className={`px-6 py-3 mt-4 rounded-lg font-semibold w-full ${
+                  selectedPlan
+                    ? "bg-blue-500 text-white hover:bg-blue-600"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}
               >
                 Submit
               </button>

@@ -23,6 +23,10 @@ export interface IApartment extends Document {
   status: string;
   paymentStatus: string;
   txnID: string;
+  paymentDate: Date;
+  paymentAmount: number;
+  memberShipExpiry: Date;
+  membershipDuration: number;
 }
 
 const apartmentSchema: Schema = new Schema<IApartment>({
@@ -107,6 +111,22 @@ const apartmentSchema: Schema = new Schema<IApartment>({
     // required: true,
     trim: true,
     uppercase: true,
+  },
+  paymentDate: {
+    type: Date,
+    default: Date.now,
+    
+  },
+  paymentAmount: {
+    type: Number,
+    required: true,
+  },
+  memberShipExpiry: {
+    type: Date,
+  },
+  membershipDuration: {
+    type: Number,
+    required: true,
   },
 });
 

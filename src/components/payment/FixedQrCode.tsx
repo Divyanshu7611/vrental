@@ -1,10 +1,13 @@
 import React, { useEffect, useRef } from "react";
 import QRCode from "qrcode";
 
-export default function FixedQrCode() {
+interface FixedQrCodeProps {
+  amount: number;
+}
+
+export default function FixedQrCode({ amount }: FixedQrCodeProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const currency = "INR";
-  const amount = 99;
   const recipient = "9509206802@ptsbi";
   const firmName = "VRENTAL";
 
