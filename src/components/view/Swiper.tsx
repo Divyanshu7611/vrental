@@ -59,6 +59,28 @@ const ImageGrid: React.FC<ImageGridProps> = ({ images }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
+  // Handle keyboard navigation
+  useEffect(() => {
+    if (!isModalOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsModalOpen(false);
+        document.body.style.overflow = "unset";
+      }
+      if (e.key === "ArrowRight" && images && images.length > 0) {
+        setCurrentImageIndex((prev) => (prev + 1) % images.length);
+      }
+      if (e.key === "ArrowLeft" && images && images.length > 0) {
+        setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isModalOpen, images]);
+
+  // Early return after all hooks
   if (!images || images.length === 0) return null;
 
   const remainingCount = images.length - 3;
@@ -81,27 +103,6 @@ const ImageGrid: React.FC<ImageGridProps> = ({ images }) => {
   const prevImage = () => {
     setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
   };
-
-  // Handle keyboard navigation
-  useEffect(() => {
-    if (!isModalOpen) return;
-
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        setIsModalOpen(false);
-        document.body.style.overflow = "unset";
-      }
-      if (e.key === "ArrowRight") {
-        setCurrentImageIndex((prev) => (prev + 1) % images.length);
-      }
-      if (e.key === "ArrowLeft") {
-        setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isModalOpen, images.length]);
 
   return (
     <>

@@ -1211,6 +1211,7 @@ const Step1: React.FC = () => {
                         key={index}
                         className="relative group aspect-square rounded-lg overflow-hidden border-2 border-gray-200 shadow-sm hover:shadow-md transition-shadow"
                       >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
                           src={URL.createObjectURL(image)}
                           alt={`Preview ${index + 1}`}
