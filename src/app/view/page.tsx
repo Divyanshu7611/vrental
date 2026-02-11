@@ -27,14 +27,14 @@ export default function Page() {
       {loading === false && data ? (
         <div className="min-w-screen min-h-screen">
           <Navbar />
-          <div className="flex w-full lg:flex-row flex-col justify-center items-start p-3 mx-auto pt-20 space-x-4 gap-5">
-            <ApartmentDetails data={data.apartment} />
 
-            <OwnerDetails
+            <ApartmentDetails data={data.apartment} ownerData={data.owner} contactNo={data.apartment.contactNo}/>
+
+            {/* <OwnerDetails
               data={data.owner}
               contactNo={data.apartment.contactNo}
-            />
-          </div>
+            /> */}
+
           <Footer />
         </div>
       ) : (
