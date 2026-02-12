@@ -85,7 +85,7 @@ export default function Page() {
     };
 
     fetchData();
-  }, [category]);
+  }, [category, router]);
 
   const applyFilters = () => {
     let filtered = categoryData;
@@ -130,67 +130,113 @@ export default function Page() {
       ) : (
         <div>
           <Navbar />
-          <div className="mx-auto max-w-[1080px] pt-24 px-6">
-            <div className="bg-white p-6 rounded-xl shadow-lg mb-8">
-              <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-                Find Your Perfect Apartment
-              </h2>
+          <div className="mx-auto max-w-[1200px] pt-24 px-4 sm:px-6 pb-12">
+            {/* Filter Section */}
+            <div className="bg-gradient-to-br from-white to-gray-50 p-6 sm:p-8 rounded-2xl shadow-xl border border-gray-100 mb-8">
+              <div className="mb-6">
+                <h2 className="text-3xl font-bold text-gray-900 mb-2">
+                  Find Your Perfect Apartment
+                </h2>
+                <p className="text-gray-600 text-sm">
+                  Use filters to narrow down your search and find exactly what you're looking for
+                </p>
+              </div>
+              
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                <select
-                  value={district}
-                  onChange={(e) => setDistrict(e.target.value)}
-                  className="p-3 border rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Select District</option>
-                  {districtsOfRajasthan.map((d) => (
-                    <option key={d} value={d}>
-                      {d}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  value={furnishing}
-                  onChange={(e) => setFurnishing(e.target.value)}
-                  className="p-3 border rounded-lg w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="all">All</option>
-                  <option value="furnished">Furnished</option>
-                  <option value="semi-furnished">Semi-Furnished</option>
-                  <option value="not-furnished">Not Furnished</option>
-                </select>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    District
+                  </label>
+                  <select
+                    value={district}
+                    onChange={(e) => setDistrict(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm"
+                  >
+                    <option value="">All Districts</option>
+                    {districtsOfRajasthan.map((d) => (
+                      <option key={d} value={d}>
+                        {d}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Furnishing
+                  </label>
+                  <select
+                    value={furnishing}
+                    onChange={(e) => setFurnishing(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm"
+                  >
+                    <option value="all">All Types</option>
+                    <option value="furnished">Furnished</option>
+                    <option value="semi-furnished">Semi-Furnished</option>
+                    <option value="not-furnished">Not Furnished</option>
+                  </select>
+                </div>
+                
+                <div>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Sort By
+                  </label>
+                  <select
+                    value={sortOrder}
+                    onChange={(e) => setSortOrder(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm"
+                  >
+                    <option value="default">Default</option>
+                    <option value="lowToHigh">Price: Low to High</option>
+                    <option value="highToLow">Price: High to Low</option>
+                  </select>
+                </div>
+                
+                <div className="flex items-end">
+                  <button
+                    onClick={applyFilters}
+                    className="w-full px-4 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-lg hover:from-blue-700 hover:to-blue-800 transition-all duration-200 shadow-md hover:shadow-lg font-semibold flex items-center justify-center gap-2"
+                  >
+                    <Search className="w-5 h-5" />
+                    Apply Filters
+                  </button>
+                </div>
               </div>
-              <div className="flex justify-between items-center">
-                <select
-                  value={sortOrder}
-                  onChange={(e) => setSortOrder(e.target.value)}
-                  className="p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="default">Sort by</option>
-                  <option value="lowToHigh">Price: Low to High</option>
-                  <option value="highToLow">Price: High to Low</option>
-                </select>
-                <button
-                  onClick={applyFilters}
-                  className="p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  <Search className="inline mr-2" />
-                  Search
-                </button>
-              </div>
+              
+              {filteredData.length > 0 && (
+                <div className="pt-4 border-t border-gray-200">
+                  <p className="text-sm text-gray-600">
+                    Showing <span className="font-semibold text-gray-900">{filteredData.length}</span> properties
+                  </p>
+                </div>
+              )}
             </div>
 
             {filteredData.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-20">
-                <Frown className="text-gray-500 w-16 h-16 mb-4" />
-                <h3 className="text-xl font-semibold text-gray-700 mb-2">
+              <div className="flex flex-col items-center justify-center py-24 bg-white rounded-2xl shadow-lg border border-gray-100">
+                <div className="bg-gray-100 rounded-full p-6 mb-6">
+                  <Frown className="text-gray-400 w-16 h-16" />
+                </div>
+                <h3 className="text-2xl font-bold text-gray-900 mb-3">
                   No Apartments Found
                 </h3>
-                <p className="text-gray-600 text-center">
-                  Try adjusting your filters or search in another district.
+                <p className="text-gray-600 text-center max-w-md mb-6">
+                  We couldn't find any properties matching your criteria. Try adjusting your filters or search in another district.
                 </p>
+                <button
+                  onClick={() => {
+                    setDistrict("");
+                    setFurnishing("all");
+                    setSortOrder("default");
+                    setFilteredData(categoryData);
+                  }}
+                  className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-all font-semibold shadow-md hover:shadow-lg"
+                >
+                  Clear All Filters
+                </button>
               </div>
             ) : (
-              <div className="flex-wrap flex justify-center gap-6">
+              <div className="grid grid-cols-1 gap-8">
                 {filteredData.map((flat, index) => (
                   <FlatCard
                     averageRating={flat.averageRating}
