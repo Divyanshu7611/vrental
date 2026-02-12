@@ -138,7 +138,7 @@ export default function Page() {
                   Find Your Perfect Apartment
                 </h2>
                 <p className="text-gray-600 text-sm">
-                  Use filters to narrow down your search and find exactly what you're looking for
+                  Use filters to narrow down your search and find exactly what you&apos;re looking for
                 </p>
               </div>
               
@@ -221,7 +221,7 @@ export default function Page() {
                   No Apartments Found
                 </h3>
                 <p className="text-gray-600 text-center max-w-md mb-6">
-                  We couldn't find any properties matching your criteria. Try adjusting your filters or search in another district.
+                  We couldn&apos;t find any properties matching your criteria. Try adjusting your filters or search in another district.
                 </p>
                 <button
                   onClick={() => {
