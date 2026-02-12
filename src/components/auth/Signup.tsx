@@ -613,7 +613,7 @@ export default function Signup() {
           type="button"
           onClick={handleEmailValidation}
           disabled={!state.isTermsAccepted}
-          className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-all duration-200 transform hover:scale-[1.02] disabled:bg-gray-400 disabled:cursor-not-allowed"
+          className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-all duration-200 transform hover:scale-[1.02] disabled:bg-gray-400 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
         >
           Continue
         </button>
@@ -643,7 +643,7 @@ export default function Signup() {
         <button
           type="button"
           onClick={() => setStep(1)}
-          className="flex-1 bg-gray-200 text-gray-800 py-3 rounded-lg font-medium hover:bg-gray-300 transition-all duration-200"
+          className="flex-1 bg-gray-200 text-gray-800 py-3 rounded-lg font-semibold hover:bg-gray-300 transition-all duration-200"
         >
           Back
         </button>
@@ -651,7 +651,7 @@ export default function Signup() {
           type="button"
           onClick={verifyOtp}
           disabled={!state.enteredOtp}
-          className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 transition-all duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed"
+          className="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-all duration-200 disabled:bg-gray-400 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
         >
           Verify & Submit
         </button>
@@ -661,7 +661,7 @@ export default function Signup() {
         <button
           type="button"
           onClick={handleEmailValidation}
-          className="w-full bg-gray-100 text-gray-600 py-2 rounded-lg text-sm hover:bg-gray-200 transition-all duration-200"
+          className="w-full bg-gray-100 text-gray-600 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-all duration-200"
         >
           Resend OTP
         </button>
@@ -772,13 +772,13 @@ export default function Signup() {
               </div>
             <div className="flex justify-end gap-4">
               <button
-                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-all"
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg font-medium hover:bg-gray-300 transition-all"
                 onClick={toggleTermsModal}
               >
                 Close
               </button>
               <button
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-all"
+                className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-all shadow-md hover:shadow-lg"
                 onClick={acceptTerms}
               >
                 Accept

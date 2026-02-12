@@ -68,35 +68,56 @@ export default function Login() {
         <Spinner />
       ) : (
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-          <input
-            type="email"
-            placeholder="Email"
-            className="border w-full px-2 text-sm rounded-md py-2"
-            {...register("email", { required: "Email is required" })}
-          />
+          <div>
+            <input
+              type="email"
+              placeholder="Email address"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 outline-none text-sm"
+              {...register("email", { required: "Email is required" })}
+            />
+            {errors.email && (
+              <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
+            )}
+          </div>
 
-          <input
-            type="password"
-            placeholder="Password"
-            className="border w-full px-2 text-sm rounded-md py-2"
-            {...register("password", {
-              required: "Password is required",
-              minLength: {
-                value: 6,
-                message: "Password must be at least 6 characters",
-              },
-            })}
-          />
+          <div>
+            <input
+              type="password"
+              placeholder="Password"
+              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 outline-none text-sm"
+              {...register("password", {
+                required: "Password is required",
+                minLength: {
+                  value: 6,
+                  message: "Password must be at least 6 characters",
+                },
+              })}
+            />
+            {errors.password && (
+              <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>
+            )}
+          </div>
 
           <button
             type="submit"
-            className="bg-blue-600 w-full font-light text-lg text-white rounded-md py-2 hover:scale-105 transition-all duration-200"
+            className="bg-blue-600 w-full font-semibold text-base text-white rounded-lg py-3 hover:bg-blue-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            LOGIN
+            Sign In
           </button>
         </form>
       )}
-      <ToastContainer />
+      <ToastContainer 
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </>
   );
 }

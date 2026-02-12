@@ -1,90 +1,131 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { FcGoogle } from "react-icons/fc";
 import Signup from "./Signup";
 import Login from "./Login";
-import ResetPassword from "./ResetLink"; // Import the ResetPassword component
-import { getAuth,signInWithPopup, GoogleAuthProvider } from "firebase/auth";
+import ResetPassword from "./ResetLink";
+import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "@/utilis/firebase";
 import axios from "axios";
-import { useContext } from "react";
 import { UserContext } from "@/context/UserContext";
 
 export default function AuthMain() {
-  const [view, setView] = useState<"signup" | "login" | "resetPassword">(
-    "login"
-  );
-
-  // const auth = getAuth();
+  const [view, setView] = useState<"signup" | "login" | "resetPassword">("login");
   const userContext = useContext(UserContext);
   const provider = new GoogleAuthProvider();
+
   async function handleGoogleLogin() {
     try {
-    const result = await signInWithPopup(auth, provider)
-    const token = await result.user.getIdToken()
-    console.log("Auth user",token,result.user.email,result.user.displayName,result.user.photoURL,result.user.phoneNumber)
+      const result = await signInWithPopup(auth, provider);
+      const token = await result.user.getIdToken();
 
-    const response = await axios.post('/api/auth/google',{token,email:result.user.email,displayName:result.user.displayName,photoUrl:result.user.photoURL,phoneNumber:1234567890})
-    if(response.data.success){
-      localStorage.setItem('token',token)
-      userContext?.AuthDataHandler(response.data.data)
-      window.location.href = '/'
-    }
-      
-    } catch (error:any) {
+      const response = await axios.post("/api/auth/google", {
+        token,
+        email: result.user.email,
+        displayName: result.user.displayName,
+        photoUrl: result.user.photoURL,
+        phoneNumber: 1234567890,
+      });
+
+      if (response.data.success) {
+        localStorage.setItem("token", token);
+        userContext?.AuthDataHandler(response.data.data);
+        window.location.href = "/";
+      }
+    } catch (error: any) {
       console.error("Google Sign-in Error:", error.message);
     }
-    
   }
+
   return (
-    <div className="flex flex-col gap-5 h-full px-2">
+    <div className="flex flex-col gap-6 w-full max-w-md mx-auto">
+
+      {/* Google Button */}
+
+      <h2 className="text-2xl font-semibold text-gray-800 mb-2">
+        {view === "signup" 
+          ? "Create Your Account" 
+          : view === "resetPassword"
+          ? "Reset Password"
+          : "Welcome Back"}
+      </h2>
+      <p className="text-sm text-gray-500 mb-6">
+        {view === "signup"
+          ? "Sign up to get started with VRENTAL"
+          : view === "resetPassword"
+          ? "Enter your email to receive a reset link"
+          : "Sign in to continue to your account"}
+      </p>
+
       <button
-        className="w-full bg-[#434FAA] py-2 px-2 text-start text-white lg:text-md text-md flex justify-start items-center lg:gap-12 gap-6 hover:scale-105 transition-all duration-200 rounded-md"
         onClick={handleGoogleLogin}
+        className="w-full flex items-center justify-center gap-3 
+        bg-white border border-gray-300 
+        py-3 rounded-lg 
+        shadow-sm hover:shadow-md 
+        transition-all duration-300 
+        hover:scale-[1.02]"
       >
-        <FcGoogle className="lg:text-xl text-lg" />
-        Connect with Google
+        <FcGoogle className="text-xl" />
+        <span className="font-medium text-gray-700">
+          Continue with Google
+        </span>
       </button>
-      <div className="flex w-full justify-between gap-2 items-center">
-        <span className="w-[150px] opacity-20 h-[1px] bg-black"></span>
-        <div className="opacity-50 text-lg font-light italic">or</div>
-        <span className="w-[150px] opacity-20 h-[1px] bg-black"></span>
+
+      {/* Divider */}
+      <div className="flex items-center gap-4">
+        <div className="flex-1 h-[1px] bg-gray-200"></div>
+        <span className="text-sm text-gray-400 font-medium">OR</span>
+        <div className="flex-1 h-[1px] bg-gray-200"></div>
       </div>
 
-      {view === "signup" && <Signup />}
-      {view === "login" && <Login />}
-      {view === "resetPassword" && <ResetPassword />}
+      {/* Form Section */}
+      <div className="space-y-4">
+        {view === "signup" && <Signup />}
+        {view === "login" && <Login />}
+        {view === "resetPassword" && <ResetPassword />}
+      </div>
 
-      {view === "login" ? (
-        <>
-          <a
-            onClick={() => setView("signup")}
-            className="text-sm text-blue-500 hover:underline cursor-pointer text-center"
+      {/* Navigation Links */}
+      <div className="flex flex-col gap-3 pt-2 text-center">
+
+        {view === "login" && (
+          <>
+            <button
+              onClick={() => setView("signup")}
+              className="text-sm text-blue-600 font-medium hover:text-blue-700 transition"
+            >
+              Create a new account
+            </button>
+
+            <button
+              onClick={() => setView("resetPassword")}
+              className="text-sm text-gray-500 hover:text-blue-600 transition"
+            >
+              Forgot password?
+            </button>
+          </>
+        )}
+
+        {view === "signup" && (
+          <button
+            onClick={() => setView("login")}
+            className="text-sm text-blue-600 font-medium hover:text-blue-700 transition"
           >
-            Create New Account
-          </a>
-          <a
-            onClick={() => setView("resetPassword")}
-            className="text-sm text-blue-500 hover:underline cursor-pointer text-center"
+            Already have an account?
+          </button>
+        )}
+
+        {view === "resetPassword" && (
+          <button
+            onClick={() => setView("login")}
+            className="text-sm text-blue-600 font-medium hover:text-blue-700 transition"
           >
-            Forgot Password?
-          </a>
-        </>
-      ) : view === "signup" ? (
-        <a
-          onClick={() => setView("login")}
-          className="text-sm text-blue-500 hover:underline cursor-pointer text-center"
-        >
-          Already have an account
-        </a>
-      ) : (
-        <a
-          onClick={() => setView("login")}
-          className="text-sm text-blue-500 hover:underline cursor-pointer text-center"
-        >
-          Back to Login
-        </a>
-      )}
+            Back to Login
+          </button>
+        )}
+
+      </div>
     </div>
   );
 }

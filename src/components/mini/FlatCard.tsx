@@ -311,60 +311,86 @@ const FlatCard: React.FC<FlatCardProps> = ({
       initial="hidden"
       animate={controls}
       variants={cardVariants}
-      whileHover={{ scale: 1.05 }}
+      whileHover={{ y: -8 }}
       onClick={handleCardClick}
-      className={`bg-white lg:rounded-lg rounded-lg w-full max-w-[1000px] mx-auto flex flex-col-reverse justify-between ${
+      className={`bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 w-full overflow-hidden border border-gray-100 cursor-pointer group ${
         flexProp === "row" ? "lg:flex-row" : "lg:flex-row-reverse"
-      } md:flex-col-reverse mb-10`}
+      } flex flex-col-reverse`}
     >
-      <div className="flex flex-col justify-between lg:max-h-[315px] p-5 overflow-hidden md:w-full lg:w-2/4">
-        <div className="flex flex-col gap-3">
-          <h1 className="text-2xl font-normal">{title}</h1>
-          <p className="text-sm text-black opacity-50 line-clamp-2">{description}</p>
-          <div className="flex items-center gap-2">
-            <MapPin size={16} className="text-[#28989e]" />
-            <p className="text-sm text-black opacity-50">{location}</p>
+      {/* Content Section */}
+      <div className="flex flex-col justify-between lg:w-1/2 p-6 lg:p-8">
+        <div className="flex flex-col gap-4 mb-4">
+          {/* Title and Category Badge */}
+          <div className="flex items-start justify-between gap-3">
+            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2 flex-1">
+              {title}
+            </h1>
+            <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-xs font-semibold whitespace-nowrap">
+              {category}
+            </span>
           </div>
-          <div className="flex items-center gap-2">
-            <Star size={16} className="text-yellow-500" />
-            <p className="text-base text-black">
-              Rating: {Math.round(averageRating)}
-            </p>
+          
+          {/* Description */}
+          <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
+            {description}
+          </p>
+          
+          {/* Location */}
+          <div className="flex items-center gap-2 text-gray-700">
+            <MapPin size={18} className="text-blue-600 flex-shrink-0" />
+            <p className="text-sm font-medium truncate">{location}</p>
           </div>
-          <div className="flex items-center gap-2">
-            <IndianRupee size={16} className="text-[#28989e]" />
-            <p className="text-lg text-black">{price}</p>
+          
+          {/* Rating and Price Row */}
+          <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 bg-yellow-50 px-3 py-1.5 rounded-lg">
+                <Star size={16} className="text-yellow-500 fill-yellow-500" />
+                <span className="text-sm font-semibold text-gray-900">
+                  {averageRating > 0 ? averageRating.toFixed(1) : "N/A"}
+                </span>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-1">
+              <IndianRupee size={20} className="text-green-600" />
+              <p className="text-xl font-bold text-green-600">{price}</p>
+            </div>
           </div>
         </div>
+        
+        {/* Wishlist Button */}
         <button
-          className={`border rounded-lg text-sm px-4 py-1 transition-all duration-200 flex items-center gap-2 ${
+          className={`w-full rounded-lg text-sm font-semibold px-4 py-3 transition-all duration-200 flex items-center justify-center gap-2 ${
             isInWishlist
-              ? "bg-[#3560cb] text-white"
-              : "bg-transparent text-[#28989e]"
+              ? "bg-red-50 text-red-600 border-2 border-red-200 hover:bg-red-100"
+              : "bg-blue-50 text-blue-600 border-2 border-blue-200 hover:bg-blue-100"
           }`}
           onClick={handleWishlistToggle}
         >
           {isInWishlist ? (
             <>
-              <HeartOff size={16} /> Remove From Wishlist
+              <HeartOff size={18} className="fill-red-600" /> Remove from Wishlist
             </>
           ) : (
             <>
-              <Heart size={16} /> Add To Wishlist
+              <Heart size={18} /> Add to Wishlist
             </>
           )}
         </button>
       </div>
-      <div className="overflow-hidden md:w-full lg:w-2/4 w-full lg:max-w-[500px] lg:max-h-[315px] max-h-[380px]">
+      
+      {/* Image Section */}
+      <div className="relative lg:w-1/2 w-full h-[280px] lg:h-[350px] overflow-hidden bg-gray-100">
         <Image
           src={image}
-          alt="flatcard"
-          height={315}
-          width={500}
-          layout="responsive"
-          objectFit="cover"
-          className="rounded-lg"
+          alt={title}
+          fill
+          className="object-cover group-hover:scale-110 transition-transform duration-500"
+          sizes="(max-width: 768px) 100vw, 50vw"
         />
+        {/* Overlay gradient */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       </div>
     </motion.div>
   );

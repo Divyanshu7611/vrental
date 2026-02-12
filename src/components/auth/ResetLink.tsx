@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { toast, ToastContainer } from "react-toastify";
 import Spinner from "../global/Spinner";
+import { Mail } from "lucide-react";
 import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 
@@ -44,25 +45,44 @@ export default function ResetPassword() {
   return (
     <>
       {isLoading ? (
-        <Spinner />
+        <div className="flex justify-center items-center py-12">
+          <Spinner />
+        </div>
       ) : (
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-          <input
-            type="email"
-            placeholder="Email"
-            className="border w-full px-2 text-sm rounded-md py-1"
-            {...register("email", { required: "Email is required" })}
-          />
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <input
+              type="email"
+              placeholder="Enter your email address"
+              className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 outline-none text-sm"
+              {...register("email", { required: "Email is required" })}
+            />
+            {errors.email && (
+              <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>
+            )}
+          </div>
 
           <button
             type="submit"
-            className="bg-[#68ACFD] w-full font-light text-lg text-white rounded-md py-1 hover:scale-105 transition-all duration-200"
+            className="bg-blue-600 w-full font-semibold text-base text-white rounded-lg py-3 hover:bg-blue-700 transition-all duration-200 shadow-md hover:shadow-lg disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            SEND RESET LINK
+            Send Reset Link
           </button>
         </form>
       )}
-      <ToastContainer />
+      <ToastContainer 
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </>
   );
 }

@@ -1,6 +1,6 @@
 export const footerLinks = [
   {
-    section: "V-RENTAL",
+    section: "Company",
     links: [
       { name: "About Us", href: "/about" },
       // { name: "Our Awards", href: "#" },
