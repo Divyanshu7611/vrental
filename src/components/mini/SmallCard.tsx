@@ -148,7 +148,7 @@ const SmallCard: React.FC<ICardDetails> = ({
       variants={cardVariants}
       whileHover={{ scale: 1.05 }}
       onClick={() => {
-        router.push(`/view?apartmentID=${id}`);
+        router.push(`/apartment?apartmentID=${id}`);
       }}
       className="p-2 border shadow-md flex flex-col bg-white justify-between gap-4 rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-200 cursor-pointer mx-auto max-w-xs"
     >

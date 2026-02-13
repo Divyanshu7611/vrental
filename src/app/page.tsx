@@ -129,7 +129,7 @@ function Home() {
         exit={{ opacity: 0, y: -30 }}
         transition={{ duration: 0.4 }}
         whileHover={{ y: -8, transition: { duration: 0.3 } }}
-        onClick={() => router.push(`/view?apartmentID=${apartment._id}`)}
+        onClick={() => router.push(`/apartment?apartmentID=${apartment._id}`)}
         className="group relative p-5 border border-gray-200 flex flex-col bg-white justify-between gap-5 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer w-full overflow-hidden"
       >
         {/* Gradient overlay on hover */}
@@ -563,7 +563,7 @@ function Home() {
             whileTap={{ scale: 0.9 }}
             className="fixed bottom-8 right-5 p-4 flex justify-center items-center bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full shadow-2xl hover:shadow-blue-500/50 transition-all duration-300"
             onClick={() => {
-              window.location.href = "/test";
+              window.location.href = "/list-apartment";
             }}
           >
             <SquarePenIcon className="w-6 h-6" />

@@ -45,7 +45,7 @@ export default function ResetPassword() {
   return (
     <>
       {isLoading ? (
-        <div className="flex justify-center items-center py-12">
+        <div className="flex justify-center items-center py-12 bg-white rounded-lg min-h-[200px]">
           <Spinner />
         </div>
       ) : (

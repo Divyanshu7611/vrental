@@ -65,7 +65,9 @@ export default function Login() {
   return (
     <>
       {isLoading ? (
-        <Spinner />
+        <div className="bg-white rounded-lg p-8 min-h-[200px] flex items-center justify-center">
+          <Spinner />
+        </div>
       ) : (
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
           <div>

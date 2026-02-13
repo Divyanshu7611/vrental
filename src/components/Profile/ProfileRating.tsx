@@ -47,64 +47,49 @@ export default function ProfileRating() {
   const userContext = useContext(UserContext);
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <div className="flex flex-col gap-8">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="flex flex-col gap-6">
         {/* Action Buttons */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto w-full">
           {/* Edit Profile Button */}
           <button
-            className="group relative overflow-hidden rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 p-[2px] transition-all hover:shadow-lg"
+            className="group relative overflow-hidden rounded-xl bg-white border-2 border-gray-200 hover:border-blue-500 transition-all duration-300 hover:shadow-xl"
             onClick={() => {
               router.push(`/updateProfile?id=${userContext?.userAuthData?._id}`);
             }}
           >
-            <div className="relative flex items-center gap-2 rounded-[10px] bg-white px-6 py-3 transition-all group-hover:bg-opacity-90">
-              <Pencil className="h-5 w-5 text-cyan-600" />
-              <span className="font-semibold text-gray-800">Edit Profile</span>
+            <div className="relative flex items-center justify-center gap-3 px-6 py-4 transition-all">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <Pencil className="h-5 w-5 text-white" />
+              </div>
+              <div className="flex flex-col items-start">
+                <span className="font-semibold text-gray-900 text-base">Edit Profile</span>
+                <span className="text-xs text-gray-500">Update your information</span>
+              </div>
             </div>
-            <div className="absolute inset-0 opacity-0 transition-opacity group-hover:opacity-20">
-              <div className="h-full w-full bg-gradient-to-r from-white via-transparent to-transparent animate-shimmer"></div>
-            </div>
+            <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </button>
 
           {/* Apartments Button */}
           <button
-            className="group relative overflow-hidden rounded-xl bg-gradient-to-r from-cyan-500 to-blue-500 p-[2px] transition-all hover:shadow-lg"
+            className="group relative overflow-hidden rounded-xl bg-white border-2 border-gray-200 hover:border-cyan-500 transition-all duration-300 hover:shadow-xl"
             onClick={() => {
-              router.push("/test");
+              router.push("/list-apartment");
             }}
           >
-            <div className="relative flex items-center gap-2 rounded-[10px] bg-white px-6 py-3 transition-all group-hover:bg-opacity-90">
-              <Home className="h-5 w-5 text-cyan-600" />
-              <span className="font-semibold text-gray-800">Apartments</span>
+            <div className="relative flex items-center justify-center gap-3 px-6 py-4 transition-all">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <Home className="h-5 w-5 text-white" />
+              </div>
+              <div className="flex flex-col items-start">
+                <span className="font-semibold text-gray-900 text-base">Add Apartment</span>
+                <span className="text-xs text-gray-500">List a new property</span>
+              </div>
             </div>
-            <div className="absolute inset-0 opacity-0 transition-opacity group-hover:opacity-20">
-              <div className="h-full w-full bg-gradient-to-r from-white via-transparent to-transparent animate-shimmer"></div>
-            </div>
+            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </button>
         </div>
-
-        {/* Star Rating Section (Commented out but styled) */}
-        {/* <div className="bg-white rounded-xl p-6 shadow-lg">
-          <h2 className="text-2xl font-semibold text-gray-900 mb-4">Profile Rating</h2>
-          <StarRating rating={4} />
-        </div> */}
       </div>
-
-      {/* Add custom animation keyframes */}
-      <style jsx global>{`
-        @keyframes shimmer {
-          0% {
-            transform: translateX(-100%);
-          }
-          100% {
-            transform: translateX(100%);
-          }
-        }
-        .animate-shimmer {
-          animation: shimmer 2s infinite;
-        }
-      `}</style>
     </div>
   );
 }

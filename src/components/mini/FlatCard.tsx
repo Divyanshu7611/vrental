@@ -282,7 +282,7 @@ const FlatCard: React.FC<FlatCardProps> = ({
   const handleCardClick = () => {
     const scrollPosition = window.scrollY;
     sessionStorage.setItem("scrollPosition", scrollPosition.toString());
-    router.push(`/view?apartmentID=${id}`);
+    router.push(`/apartment?apartmentID=${id}`);
   };
 
   useEffect(() => {

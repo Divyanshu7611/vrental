@@ -1,13 +1,3 @@
-// "use client";
-// import React, { useContext, useEffect, useState } from "react";
-// import { useForm, SubmitHandler } from "react-hook-form";
-// import { toast, ToastContainer } from "react-toastify";
-// import axios from "axios";
-// import "react-toastify/dist/ReactToastify.css";
-// import { UserContext } from "@/context/UserContext";
-// import { useRouter } from "next/navigation";
-// import FixedQrCode from "../payment/FixedQrCode";
-
 // type FormValues = {
 //   apartmentName: string;
 //   description: string;
@@ -765,6 +755,29 @@ import "react-toastify/dist/ReactToastify.css";
 import { UserContext } from "@/context/UserContext";
 import { useRouter } from "next/navigation";
 import FixedQrCode from "../payment/FixedQrCode";
+import {
+  FaTv,
+  FaSnowflake,
+  FaFan,
+  FaWifi,
+  FaBreadSlice,
+  FaFire,
+  FaBroom,
+  FaCouch,
+  FaBed,
+  FaChair,
+  FaBook,
+  FaDoorOpen,
+  FaLaptop,
+  FaGraduationCap,
+} from "react-icons/fa";
+import { IoMdCube } from "react-icons/io";
+import { MdTableRestaurant, MdCoffee } from "react-icons/md";
+import { GiWashingMachine, GiCooler } from "react-icons/gi";
+import { BiSolidTv, BiFridge } from "react-icons/bi";
+import { BsBox } from "react-icons/bs";
+import { Home, Users, User, Heart, Users2, Building2, Store } from "lucide-react";
+// import { Home, Users, User, Heart, Users2, Building2, Store } from "lucide-react";
 
 type FormValues = {
   apartmentName: string;
@@ -776,6 +789,47 @@ type FormValues = {
   txnID: string;
 };
 
+// Icon mappings
+const facilityIcons: { [key: string]: React.ReactNode } = {
+  Television: <FaTv className="w-5 h-5" />,
+  TV: <FaTv className="w-5 h-5" />,
+  Refrigerator: <BiFridge className="w-5 h-5" />,
+  Microwave: <IoMdCube className="w-5 h-5" />,
+  Toaster: <FaBreadSlice className="w-5 h-5" />,
+  Oven: <FaFire className="w-5 h-5" />,
+  "Washing Machine": <GiWashingMachine className="w-5 h-5" />,
+  "Air Conditioner": <FaSnowflake className="w-5 h-5" />,
+  Cooler: <GiCooler className="w-5 h-5" />,
+  Fan: <FaFan className="w-5 h-5" />,
+  "Vacuum Cleaner": <FaBroom className="w-5 h-5" />,
+  Wifi: <FaWifi className="w-5 h-5" />,
+};
+
+const furnitureIcons: { [key: string]: React.ReactNode } = {
+  Sofa: <FaCouch className="w-5 h-5" />,
+  Bed: <FaBed className="w-5 h-5" />,
+  "Dining Table": <MdTableRestaurant className="w-5 h-5" />,
+  "Coffee & Tea Table": <MdCoffee className="w-5 h-5" />,
+  Dressing: <FaDoorOpen className="w-5 h-5" />,
+  Chair: <FaChair className="w-5 h-5" />,
+  Bookshelf: <FaBook className="w-5 h-5" />,
+  Wardrobe: <FaDoorOpen className="w-5 h-5" />,
+  Desk: <FaLaptop className="w-5 h-5" />,
+  "TV Stand": <BiSolidTv className="w-5 h-5" />,
+  Nightstand: <BsBox className="w-5 h-5" />,
+  "Study Table": <FaGraduationCap className="w-5 h-5" />,
+};
+
+const getIcon = (item: string, type: "facility" | "furniture"): React.ReactNode => {
+  const iconMap = type === "facility" ? facilityIcons : furnitureIcons;
+  if (iconMap[item]) return iconMap[item];
+  const normalizedItem = item.trim();
+  const key = Object.keys(iconMap).find(
+    (k) => k.toLowerCase() === normalizedItem.toLowerCase()
+  );
+  return key ? iconMap[key] : null;
+};
+
 const Step1: React.FC = () => {
   const router = useRouter();
   const userContext = useContext(UserContext);
@@ -785,7 +839,11 @@ const Step1: React.FC = () => {
     handleSubmit,
     formState: { errors },
     watch,
+    setValue,
   } = useForm<FormValues>({ mode: "onChange" });
+  
+  const selectedCategory = watch("category");
+  const selectedAvailableFor = watch("availableFor");
 
   const [step, setStep] = useState(1);
   const totalSteps = 4;
@@ -817,6 +875,28 @@ const Step1: React.FC = () => {
     if (e.target.files) {
       setSelectedImages(Array.from(e.target.files).slice(0, 5));
     }
+  };
+
+  const handleAddFacility = () => {
+    if (facilityInput && !facilities.includes(facilityInput)) {
+      setFacilities([...facilities, facilityInput]);
+      setFacilityInput("");
+    }
+  };
+
+  const handleAddFurniture = () => {
+    if (furnitureInput && !furnitures.includes(furnitureInput)) {
+      setFurniture([...furnitures, furnitureInput]);
+      setFurnitureInput("");
+    }
+  };
+
+  const handleRemoveFacility = (facility: string) => {
+    setFacilities(facilities.filter((f) => f !== facility));
+  };
+
+  const handleRemoveFurniture = (furniture: string) => {
+    setFurniture(furnitures.filter((f) => f !== furniture));
   };
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
@@ -976,45 +1056,85 @@ const Step1: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
                   Category *
                 </label>
-                <select
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {[
+                    { value: "ROOM", label: "Room", icon: <Home className="w-6 h-6" /> },
+                    { value: "PG", label: "PG", icon: <Building2 className="w-6 h-6" /> },
+                    { value: "HOSTEL", label: "Hostel", icon: <Users className="w-6 h-6" /> },
+                    { value: "CO-LIVING", label: "Co-Living", icon: <Users2 className="w-6 h-6" /> },
+                    { value: "FLAT", label: "Flat", icon: <Home className="w-6 h-6" /> },
+                    { value: "SHOP", label: "Shop", icon: <Store className="w-6 h-6" /> },
+                  ].map((cat) => (
+                    <button
+                      key={cat.value}
+                      type="button"
+                      onClick={() => setValue("category", cat.value, { shouldValidate: true })}
+                      className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all duration-200 ${
+                        selectedCategory === cat.value
+                          ? "border-blue-600 bg-blue-50 shadow-md scale-105"
+                          : "border-gray-300 bg-white hover:border-blue-400 hover:bg-blue-50/50"
+                      }`}
+                    >
+                      <div className={`mb-2 ${selectedCategory === cat.value ? "text-blue-600" : "text-gray-600"}`}>
+                        {cat.icon}
+                      </div>
+                      <span className={`text-sm font-semibold ${selectedCategory === cat.value ? "text-blue-600" : "text-gray-700"}`}>
+                        {cat.label}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+                <input
+                  type="hidden"
                   {...register("category", { required: "Category is required" })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white"
-                >
-                  <option value="">Select Category</option>
-                  <option value="ROOM">Room</option>
-                  <option value="PG">PG</option>
-                  <option value="HOSTEL">Hostel</option>
-                  <option value="CO-LIVING">Co-Living</option>
-                  <option value="FLAT">Flat</option>
-                  <option value="SHOP">Shop</option>
-                </select>
+                />
                 {errors.category && (
-                  <p className="text-red-500 text-sm mt-1">
+                  <p className="text-red-500 text-sm mt-2">
                     {errors.category.message as string}
                   </p>
                 )}
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-semibold text-gray-700 mb-3">
                   Available For *
                 </label>
-                <select
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {[
+                    { value: "Boys", label: "Boys", icon: <User className="w-6 h-6" /> },
+                    { value: "Girls", label: "Girls", icon: <User className="w-6 h-6" /> },
+                    { value: "Family", label: "Family", icon: <Users className="w-6 h-6" /> },
+                    { value: "Couple", label: "Couple", icon: <Heart className="w-6 h-6" /> },
+                    { value: "Any", label: "Any", icon: <Users2 className="w-6 h-6" /> },
+                  ].map((option) => (
+                    <button
+                      key={option.value}
+                      type="button"
+                      onClick={() => setValue("availableFor", option.value, { shouldValidate: true })}
+                      className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all duration-200 ${
+                        selectedAvailableFor === option.value
+                          ? "border-blue-600 bg-blue-50 shadow-md scale-105"
+                          : "border-gray-300 bg-white hover:border-blue-400 hover:bg-blue-50/50"
+                      }`}
+                    >
+                      <div className={`mb-2 ${selectedAvailableFor === option.value ? "text-blue-600" : "text-gray-600"}`}>
+                        {option.icon}
+                      </div>
+                      <span className={`text-sm font-semibold ${selectedAvailableFor === option.value ? "text-blue-600" : "text-gray-700"}`}>
+                        {option.label}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+                <input
+                  type="hidden"
                   {...register("availableFor", { required: "Available for is required" })}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all bg-white"
-                >
-                  <option value="">Select an option</option>
-                  <option value="Boys">Boys</option>
-                  <option value="Girls">Girls</option>
-                  <option value="Family">Family</option>
-                  <option value="Couple">Couple</option>
-                  <option value="Any">Any</option>
-                </select>
+                />
                 {errors.availableFor && (
-                  <p className="text-red-500 text-sm mt-1">
+                  <p className="text-red-500 text-sm mt-2">
                     {errors.availableFor.message as string}
                   </p>
                 )}
@@ -1132,6 +1252,167 @@ const Step1: React.FC = () => {
                 <p className="text-red-500 text-sm mt-1">
                   Description is required
                 </p>
+              )}
+            </div>
+
+            {/* Facilities Section */}
+            <div className="mb-6">
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
+                Electronics & Facilities (Select Multiple)
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                {[
+                  "Television",
+                  "Refrigerator",
+                  "Microwave",
+                  "Toaster",
+                  "Oven",
+                  "Washing Machine",
+                  "Air Conditioner",
+                  "Cooler",
+                  "Fan",
+                  "Vacuum Cleaner",
+                  "Wifi",
+                ].map((facility) => {
+                  const isSelected = facilities.includes(facility);
+                  const icon = getIcon(facility, "facility");
+                  return (
+                    <button
+                      key={facility}
+                      type="button"
+                      onClick={() => {
+                        if (isSelected) {
+                          handleRemoveFacility(facility);
+                        } else {
+                          setFacilities([...facilities, facility]);
+                        }
+                      }}
+                      className={`relative flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all duration-200 ${
+                        isSelected
+                          ? "border-blue-600 bg-blue-50 shadow-md scale-105"
+                          : "border-gray-300 bg-white hover:border-blue-400 hover:bg-blue-50/50"
+                      }`}
+                    >
+                      <div className={`mb-2 ${isSelected ? "text-blue-600" : "text-gray-600"}`}>
+                        {icon || <FaTv className="w-5 h-5" />}
+                      </div>
+                      <span className={`text-xs font-semibold text-center ${isSelected ? "text-blue-600" : "text-gray-700"}`}>
+                        {facility}
+                      </span>
+                      {isSelected && (
+                        <div className="absolute top-2 right-2 w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
+                          <span className="text-white text-xs">✓</span>
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+              {facilities.length > 0 && (
+                <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <p className="text-sm font-medium text-blue-700 mb-2">
+                    Selected ({facilities.length}):
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {facilities.map((facility, index) => (
+                      <div
+                        key={index}
+                        className="bg-blue-100 text-blue-700 px-3 py-1.5 rounded-full flex items-center gap-2 text-sm font-medium"
+                      >
+                        {getIcon(facility, "facility")}
+                        <span>{facility}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveFacility(facility)}
+                          className="text-red-600 font-bold hover:text-red-700 ml-1"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Furniture Section */}
+            <div className="mb-6">
+              <label className="block text-sm font-semibold text-gray-700 mb-3">
+                Furniture (Select Multiple)
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                {[
+                  "Sofa",
+                  "Bed",
+                  "Dining Table",
+                  "Coffee & Tea Table",
+                  "Dressing",
+                  "Chair",
+                  "Bookshelf",
+                  "Wardrobe",
+                  "Desk",
+                  "TV Stand",
+                  "Nightstand",
+                  "Study Table",
+                ].map((furniture) => {
+                  const isSelected = furnitures.includes(furniture);
+                  const icon = getIcon(furniture, "furniture");
+                  return (
+                    <button
+                      key={furniture}
+                      type="button"
+                      onClick={() => {
+                        if (isSelected) {
+                          handleRemoveFurniture(furniture);
+                        } else {
+                          setFurniture([...furnitures, furniture]);
+                        }
+                      }}
+                      className={`relative flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all duration-200 ${
+                        isSelected
+                          ? "border-purple-600 bg-purple-50 shadow-md scale-105"
+                          : "border-gray-300 bg-white hover:border-purple-400 hover:bg-purple-50/50"
+                      }`}
+                    >
+                      <div className={`mb-2 ${isSelected ? "text-purple-600" : "text-gray-600"}`}>
+                        {icon || <FaCouch className="w-5 h-5" />}
+                      </div>
+                      <span className={`text-xs font-semibold text-center ${isSelected ? "text-purple-600" : "text-gray-700"}`}>
+                        {furniture}
+                      </span>
+                      {isSelected && (
+                        <div className="absolute top-2 right-2 w-5 h-5 bg-purple-600 rounded-full flex items-center justify-center">
+                          <span className="text-white text-xs">✓</span>
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+              {furnitures.length > 0 && (
+                <div className="mt-4 p-3 bg-purple-50 rounded-lg border border-purple-200">
+                  <p className="text-sm font-medium text-purple-700 mb-2">
+                    Selected ({furnitures.length}):
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {furnitures.map((furniture, index) => (
+                      <div
+                        key={index}
+                        className="bg-purple-100 text-purple-700 px-3 py-1.5 rounded-full flex items-center gap-2 text-sm font-medium"
+                      >
+                        {getIcon(furniture, "furniture")}
+                        <span>{furniture}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveFurniture(furniture)}
+                          className="text-red-600 font-bold hover:text-red-700 ml-1"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               )}
             </div>
 
