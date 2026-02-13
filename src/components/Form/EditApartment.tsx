@@ -8,6 +8,7 @@ import { UserContext } from "@/context/UserContext";
 import { useRouter, useSearchParams } from "next/navigation";
 import { cookies } from "next/headers";
 import { Cookie } from "next/font/google";
+import Spinner from "@/components/global/Spinner";
 
 type FormValues = {
   apartmentName: string;
@@ -195,8 +196,8 @@ const EditApartment: React.FC = () => {
 
   if (handleLoading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <div className="loader"></div>
+      <div className="flex flex-col items-center justify-center min-h-screen bg-white">
+        <Spinner />
       </div>
     );
   }
@@ -207,8 +208,8 @@ const EditApartment: React.FC = () => {
       className="flex flex-col gap-5 px-6 py-8 sm:px-8 lg:px-12 bg-transparent"
     >
       {handleLoading ? (
-        <div className="flex flex-col items-center justify-center min-h-screen">
-          <div className="loader"></div>
+        <div className="flex flex-col items-center justify-center min-h-screen bg-white">
+          <Spinner />
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center gap-5 max-w-[1200px] mx-auto">

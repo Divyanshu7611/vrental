@@ -676,8 +676,7 @@ export default function Signup() {
       </h2>
 
       {state.isLoading ? (
-        <div className="flex justify-center items-center w-full h-full">
-
+        <div className="flex justify-center items-center w-full h-full bg-white rounded-lg min-h-[400px]">
           <Spinner />
         </div>
       ) : (

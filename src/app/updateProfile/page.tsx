@@ -6,6 +6,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { UserContext } from "@/context/UserContext";
 import { headers } from "next/headers";
+import Spinner from "@/components/global/Spinner";
 
 export default function UpdateProfile() {
   const userContext = useContext(UserContext);
@@ -83,8 +84,8 @@ export default function UpdateProfile() {
   return (
     <div className="flex justify-center items-center h-screen bg-gradient-to-b from-[#F8F8F8] to-[#00E0FF]">
       {isLoading ? (
-        <div className="min-w-screen min-h-screen flex justify-center items-center">
-          <div className="loader"></div>
+        <div className="min-w-screen min-h-screen bg-white flex justify-center items-center">
+          <Spinner />
         </div>
       ) : (
         <div className="w-full max-w-md">

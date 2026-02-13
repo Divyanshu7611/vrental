@@ -268,6 +268,7 @@ import { CgProfile } from "react-icons/cg";
 import { MdOutlineAddHomeWork } from "react-icons/md";
 import { PiShoppingCart } from "react-icons/pi";
 import { MdOutlineShoppingCart } from "react-icons/md";
+import { ChevronDown, Home, Building2, Users, Users2, Store, Info, Plus } from "lucide-react";
 import Link from "next/link";
 
 export default function Navbar() {
@@ -275,9 +276,19 @@ export default function Navbar() {
   const [isSelectDrop, setDropDown] = useState<boolean>(false);
   const [isSidebarOpen, setSidebarOpen] = useState<boolean>(false);
   const [isScrolled, setIsScrolled] = useState<boolean>(false);
+  const [isCategoriesOpen, setCategoriesOpen] = useState<boolean>(false);
 
   const router = useRouter();
   const userContext = useContext(UserContext);
+
+  const categories = [
+    { value: "ROOM", label: "Rooms", icon: <Home className="w-4 h-4" /> },
+    { value: "HOSTEL", label: "Hostels", icon: <Building2 className="w-4 h-4" /> },
+    { value: "PG", label: "PG", icon: <Users className="w-4 h-4" /> },
+    { value: "FLAT", label: "Flats", icon: <Home className="w-4 h-4" /> },
+    { value: "CO-LIVING", label: "Co-Living", icon: <Users2 className="w-4 h-4" /> },
+    { value: "SHOP", label: "Shops", icon: <Store className="w-4 h-4" /> },
+  ];
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -297,6 +308,21 @@ export default function Navbar() {
 
   const toggleDropdown = () => setDropDown(!isSelectDrop);
   const toggleSidebar = () => setSidebarOpen(!isSidebarOpen);
+
+  // Close categories dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as HTMLElement;
+      if (!target.closest('.categories-dropdown')) {
+        setCategoriesOpen(false);
+      }
+    };
+
+    if (isCategoriesOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isCategoriesOpen]);
 
   return (
     <div>
@@ -332,37 +358,56 @@ export default function Navbar() {
           {/* Desktop Menu */}
           <div className="hidden lg:flex mx-auto">
             <ul className="flex items-center gap-6 mx-auto justify-center">
-              <li className="text-base font-semibold text-black cursor-pointer hover:scale-110 hover:font-bold">
+              <li className="text-base font-semibold text-black cursor-pointer hover:scale-110 hover:font-bold transition-transform">
                 <a href="/">Home</a>
               </li>
-              <li className="text-base font-semibold text-black cursor-pointer hover:scale-110 hover:font-bold">
-                <a href="/category?category=ROOM">Rooms</a>
+              
+              {/* Categories Dropdown */}
+              <li className="relative categories-dropdown">
+                <button
+                  onClick={() => setCategoriesOpen(!isCategoriesOpen)}
+                  className="text-base font-semibold text-black cursor-pointer hover:scale-110 hover:font-bold transition-transform flex items-center gap-1"
+                >
+                  Categories
+                  <ChevronDown className={`w-4 h-4 transition-transform ${isCategoriesOpen ? 'rotate-180' : ''}`} />
+                </button>
+                {isCategoriesOpen && (
+                  <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 py-2 z-50">
+                    {categories.map((cat) => (
+                      <a
+                        key={cat.value}
+                        href={`/category?category=${cat.value}`}
+                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                        onClick={() => setCategoriesOpen(false)}
+                      >
+                        <span className="text-gray-600">{cat.icon}</span>
+                        {cat.label}
+                      </a>
+                    ))}
+                  </div>
+                )}
               </li>
-              <li className="text-base font-semibold text-black cursor-pointer hover:scale-110 hover:font-bold">
-                <a href="/category?category=HOSTEL">Hostels</a>
+
+              <li className="text-base font-semibold text-black cursor-pointer hover:scale-110 hover:font-bold transition-transform">
+                <a href="/about">About</a>
               </li>
-              <li className="text-base font-semibold text-black cursor-pointer hover:scale-110 hover:font-bold">
-                <a href="/category?category=PG">P-G</a>
-              </li>
-              <li className="text-base font-semibold text-black cursor-pointer hover:scale-110 hover:font-bold">
-                <a href="/category?category=FLAT">Flats</a>
-              </li>
-              <li className="text-base font-semibold text-black cursor-pointer hover:scale-110 hover:font-bold">
-                <a href="/category?category=CO-LIVING">Co-Living</a>
-              </li>
-              <li className="text-base font-semibold text-black cursor-pointer hover:scale-110 hover:font-bold">
-                <a href="/category?category=SHOP">Shop</a>
+
+              <li className="text-base font-semibold text-black cursor-pointer hover:scale-110 hover:font-bold transition-transform">
+                <a href="/list-apartment" className="flex items-center gap-1">
+                  <Plus className="w-4 h-4" />
+                  List Your Apartment
+                </a>
               </li>
             </ul>
           </div>
 
           {/* Desktop Right */}
-          <div className="relative hidden lg:flex items-center">
+          <div className="relative hidden lg:flex items-center gap-4">
             {isToken ? (
               <div className="relative flex items-center">
-                <div className="flex items-center aspect-auto">
-                  <Link href="/wishlist" prefetch>
-                    <MdOutlineShoppingCart className="w-7 h-7 mr-3" />
+                <div className="flex items-center aspect-auto gap-3">
+                  <Link href="/wishlist" prefetch className="hover:scale-110 transition-transform">
+                    <MdOutlineShoppingCart className="w-7 h-7 text-gray-700" />
                   </Link>
 
                   <img
@@ -393,7 +438,7 @@ export default function Navbar() {
 
                       <li
                         className="text-black flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                        onClick={() => router.push("/test")}
+                        onClick={() => router.push("/list-apartment")}
                       >
                         <MdOutlineAddHomeWork /> Registration
                       </li>
@@ -438,33 +483,39 @@ export default function Navbar() {
           &times;
         </button>
 
-        <ul className="flex flex-col gap-6 mt-10 px-4">
+        <ul className="flex flex-col gap-4 mt-10 px-4">
           <li className="text-base font-semibold text-black">
-            <a href="/">Go to Home</a>
+            <a href="/" onClick={toggleSidebar}>Home</a>
+          </li>
+
+          {/* Categories Section */}
+          <li>
+            <div className="text-base font-semibold text-black mb-2">Categories</div>
+            <ul className="ml-4 space-y-2">
+              {categories.map((cat) => (
+                <li key={cat.value} className="text-sm">
+                  <a 
+                    href={`/category?category=${cat.value}`}
+                    onClick={toggleSidebar}
+                    className="flex items-center gap-2 text-gray-600 hover:text-blue-600"
+                  >
+                    {cat.icon}
+                    {cat.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
           </li>
 
           <li className="text-base font-semibold text-black">
-            <a href="/category?category=ROOM">Rooms</a>
+            <a href="/about" onClick={toggleSidebar}>About</a>
           </li>
 
           <li className="text-base font-semibold text-black">
-            <a href="/category?category=HOSTEL">Hostels</a>
-          </li>
-
-          <li className="text-base font-semibold text-black">
-            <a href="/category?category=PG">P-G</a>
-          </li>
-
-          <li className="text-base font-semibold text-black">
-            <a href="/category?category=FLAT">Flats</a>
-          </li>
-
-          <li className="text-base font-semibold text-black">
-            <a href="/category?category=CO-LIVING">Co-Living</a>
-          </li>
-
-          <li className="text-base font-semibold text-black">
-            <a href="/category?category=Shop">Shop</a>
+            <a href="/list-apartment" onClick={toggleSidebar} className="flex items-center gap-2">
+              <Plus className="w-4 h-4" />
+              List Your Apartment
+            </a>
           </li>
 
           {isToken ? (
@@ -474,7 +525,7 @@ export default function Navbar() {
               </li>
 
               <li className="text-base font-semibold text-black cursor-pointer">
-                <a href="/test">Register Apartment</a>
+                <a href="/list-apartment">Register Apartment</a>
               </li>
 
               <li className="text-base font-semibold text-black cursor-pointer">

@@ -52,7 +52,9 @@ export default function ConfirmPassword() {
     <div className="flex justify-center items-center h-screen bg-gradient-to-b from-[#F8F8F8] to-[#00E0FF]">
       <div className="w-full max-w-md">
         {isLoading ? (
-          <Spinner />
+          <div className="bg-white rounded-lg p-8 min-h-[200px] flex items-center justify-center">
+            <Spinner />
+          </div>
         ) : (
           <form
             onSubmit={handleSubmit}

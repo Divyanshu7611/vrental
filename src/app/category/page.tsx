@@ -8,6 +8,7 @@ import axios from "axios";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
 import { Search, Frown } from "lucide-react";
+import Spinner from "@/components/global/Spinner";
 
 interface Flat {
   _id: string;
@@ -124,8 +125,8 @@ export default function Page() {
   return (
     <div className="w-full min-h-screen">
       {loading ? (
-        <div className="min-w-screen min-h-screen flex justify-center items-center">
-          <div className="loader"></div>
+        <div className="min-w-screen min-h-screen bg-white flex justify-center items-center">
+          <Spinner />
         </div>
       ) : (
         <div>
