@@ -86,7 +86,7 @@ export default function Page() {
                 <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">
                   Welcome back, {userContext?.userAuthData?.firstName}! 👋
                 </h2>
-                <p className="text-gray-600">Here's an overview of your account</p>
+                <p className="text-gray-600">Here&apos;s an overview of your account</p>
               </div>
 
               {/* Statistics Cards Grid */}
