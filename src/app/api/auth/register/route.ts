@@ -42,6 +42,7 @@ export async function POST(request: NextRequest) {
     profession,
     age,
     bio,
+    role,
   } = await request.json();
 
   try {
@@ -101,7 +102,7 @@ export async function POST(request: NextRequest) {
       image: `https://api.dicebear.com/5.x/initials/svg?seed=${firstName} ${lastName}&backgroundColor=418FA9`,
       clientID,
       adharNo: "",
-      role: "USER",
+      role: role || "USER",
       termsAndConditions: true,
       profession: profession || "",
       age: age || "",

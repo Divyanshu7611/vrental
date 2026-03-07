@@ -407,6 +407,7 @@ interface FormValues {
   phone: string;
   otp: string;
   adharNo: string;
+  role: "USER" | "OWNER";
 }
 
 export default function Signup() {
@@ -415,9 +416,11 @@ export default function Signup() {
     handleSubmit,
     formState: { errors },
     getValues,
+    setValue,
   } = useForm<FormValues>();
   const router = useRouter();
   const [step, setStep] = useState(1);
+  const [selectedRole, setSelectedRole] = useState<"USER" | "OWNER">("USER");
   const [state, setState] = useState({
     isEmailSent: false,
     isLoading: false,
@@ -588,6 +591,49 @@ export default function Signup() {
           },
         })}
       />
+
+      {/* Role Selection */}
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-gray-700">I am a:</label>
+        <div className="flex gap-4">
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedRole("USER");
+              setValue("role", "USER");
+            }}
+            className={`flex-1 px-4 py-3 border-2 rounded-lg text-center font-medium transition-all duration-200 ${
+              selectedRole === "USER"
+                ? "border-blue-600 bg-blue-50 text-blue-700"
+                : "border-gray-300 text-gray-700 hover:border-gray-400"
+            }`}
+          >
+            Renter
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedRole("OWNER");
+              setValue("role", "OWNER");
+            }}
+            className={`flex-1 px-4 py-3 border-2 rounded-lg text-center font-medium transition-all duration-200 ${
+              selectedRole === "OWNER"
+                ? "border-blue-600 bg-blue-50 text-blue-700"
+                : "border-gray-300 text-gray-700 hover:border-gray-400"
+            }`}
+          >
+            Owner
+          </button>
+        </div>
+        <input
+          type="hidden"
+          value={selectedRole}
+          {...register("role", { required: "Please select your role" })}
+        />
+        {errors.role && (
+          <p className="text-red-500 text-xs">{errors.role.message}</p>
+        )}
+      </div>
 
       <div className="flex items-center gap-2">
         <input

@@ -270,6 +270,7 @@ import { PiShoppingCart } from "react-icons/pi";
 import { MdOutlineShoppingCart } from "react-icons/md";
 import { ChevronDown, Home, Building2, Users, Users2, Store, Info, Plus } from "lucide-react";
 import Link from "next/link";
+import NotificationDropdown from "./NotificationDropdown";
 
 export default function Navbar() {
   const [isToken, setToken] = useState<boolean>(false);
@@ -348,8 +349,9 @@ export default function Navbar() {
             />
           </div>
 
-          {/* Mobile Hamburger */}
-          <div className="lg:hidden">
+          {/* Mobile Hamburger and Notifications */}
+          <div className="lg:hidden flex items-center gap-3">
+            {isToken && <NotificationDropdown />}
             <button className="text-2xl text-black" onClick={toggleSidebar}>
               {isSidebarOpen ? <RxCross2 /> : <GiHamburgerMenu />}
             </button>
@@ -406,6 +408,9 @@ export default function Navbar() {
             {isToken ? (
               <div className="relative flex items-center">
                 <div className="flex items-center aspect-auto gap-3">
+                  {/* Notification Dropdown */}
+                  <NotificationDropdown />
+
                   <Link href="/wishlist" prefetch className="hover:scale-110 transition-transform">
                     <MdOutlineShoppingCart className="w-7 h-7 text-gray-700" />
                   </Link>

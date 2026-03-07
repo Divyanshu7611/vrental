@@ -13,6 +13,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ProfileCard from "@/components/mini/profileCard";
 import Spinner from "@/components/global/Spinner";
+import MessageNotifications from "@/components/Profile/MessageNotifications";
 import { Home, TrendingUp, DollarSign, CheckCircle, Clock, Star, Award, BarChart3 } from "lucide-react";
 
 
@@ -205,6 +206,13 @@ export default function Page() {
           {/* Action Buttons Section */}
           <div className="w-full bg-gradient-to-br from-white to-blue-50 py-8 border-b border-gray-100">
             <ProfileRating />
+          </div>
+
+          {/* Message Notifications Section (for All Users) */}
+          <div className="w-full py-8 px-4 sm:px-6 lg:px-8 border-b border-gray-100">
+            <div className="max-w-7xl mx-auto">
+              <MessageNotifications />
+            </div>
           </div>
 
           {/* Apartments Section */}

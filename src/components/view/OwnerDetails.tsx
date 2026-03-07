@@ -4,7 +4,8 @@ import React, { useState, useContext } from "react";
 import { UserContext } from "@/context/UserContext";
 import { useSearchParams } from "next/navigation";
 import StarRating from "../Profile/Rating";
-import ShareButton from "../mini/ShareButton";
+import MessageModal from "../messaging/MessageModal";
+import { Share2, MessageCircle } from "lucide-react";
 
 interface OwnerDetailsProps {
   data: {
@@ -12,20 +13,25 @@ interface OwnerDetailsProps {
     lastName: string;
     image: string;
     email: string;
+    _id?: string;
   };
   contactNo: number;
+  apartmentID?: string;
+  apartmentName?: string;
 }
 
-const OwnerDetails: React.FC<OwnerDetailsProps> = ({ data, contactNo }) => {
+const OwnerDetails: React.FC<OwnerDetailsProps> = ({ data, contactNo, apartmentID, apartmentName }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [isCallProcessing, setCallProcessing] = useState(false);
-
   const [isApplied, setIsApplied] = useState(false);
   const [isCall, setIsCall] = useState(false);
+  const [isMessageModalOpen, setIsMessageModalOpen] = useState(false);
+  const [conversationID, setConversationID] = useState<string | null>(null);
+  const [isCreatingConversation, setIsCreatingConversation] = useState(false);
 
   const userContext = useContext(UserContext);
   const searchParams = useSearchParams();
-  const id = searchParams.get("apartmentID");
+  const id = searchParams.get("apartmentID") || apartmentID;
 
   const handleInterestedClick = async () => {
     try {
@@ -68,6 +74,59 @@ const OwnerDetails: React.FC<OwnerDetailsProps> = ({ data, contactNo }) => {
       console.error("Error registering interest:", error);
     } finally {
       setCallProcessing(false);
+    }
+  };
+
+  // Handle message button click
+  const handleMessageClick = async () => {
+    const ownerID = data._id || (data as any).id;
+    
+    if (!userContext?.userAuthData?._id || !id || !ownerID) {
+      alert("Unable to start conversation. Please try again.");
+      return;
+    }
+
+    // Check if user is trying to message themselves
+    if (userContext.userAuthData._id === ownerID) {
+      alert("You cannot message yourself.");
+      return;
+    }
+
+    setIsCreatingConversation(true);
+    try {
+      const response = await axios.post("/api/messages/conversation", {
+        userID: userContext.userAuthData._id,
+        apartmentID: id,
+      });
+
+      if (response.data.success) {
+        setConversationID(response.data.data.conversationID);
+        setIsMessageModalOpen(true);
+      }
+    } catch (error: any) {
+      console.error("Error creating conversation:", error);
+      alert(error.response?.data?.message || "Failed to start conversation. Please try again.");
+    } finally {
+      setIsCreatingConversation(false);
+    }
+  };
+
+  // Handle share
+  const handleShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "Check out this apartment!",
+          text: "I found this great apartment on our website.",
+          url: window.location.href,
+        });
+      } catch (err) {
+        console.error("Error sharing:", err);
+      }
+    } else {
+      // Fallback: Copy to clipboard
+      navigator.clipboard.writeText(window.location.href);
+      alert("Link copied to clipboard!");
     }
   };
 
@@ -165,8 +224,32 @@ const OwnerDetails: React.FC<OwnerDetailsProps> = ({ data, contactNo }) => {
             ? "Applied"
             : "Interested"}
         </button>
+
+        <button
+          className="w-full bg-gradient-to-br from-[#00F0FF] to-[#00D4E6] text-gray-900 py-3 rounded-xl font-semibold hover:scale-105 active:scale-95 transition-all duration-200 flex items-center justify-center gap-2 shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+          onClick={handleMessageClick}
+          disabled={isCreatingConversation}
+        >
+          {isCreatingConversation ? (
+            <>
+              <div className="w-5 h-5 border-2 border-gray-900 border-t-transparent rounded-full animate-spin"></div>
+              <span>Opening...</span>
+            </>
+          ) : (
+            <>
+              <MessageCircle className="w-5 h-5" />
+              <span>Message Owner</span>
+            </>
+          )}
+        </button>
   
-        <ShareButton />
+        <button
+          onClick={handleShare}
+          className="w-full border-2 border-gray-300 py-3 rounded-xl font-semibold hover:bg-gray-50 transition flex items-center justify-center gap-2"
+        >
+          <Share2 className="w-5 h-5" />
+          Share
+        </button>
       </div>
   
       {/* Rating */}
@@ -179,6 +262,19 @@ const OwnerDetails: React.FC<OwnerDetailsProps> = ({ data, contactNo }) => {
           apartmentId={id}
         />
       </div>
+
+      {/* Message Modal */}
+      <MessageModal
+        isOpen={isMessageModalOpen}
+        onClose={() => setIsMessageModalOpen(false)}
+        conversationID={conversationID}
+        ownerData={{
+          firstName: data.firstName,
+          lastName: data.lastName,
+          image: data.image,
+        }}
+        apartmentName={apartmentName || "Property"}
+      />
     </div>
   );
 

@@ -187,8 +187,20 @@ import { useRouter } from "next/navigation";
 import { motion, useAnimation } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { UserContext } from "@/context/UserContext";
-import { Star, MapPin, Heart, HeartOff, DollarSign } from "lucide-react"; // Importing Lucide icons
-import { IndianRupee } from "lucide-react"; // Importing Indian Rupee icon
+import { 
+  Star, 
+  MapPin, 
+  Heart, 
+  IndianRupee,
+  Sofa,
+  Zap,
+  Car,
+  Home,
+  Eye,
+  Sparkles,
+  Calendar,
+  BadgeCheck
+} from "lucide-react";
 interface FlatCardProps {
   id: string;
   title: string;
@@ -305,92 +317,139 @@ const FlatCard: React.FC<FlatCardProps> = ({
     },
   };
 
+  // Parse facilities
+  const facilities = facility ? facility.split(",").map(f => f.trim()).filter(f => f) : [];
+  const displayFacilities = facilities.slice(0, 3);
+  const remainingCount = facilities.length - 3;
+
   return (
     <motion.div
       ref={ref}
       initial="hidden"
       animate={controls}
       variants={cardVariants}
-      whileHover={{ y: -8 }}
-      onClick={handleCardClick}
-      className={`bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 w-full overflow-hidden border border-gray-100 cursor-pointer group ${
-        flexProp === "row" ? "lg:flex-row" : "lg:flex-row-reverse"
-      } flex flex-col-reverse`}
+      className={`bg-white rounded-xl shadow-md hover:shadow-2xl transition-all duration-500 w-full overflow-hidden border border-gray-100 cursor-pointer group relative flex flex-col ${
+        flexProp === "vertical" ? "h-full" : `max-w-[1100px] mx-auto ${flexProp === "row" ? "lg:flex-row" : "lg:flex-row-reverse"}`
+      }`}
     >
-      {/* Content Section */}
-      <div className="flex flex-col justify-between lg:w-1/2 p-6 lg:p-8">
-        <div className="flex flex-col gap-4 mb-4">
-          {/* Title and Category Badge */}
-          <div className="flex items-start justify-between gap-3">
-            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2 flex-1">
-              {title}
-            </h1>
-            <span className="px-3 py-1 bg-blue-100 text-blue-700 rounded-lg text-xs font-semibold whitespace-nowrap">
-              {category}
-            </span>
-          </div>
-          
-          {/* Description */}
-          <p className="text-sm text-gray-600 line-clamp-2 leading-relaxed">
-            {description}
-          </p>
-          
-          {/* Location */}
-          <div className="flex items-center gap-2 text-gray-700">
-            <MapPin size={18} className="text-blue-600 flex-shrink-0" />
-            <p className="text-sm font-medium truncate">{location}</p>
-          </div>
-          
-          {/* Rating and Price Row */}
-          <div className="flex items-center justify-between pt-2 border-t border-gray-100">
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1 bg-yellow-50 px-3 py-1.5 rounded-lg">
-                <Star size={16} className="text-yellow-500 fill-yellow-500" />
-                <span className="text-sm font-semibold text-gray-900">
-                  {averageRating > 0 ? averageRating.toFixed(1) : "N/A"}
-                </span>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-1">
-              <IndianRupee size={20} className="text-green-600" />
-              <p className="text-xl font-bold text-green-600">{price}</p>
-            </div>
-          </div>
-        </div>
-        
-        {/* Wishlist Button */}
-        <button
-          className={`w-full rounded-lg text-sm font-semibold px-4 py-3 transition-all duration-200 flex items-center justify-center gap-2 ${
-            isInWishlist
-              ? "bg-red-50 text-red-600 border-2 border-red-200 hover:bg-red-100"
-              : "bg-blue-50 text-blue-600 border-2 border-blue-200 hover:bg-blue-100"
-          }`}
-          onClick={handleWishlistToggle}
-        >
-          {isInWishlist ? (
-            <>
-              <HeartOff size={18} className="fill-red-600" /> Remove from Wishlist
-            </>
-          ) : (
-            <>
-              <Heart size={18} /> Add to Wishlist
-            </>
-          )}
-        </button>
-      </div>
-      
       {/* Image Section */}
-      <div className="relative lg:w-1/2 w-full h-[280px] lg:h-[350px] overflow-hidden bg-gray-100">
+      <div className={`relative w-full overflow-hidden ${
+        flexProp === "vertical" ? "h-[200px]" : "h-[240px] lg:w-[40%] lg:h-[280px]"
+      }`}>
         <Image
           src={image}
           alt={title}
           fill
-          className="object-cover group-hover:scale-110 transition-transform duration-500"
-          sizes="(max-width: 768px) 100vw, 50vw"
+          className="object-cover group-hover:scale-105 transition-transform duration-500"
+          sizes="(max-width: 768px) 100vw, 33vw"
         />
-        {/* Overlay gradient */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        
+        {/* Subtle Gradient Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+        
+        {/* Wishlist Heart Button */}
+        <button
+          onClick={handleWishlistToggle}
+          className={`absolute top-2.5 right-2.5 p-2 rounded-full backdrop-blur-sm transition-all duration-300 z-10 ${
+            isInWishlist
+              ? "bg-red-500 text-white"
+              : "bg-white/90 text-gray-600 hover:bg-white hover:text-red-500"
+          }`}
+        >
+          <Heart 
+            size={18} 
+            className={`transition-all ${isInWishlist ? "fill-white" : ""}`}
+          />
+        </button>
+
+        {/* Rating Badge */}
+        {averageRating > 0 && (
+          <div className="absolute top-2.5 left-2.5 flex items-center gap-1 px-2 py-1 bg-white/95 backdrop-blur-sm rounded-lg shadow-sm">
+            <Star size={12} className="text-yellow-500 fill-yellow-500" />
+            <span className="text-xs font-bold text-gray-900">
+              {averageRating.toFixed(1)}
+            </span>
+          </div>
+        )}
+
+        {/* Location Bar */}
+        <div className="absolute bottom-0 left-0 right-0 px-3 py-2 bg-gradient-to-t from-black/70 to-transparent">
+          <div className="flex items-center gap-1.5 text-white">
+            <MapPin size={12} className="flex-shrink-0" />
+            <p className="text-xs font-medium truncate">{location}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Content Section */}
+      <div className={`flex flex-col p-4 ${
+        flexProp === "vertical" ? "flex-1" : "lg:w-[60%] lg:p-5"
+      }`} onClick={handleCardClick}>
+        {/* Title and Category */}
+        <div className="mb-3">
+          <div className="flex items-start justify-between gap-2 mb-1.5">
+            <h2 className={`font-bold text-gray-900 group-hover:text-blue-600 transition-colors line-clamp-2 ${
+              flexProp === "vertical" ? "text-base" : "text-xl lg:text-2xl"
+            }`}>
+              {title}
+            </h2>
+            <span className="px-2 py-0.5 bg-blue-50 text-blue-700 rounded text-xs font-semibold whitespace-nowrap flex-shrink-0">
+              {category}
+            </span>
+          </div>
+          <p className="text-xs text-gray-500 line-clamp-2 leading-relaxed">
+            {description}
+          </p>
+        </div>
+
+        {/* Price Section */}
+        <div className="mb-3">
+          <div className="flex items-baseline gap-1">
+            <IndianRupee size={18} className="text-blue-600" />
+            <span className="text-2xl font-bold text-gray-900">{price}</span>
+            <span className="text-sm text-gray-500">/month</span>
+          </div>
+        </div>
+
+        {/* Amenities */}
+        <div className="flex flex-wrap gap-2 mb-3">
+          {furniture && (
+            <div className="flex items-center gap-1 px-2 py-1 bg-gray-50 rounded-md">
+              <Sofa size={14} className="text-gray-600" />
+              <span className="text-xs text-gray-700">Furnished</span>
+            </div>
+          )}
+          
+          {parking && (
+            <div className="flex items-center gap-1 px-2 py-1 bg-gray-50 rounded-md">
+              <Car size={14} className="text-gray-600" />
+              <span className="text-xs text-gray-700">Parking</span>
+            </div>
+          )}
+          
+          {electricity && (
+            <div className="flex items-center gap-1 px-2 py-1 bg-gray-50 rounded-md">
+              <Zap size={14} className="text-gray-600" />
+              <span className="text-xs text-gray-700">Power</span>
+            </div>
+          )}
+
+          {facilities.length > 0 && (
+            <div className="flex items-center gap-1 px-2 py-1 bg-gray-50 rounded-md">
+              <Sparkles size={14} className="text-gray-600" />
+              <span className="text-xs text-gray-700">{facilities.length} Facilities</span>
+            </div>
+          )}
+        </div>
+
+        {/* View Button */}
+        <button
+          onClick={handleCardClick}
+          className="mt-auto w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm transition-all duration-300 flex items-center justify-center gap-2 group/btn"
+        >
+          <span>View Details</span>
+          <Eye size={16} className="group-hover/btn:translate-x-1 transition-transform" />
+        </button>
       </div>
     </motion.div>
   );
