@@ -861,7 +861,9 @@ const Step1: React.FC = () => {
 
   const [selectedPlan, setSelectedPlan] = useState("");
   const [planAmount, setPlanAmount] = useState(0);
+  const [planDuration, setPlanDuration] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const nextStep = () => step < totalSteps && setStep(step + 1);
   const prevStep = () => step > 1 && setStep(step - 1);
@@ -897,6 +899,164 @@ const Step1: React.FC = () => {
 
   const handleRemoveFurniture = (furniture: string) => {
     setFurniture(furnitures.filter((f) => f !== furniture));
+  };
+
+  const handlePayment = async () => {
+    if (!selectedPlan || !planAmount || !planDuration) {
+      toast.error("Please select a membership plan");
+      return;
+    }
+
+    // Validate form data before payment
+    const formData = watch();
+    
+    // Check all required fields with specific error messages
+    if (!formData.apartmentName) {
+      toast.error("Please enter apartment name");
+      setStep(1);
+      return;
+    }
+    if (!formData.contactNo) {
+      toast.error("Please enter contact number");
+      setStep(1);
+      return;
+    }
+    if (!formData.price) {
+      toast.error("Please enter rent amount");
+      setStep(1);
+      return;
+    }
+    if (!formData.category) {
+      toast.error("Please select a category");
+      setStep(1);
+      return;
+    }
+    if (!formData.availableFor) {
+      toast.error("Please select available for option");
+      setStep(1);
+      return;
+    }
+    if (!localAddress || !city || !state || !pincode) {
+      toast.error("Please complete all location details");
+      setStep(2);
+      return;
+    }
+    if (!formData.description) {
+      toast.error("Please enter property description");
+      setStep(3);
+      return;
+    }
+    if (selectedImages.length === 0) {
+      toast.error("Please upload at least one image");
+      setStep(3);
+      return;
+    }
+    
+    // All validations passed
+
+    setIsProcessing(true);
+
+    try {
+      // Create Razorpay order
+      const orderResponse = await axios.post("/api/payment/create-order", {
+        amount: planAmount,
+        apartmentID: "temp_" + Date.now(), // Temporary ID for new apartment
+        userID: userContext?.userAuthData?._id,
+        duration: planDuration,
+      });
+
+      if (!orderResponse.data.success) {
+        throw new Error("Failed to create order");
+      }
+
+      const { orderId, amount, currency } = orderResponse.data.data;
+
+      // Initialize Razorpay
+      const options = {
+        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        amount: amount,
+        currency: currency,
+        name: "VRental",
+        description: `Property Listing - ${planDuration} Month${planDuration > 1 ? "s" : ""}`,
+        order_id: orderId,
+        handler: async function (response: any) {
+          try {
+            // Verify payment
+            const verifyResponse = await axios.post("/api/payment/verify", {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              apartmentID: "temp_" + Date.now(),
+              userID: userContext?.userAuthData?._id,
+              duration: planDuration,
+              amount: planAmount,
+            });
+
+            if (verifyResponse.data.success) {
+              // Payment verified, now submit the apartment form
+              const apartmentFormData = new FormData();
+              apartmentFormData.append("apartmentName", formData.apartmentName);
+              apartmentFormData.append("description", formData.description);
+              apartmentFormData.append("price", formData.price.toString());
+              apartmentFormData.append("contactNo", formData.contactNo.toString());
+              apartmentFormData.append("facility", facilities.join(", "));
+              apartmentFormData.append("furniture", furnitures.join(", "));
+              apartmentFormData.append(
+                "location",
+                `${localAddress}, ${city}, ${state}, ${pincode}`
+              );
+              apartmentFormData.append("availableFor", formData.availableFor);
+              apartmentFormData.append("category", formData.category);
+              apartmentFormData.append("txnID", response.razorpay_payment_id);
+              apartmentFormData.append("membershipPlan", selectedPlan);
+              apartmentFormData.append("planAmount", planAmount.toString());
+              apartmentFormData.append("paymentAmount", planAmount.toString());
+              apartmentFormData.append("membershipDuration", planDuration.toString());
+
+              selectedImages.forEach((file) => apartmentFormData.append("image", file));
+
+              const apartmentResponse = await axios.post(
+                `/api/aparment/createEvent?id=${userContext?.userAuthData?._id}`,
+                apartmentFormData
+              );
+
+              if (apartmentResponse.data) {
+                toast.success("Payment successful! Your property is now listed.");
+                router.push("/profile");
+              }
+            } else {
+              toast.error("Payment verification failed. Please contact support.");
+            }
+          } catch (error) {
+            console.error("Payment verification error:", error);
+            toast.error("Payment verification failed. Please contact support.");
+          } finally {
+            setIsProcessing(false);
+          }
+        },
+        prefill: {
+          name: userContext?.userAuthData?.name || "",
+          email: userContext?.userAuthData?.email || "",
+          contact: formData.contactNo?.toString() || "",
+        },
+        theme: {
+          color: "#00F0FF",
+        },
+        modal: {
+          ondismiss: function () {
+            setIsProcessing(false);
+            toast.info("Payment cancelled");
+          },
+        },
+      };
+
+      const razorpay = new (window as any).Razorpay(options);
+      razorpay.open();
+    } catch (error) {
+      console.error("Payment error:", error);
+      toast.error("Failed to initiate payment. Please try again.");
+      setIsProcessing(false);
+    }
   };
 
   const onSubmit: SubmitHandler<FormValues> = async (data) => {
@@ -1555,19 +1715,113 @@ const Step1: React.FC = () => {
         {/* STEP 4 */}
         {step === 4 && (
           <>
+            {/* Limited Time Launch Offer Banner */}
+            <div className="relative overflow-hidden bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 rounded-2xl p-6 mb-6 shadow-2xl">
+              {/* Animated background elements */}
+              <div className="absolute inset-0 overflow-hidden">
+                <div className="absolute -top-1/2 -left-1/2 w-full h-full bg-white/10 rounded-full animate-pulse"></div>
+                <div className="absolute -bottom-1/2 -right-1/2 w-full h-full bg-white/10 rounded-full animate-pulse delay-700"></div>
+              </div>
+              
+              {/* Sparkle animations */}
+              <div className="absolute top-4 left-4 w-2 h-2 bg-white rounded-full animate-ping"></div>
+              <div className="absolute top-8 right-8 w-2 h-2 bg-white rounded-full animate-ping delay-300"></div>
+              <div className="absolute bottom-6 left-12 w-2 h-2 bg-white rounded-full animate-ping delay-500"></div>
+              <div className="absolute bottom-4 right-16 w-2 h-2 bg-white rounded-full animate-ping delay-700"></div>
+              
+              <div className="relative z-10 text-center">
+                {/* Animated badge */}
+                <div className="inline-block mb-3">
+                  <div className="bg-white/20 backdrop-blur-sm px-4 py-1.5 rounded-full border-2 border-white/40 animate-bounce">
+                    <span className="text-white text-xs font-bold tracking-wider">🎉 SPECIAL LAUNCH OFFER 🎉</span>
+                  </div>
+                </div>
+                
+                {/* Main heading with gradient text */}
+                <h3 className="text-3xl md:text-4xl font-extrabold text-white mb-2 drop-shadow-lg">
+                  <span className="inline-block animate-pulse">Limited Time</span>{" "}
+                  <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-yellow-200 to-white animate-shimmer">
+                    Launch Offer
+                  </span>
+                </h3>
+                
+                <p className="text-white/90 text-lg font-semibold mb-3">
+                  For Early Property Owners
+                </p>
+                
+                {/* Discount highlight */}
+                <div className="flex items-center justify-center gap-3 flex-wrap">
+                  <div className="bg-white/20 backdrop-blur-sm px-6 py-2 rounded-full border border-white/30">
+                    <span className="text-white font-bold text-xl">🔥 50% OFF</span>
+                  </div>
+                  <div className="bg-white/20 backdrop-blur-sm px-6 py-2 rounded-full border border-white/30">
+                    <span className="text-white font-bold text-xl">⚡ Instant Activation</span>
+                  </div>
+                  <div className="bg-white/20 backdrop-blur-sm px-6 py-2 rounded-full border border-white/30">
+                    <span className="text-white font-bold text-xl">🎁 Premium Features</span>
+                  </div>
+                </div>
+                
+                {/* Countdown or urgency message */}
+                <div className="mt-4 inline-block">
+                  <div className="bg-red-600/80 backdrop-blur-sm px-4 py-2 rounded-lg border border-red-400/50 animate-pulse">
+                    <span className="text-white text-sm font-bold">⏰ Limited Slots Available - Register Now!</span>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Decorative corner elements */}
+              <div className="absolute top-0 left-0 w-20 h-20 border-t-4 border-l-4 border-white/30 rounded-tl-2xl"></div>
+              <div className="absolute bottom-0 right-0 w-20 h-20 border-b-4 border-r-4 border-white/30 rounded-br-2xl"></div>
+            </div>
+
             <h2 className="text-2xl font-bold text-gray-800 mb-6">Choose Membership Plan</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              {[
-                { name: "1 Month", value: "1month", price: 99, savings: null },
-                { name: "6 Months", value: "6month", price: 499, savings: 95 },
-                { name: "12 Months", value: "12month", price: 999, savings: 189 },
-              ].map((plan) => (
+              {(() => {
+                const formData = watch();
+                const category = formData.category;
+                
+                // Determine pricing based on category
+                let plans = [];
+                if (category === "ROOM" || category === "PG" || category === "HOSTEL" || category === "CO-LIVING") {
+                  // Rooms / PG / Hostel pricing
+                  plans = [
+                    { name: "1 Month", value: "1month", duration: 1, price: 99, originalPrice: 198, savings: "Save 50%" },
+                    { name: "3 Months", value: "3months", duration: 3, price: 199, originalPrice: 398, savings: "Save 50%" },
+                    { name: "6 Months", value: "6months", duration: 6, price: 299, originalPrice: 598, savings: "Save 50%" },
+                  ];
+                } else if (category === "FLAT") {
+                  // Flats / Apartments pricing
+                  plans = [
+                    { name: "1 Month", value: "1month", duration: 1, price: 199, originalPrice: 398, savings: "Save 50%" },
+                    { name: "3 Months", value: "3months", duration: 3, price: 399, originalPrice: 798, savings: "Save 50%" },
+                    { name: "6 Months", value: "6months", duration: 6, price: 599, originalPrice: 1198, savings: "Save 50%" },
+                  ];
+                } else if (category === "SHOP") {
+                  // Commercial Properties pricing
+                  plans = [
+                    { name: "1 Month", value: "1month", duration: 1, price: 299, originalPrice: 598, savings: "Save 50%" },
+                    { name: "3 Months", value: "3months", duration: 3, price: 699, originalPrice: 1398, savings: "Save 50%" },
+                    { name: "6 Months", value: "6months", duration: 6, price: 999, originalPrice: 1998, savings: "Save 50%" },
+                  ];
+                } else {
+                  // Default to Room pricing if category not selected
+                  plans = [
+                    { name: "1 Month", value: "1month", duration: 1, price: 99, originalPrice: 198, savings: "Save 50%" },
+                    { name: "3 Months", value: "3months", duration: 3, price: 199, originalPrice: 398, savings: "Save 50%" },
+                    { name: "6 Months", value: "6months", duration: 6, price: 299, originalPrice: 598, savings: "Save 50%" },
+                  ];
+                }
+                
+                return plans;
+              })().map((plan) => (
                 <div
                   key={plan.value}
                   onClick={() => {
                     setSelectedPlan(plan.value);
                     setPlanAmount(plan.price);
+                    setPlanDuration(plan.duration);
                   }}
                   className={`border-2 p-6 rounded-xl cursor-pointer transition-all duration-200 ${
                     selectedPlan === plan.value
@@ -1582,9 +1836,12 @@ const Step1: React.FC = () => {
                     <div className="text-3xl font-bold text-blue-600 mb-2">
                       ₹{plan.price}
                     </div>
+                    <div className="text-sm text-gray-500 line-through mb-2">
+                      ₹{plan.originalPrice}
+                    </div>
                     {plan.savings && (
                       <div className="inline-block bg-green-100 text-green-700 text-xs font-semibold px-3 py-1 rounded-full mb-3">
-                        Save ₹{plan.savings}
+                        {plan.savings}
                       </div>
                     )}
                     <ul className="text-sm text-gray-600 space-y-1 mt-3 text-left">
@@ -1600,43 +1857,43 @@ const Step1: React.FC = () => {
                         </svg>
                         Priority support
                       </li>
+                      <li className="flex items-center">
+                        <svg className="w-4 h-4 text-green-500 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                        </svg>
+                        Instant activation
+                      </li>
                     </ul>
                   </div>
                 </div>
               ))}
             </div>
 
-            {selectedPlan && (
-              <div className="space-y-4 mb-6">
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-                  <p className="text-center text-lg font-semibold text-gray-800 mb-4">
-                    Pay ₹{planAmount} to Register Your Apartment
-                  </p>
-                  <FixedQrCode amount={planAmount} />
-                </div>
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Transaction ID *
-                  </label>
-                  <input
-                    {...register("txnID", { required: "Transaction ID is required" })}
-                    placeholder="Enter your transaction ID"
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                  />
-                  {errors.txnID && (
-                    <p className="text-red-500 text-sm mt-1">
-                      {errors.txnID.message as string}
-                    </p>
-                  )}
-                </div>
-              </div>
-            )}
-
             {!selectedPlan && (
               <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
                 <p className="text-yellow-800 text-sm text-center">
                   Please select a membership plan to continue
                 </p>
+              </div>
+            )}
+
+            {selectedPlan && (
+              <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-lg p-6 mb-6">
+                <div className="text-center">
+                  <p className="text-sm text-gray-600 mb-2">Selected Plan</p>
+                  <p className="text-2xl font-bold text-gray-900 mb-1">
+                    ₹{planAmount}
+                  </p>
+                  <p className="text-sm text-gray-600 mb-4">
+                    for {planDuration} month{planDuration > 1 ? "s" : ""}
+                  </p>
+                  <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
+                    <svg className="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                    <span>Secure payment powered by Razorpay</span>
+                  </div>
+                </div>
               </div>
             )}
 
@@ -1649,24 +1906,25 @@ const Step1: React.FC = () => {
                 ← Back
               </button>
               <button
-                type="submit"
-                disabled={!selectedPlan || loading}
+                type="button"
+                onClick={handlePayment}
+                disabled={!selectedPlan || isProcessing}
                 className={`px-6 py-3 rounded-lg font-semibold transition-all shadow-md ${
-                  selectedPlan && !loading
+                  selectedPlan && !isProcessing
                     ? "bg-gradient-to-r from-blue-600 to-cyan-500 text-white hover:from-blue-700 hover:to-cyan-600 hover:shadow-lg"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
                 }`}
               >
-                {loading ? (
+                {isProcessing ? (
                   <span className="flex items-center">
                     <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Submitting...
+                    Processing...
                   </span>
                 ) : (
-                  "Complete Registration"
+                  "Proceed to Payment"
                 )}
               </button>
             </div>

@@ -4,6 +4,7 @@ import Navbar from "@/components/global/Navbar";
 import Footer from "@/components/global/Footer";
 import ProfileDetails from "@/components/Profile/ProfileDetails";
 import ProfileRating from "@/components/Profile/ProfileRating";
+import UserProfileDashboard from "@/components/Profile/UserProfileDashboard";
 import SmallCard from "@/components/mini/SmallCard";
 import { UserContext } from "@/context/UserContext";
 import { useContext } from "react";
@@ -14,12 +15,14 @@ import "react-toastify/dist/ReactToastify.css";
 import ProfileCard from "@/components/mini/profileCard";
 import Spinner from "@/components/global/Spinner";
 import MessageNotifications from "@/components/Profile/MessageNotifications";
-import { Home, TrendingUp, DollarSign, CheckCircle, Clock, Star, Award, BarChart3 } from "lucide-react";
+import { Home, TrendingUp, DollarSign, CheckCircle, Clock, Star, Award, BarChart3, Gift, Wallet } from "lucide-react";
 
 
 export default function Page() {
   const [aparmentData, handleApartmentData] = useState<any>([]);
   const [loading, setLoading] = useState(true);
+  const [referralStats, setReferralStats] = useState<any>(null);
+  const [loadingReferral, setLoadingReferral] = useState(true);
   const userContext = useContext(UserContext);
   const router = useRouter();
   
@@ -38,13 +41,34 @@ export default function Page() {
       }
     };
 
+    const fetchReferralStats = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const response = await axios.get("/api/referral/stats", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (response.data.success) {
+          setReferralStats(response.data.data);
+        }
+      } catch (error) {
+        console.error("Error fetching referral stats:", error);
+      } finally {
+        setLoadingReferral(false);
+      }
+    };
+
     if (userContext?.userAuthData?._id) {
       fetchData();
+      if (userContext?.userAuthData?.role === "OWNER") {
+        fetchReferralStats();
+      } else {
+        setLoadingReferral(false);
+      }
     } else {
       toast.error("Please login to access this page");
       router.push("/");
     }
-  }, [userContext?.userAuthData?._id]);
+  }, [userContext?.userAuthData?._id, userContext?.userAuthData?.role]);
 
   // Calculate statistics
   const totalApartments = aparmentData.length;
@@ -65,6 +89,9 @@ export default function Page() {
   const completedFields = profileFields.filter(field => field && field !== '').length;
   const profileCompletion = Math.round((completedFields / profileFields.length) * 100);
 
+  // Check if user is OWNER or regular USER
+  const isOwner = userContext?.userAuthData?.role === "OWNER";
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-cyan-50">
       <Navbar />
@@ -79,6 +106,23 @@ export default function Page() {
             <ProfileDetails />
           </div>
 
+          {/* Conditional Rendering Based on Role */}
+          {!isOwner ? (
+            // USER Profile Dashboard
+            <>
+              <UserProfileDashboard />
+              
+              {/* Message Notifications Section */}
+              <div className="w-full py-8 px-4 sm:px-6 lg:px-8 border-b border-gray-100">
+                <div className="max-w-7xl mx-auto">
+                  <MessageNotifications />
+                </div>
+              </div>
+            </>
+          ) : (
+            // OWNER Profile Dashboard (Original)
+            <>
+
           {/* Statistics Dashboard Section */}
           <div className="w-full bg-gradient-to-br from-white via-blue-50/50 to-cyan-50/50 py-12 px-4 sm:px-6 lg:px-8 border-b border-gray-100">
             <div className="max-w-7xl mx-auto">
@@ -91,7 +135,7 @@ export default function Page() {
               </div>
 
               {/* Statistics Cards Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+              <div className={`grid grid-cols-1 sm:grid-cols-2 ${userContext?.userAuthData?.role === "OWNER" && referralStats ? "lg:grid-cols-5" : "lg:grid-cols-4"} gap-4 sm:gap-6 mb-8`}>
                 {/* Total Properties Card */}
                 <div className="bg-white rounded-xl p-6 shadow-md hover:shadow-lg transition-all duration-300 border border-gray-100 group">
                   <div className="flex items-center justify-between mb-4">
@@ -139,6 +183,48 @@ export default function Page() {
                   <h3 className="text-3xl font-bold text-gray-900 mb-1">₹{averagePrice.toLocaleString()}</h3>
                   <p className="text-sm text-gray-600">Average Price/Month</p>
                 </div>
+
+                {/* Referral Points Card - Only for Owners */}
+                {userContext?.userAuthData?.role === "OWNER" && !loadingReferral && (
+                  <div 
+                    onClick={() => router.push("/profile/referrals")}
+                    className="bg-gradient-to-br from-pink-500 to-rose-600 rounded-xl p-6 shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer group relative overflow-hidden"
+                  >
+                    {/* Animated background effect */}
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
+                    
+                    <div className="relative z-10">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                          <Gift className="w-6 h-6 text-white" />
+                        </div>
+                        <span className="text-xs font-medium text-white bg-white/20 backdrop-blur-sm px-2 py-1 rounded-full">
+                          Rewards
+                        </span>
+                      </div>
+                      <h3 className="text-3xl font-bold text-white mb-1 flex items-center gap-2">
+                        {referralStats?.referralPoints || 0}
+                        <span className="text-lg font-normal opacity-90">pts</span>
+                      </h3>
+                      <p className="text-sm text-white/90 mb-2">Referral Points</p>
+                      <div className="flex items-center gap-2 text-xs text-white/80">
+                        <Wallet className="w-3 h-3" />
+                        <span>= ₹{referralStats?.referralPoints || 0}</span>
+                      </div>
+                      {referralStats && referralStats.referralPoints >= 100 ? (
+                        <div className="mt-3 px-2 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-medium text-white inline-flex items-center gap-1">
+                          <CheckCircle className="w-3 h-3" />
+                          Can Withdraw
+                        </div>
+                      ) : (
+                        <div className="mt-3 px-2 py-1 bg-white/10 backdrop-blur-sm rounded-full text-xs font-medium text-white/70 inline-flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {100 - (referralStats?.referralPoints || 0)} pts to withdraw
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Profile Completion & Quick Stats */}
@@ -216,7 +302,7 @@ export default function Page() {
           </div>
 
           {/* Apartments Section */}
-          <div className="w-full py-12 px-4 sm:px-6 lg:px-8">
+              <div className="w-full py-12 px-4 sm:px-6 lg:px-8">
             <div className="max-w-7xl mx-auto">
               {/* Section Header */}
               <div className="mb-8">
@@ -234,7 +320,7 @@ export default function Page() {
                       Manage and view all your listed properties
                     </p>
                   </div>
-                  {aparmentData.length > 0 && (
+                  {aparmentData.length > 0 && userContext?.userAuthData?.role === "OWNER" && (
                     <button
                       onClick={() => router.push("/list-apartment")}
                       className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 shadow-md hover:shadow-lg whitespace-nowrap"
@@ -274,20 +360,34 @@ export default function Page() {
                       </svg>
                     </div>
                     <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                      No Apartments Yet
+                      {userContext?.userAuthData?.role === "OWNER" ? "No Apartments Yet" : "No Properties Listed"}
                     </h3>
                     <p className="text-gray-600 mb-6">
-                      Start by listing your first property to get started.
+                      {userContext?.userAuthData?.role === "OWNER" 
+                        ? "Start by listing your first property to get started."
+                        : "You haven't listed any properties yet. Browse available properties to find your perfect home."}
                     </p>
-                    <button
-                      onClick={() => router.push("/list-apartment")}
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 shadow-md hover:shadow-lg"
-                    >
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                      </svg>
-                      Add Your First Property
-                    </button>
+                    {userContext?.userAuthData?.role === "OWNER" ? (
+                      <button
+                        onClick={() => router.push("/list-apartment")}
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        </svg>
+                        Add Your First Property
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => router.push("/")}
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-lg font-semibold hover:from-green-700 hover:to-emerald-700 transition-all duration-200 shadow-md hover:shadow-lg"
+                      >
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        Browse Properties
+                      </button>
+                    )}
                   </div>
                 </div>
               ) : (
@@ -315,8 +415,10 @@ export default function Page() {
                   )}
                 </div>
               )}
+              </div>
             </div>
-          </div>
+            </>
+          )}
         </div>
       )}
       <Footer />

@@ -261,14 +261,12 @@ import { UserContext } from "@/context/UserContext";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { RxCross2 } from "react-icons/rx";
 import { useRouter } from "next/navigation";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import { toast } from "sonner";
 import { TbLogout } from "react-icons/tb";
 import { CgProfile } from "react-icons/cg";
-import { MdOutlineAddHomeWork } from "react-icons/md";
+import { MdOutlineAddHomeWork, MdOutlineLocalOffer, MdOutlineShoppingCart } from "react-icons/md";
 import { PiShoppingCart } from "react-icons/pi";
-import { MdOutlineShoppingCart } from "react-icons/md";
-import { ChevronDown, Home, Building2, Users, Users2, Store, Info, Plus } from "lucide-react";
+import { ChevronDown, Home, Building2, Users, Users2, Store, Info, Plus, PlusCircle, HomeIcon, Upload } from "lucide-react";
 import Link from "next/link";
 import NotificationDropdown from "./NotificationDropdown";
 
@@ -327,13 +325,35 @@ export default function Navbar() {
 
   return (
     <div>
+      {/* ✅ PROMOTIONAL BANNER FOR OWNERS */}
+      {isToken && userContext?.userAuthData?.role === "OWNER" && (
+        <div className="fixed top-0 left-0 right-0 z-[60] bg-gradient-to-r from-blue-600 via-blue-700 to-blue-600 overflow-hidden shadow-lg border-b-2 border-yellow-400">
+          <div className="relative py-2.5 px-4">
+            <div className="flex items-center justify-center gap-2 text-xs sm:text-sm">
+              <MdOutlineLocalOffer className="text-yellow-300 w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+              <span className="text-white font-medium">
+                <span className="hidden sm:inline">Limited Time Launch Offer – </span>
+                <span className="bg-gradient-to-r from-yellow-300 to-yellow-400 text-blue-900 px-2 py-0.5 rounded-md font-bold text-sm sm:text-base mx-1 inline-block animate-pulse-subtle">
+                  50% OFF
+                </span>
+                <span className="hidden sm:inline">for Early Property Owners</span>
+                <span className="sm:hidden">Early Bird Offer!</span>
+              </span>
+              <MdOutlineLocalOffer className="text-yellow-300 w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
+            </div>
+          </div>
+          {/* Decorative shine effect */}
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shine pointer-events-none"></div>
+        </div>
+      )}
+
       {/* ✅ NAVBAR WRAPPER */}
       <div
         className={`fixed z-50 left-1/2 -translate-x-1/2 transition-all duration-300 ease-in-out
         ${
           isScrolled
-            ? "top-0 w-full rounded-t-none rounded-b-3xl px-3 lg:px-10 py-3 bg-white/90 backdrop-blur-xl shadow-lg"
-            : "top-4 w-[95%] lg:w-[80%] rounded-full px-3 lg:px-8 bg-white/70 backdrop-blur-xl shadow-md"
+            ? `${isToken && userContext?.userAuthData?.role === "OWNER" ? "top-10" : "top-0"} w-full rounded-t-none rounded-b-3xl px-3 lg:px-10 py-3 bg-white/90 backdrop-blur-xl shadow-lg`
+            : `${isToken && userContext?.userAuthData?.role === "OWNER" ? "top-14" : "top-4"} w-[95%] lg:w-[80%] rounded-full px-3 lg:px-8 bg-white/70 backdrop-blur-xl shadow-md`
         }`}
       >
         <div className="flex justify-between items-center">
@@ -394,12 +414,14 @@ export default function Navbar() {
                 <a href="/about">About</a>
               </li>
 
-              <li className="text-base font-semibold text-black cursor-pointer hover:scale-110 hover:font-bold transition-transform">
-                <a href="/list-apartment" className="flex items-center gap-1">
-                  <Plus className="w-4 h-4" />
-                  List Your Apartment
-                </a>
-              </li>
+              {isToken && userContext?.userAuthData?.role === "OWNER" && (
+                <li className="text-base font-semibold text-black cursor-pointer hover:scale-110 hover:font-bold transition-transform">
+                  <a href="/list-apartment" className="flex items-center gap-1.5">
+                    <Upload className="w-4 h-4" />
+                    List Property
+                  </a>
+                </li>
+              )}
             </ul>
           </div>
 
@@ -430,6 +452,28 @@ export default function Navbar() {
                     <ul>
                       <li
                         className="text-black flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => router.push("/profile")}
+                      >
+                        <CgProfile /> Profile
+                      </li>
+
+                      {userContext?.userAuthData?.role === "OWNER" && (
+                        <li
+                          className="text-black flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                          onClick={() => router.push("/list-apartment")}
+                        >
+                          <MdOutlineAddHomeWork /> List Property
+                        </li>
+                      )}
+
+                      <li className="text-black flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer">
+                        <a href="/wishlist" className="flex items-center gap-2">
+                          <PiShoppingCart /> Wishlist
+                        </a>
+                      </li>
+
+                      <li
+                        className="text-black flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer"
                         onClick={() => {
                           localStorage.removeItem("token");
                           localStorage.removeItem("userAuthData");
@@ -439,26 +483,6 @@ export default function Navbar() {
                         }}
                       >
                         <TbLogout /> Logout
-                      </li>
-
-                      <li
-                        className="text-black flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                        onClick={() => router.push("/list-apartment")}
-                      >
-                        <MdOutlineAddHomeWork /> Registration
-                      </li>
-
-                      <li
-                        className="text-black flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                        onClick={() => router.push("/profile")}
-                      >
-                        <CgProfile /> Profile
-                      </li>
-
-                      <li className="text-black flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer">
-                        <a href="/wishlist" className="flex items-center gap-2">
-                          <PiShoppingCart /> Wishlist
-                        </a>
                       </li>
                     </ul>
                   </div>
@@ -516,25 +540,23 @@ export default function Navbar() {
             <a href="/about" onClick={toggleSidebar}>About</a>
           </li>
 
-          <li className="text-base font-semibold text-black">
-            <a href="/list-apartment" onClick={toggleSidebar} className="flex items-center gap-2">
-              <Plus className="w-4 h-4" />
-              List Your Apartment
-            </a>
-          </li>
-
           {isToken ? (
             <>
               <li className="text-base font-semibold text-black cursor-pointer">
-                <a href="/profile">Profile</a>
+                <a href="/profile" onClick={toggleSidebar}>Profile</a>
               </li>
 
-              <li className="text-base font-semibold text-black cursor-pointer">
-                <a href="/list-apartment">Register Apartment</a>
-              </li>
+              {userContext?.userAuthData?.role === "OWNER" && (
+                <li className="text-base font-semibold text-black cursor-pointer">
+                  <a href="/list-apartment" onClick={toggleSidebar} className="flex items-center gap-2">
+                    <Upload className="w-4 h-4" />
+                    List Property
+                  </a>
+                </li>
+              )}
 
               <li className="text-base font-semibold text-black cursor-pointer">
-                <a href="/wishlist">Wishlist</a>
+                <a href="/wishlist" onClick={toggleSidebar}>Wishlist</a>
               </li>
 
               <li className="text-base font-semibold text-black cursor-pointer">
@@ -560,7 +582,7 @@ export default function Navbar() {
       </div>
 
       {/* ✅ Important: give space so content doesn't hide behind fixed navbar */}
-      <div className={`${isScrolled ? "h-20" : "h-24"}`} />
+      <div className={`${isToken && userContext?.userAuthData?.role === "OWNER" ? (isScrolled ? "h-28" : "h-32") : (isScrolled ? "h-20" : "h-24")}`} />
     </div>
   );
 }

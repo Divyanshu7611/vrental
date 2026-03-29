@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Roboto } from "next/font/google";
 import "./globals.css";
-import { ToastContainer } from "react-toastify";
+import { Toaster } from "sonner";
 import { UserContextProvider } from "@/context/UserContext";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -85,6 +85,7 @@ export default function RootLayout({
         <link rel="manifest" href="/site.webmanifest" />
         {/* <meta name="msapplication-TileColor" content="#ffffff" />
         <meta name="theme-color" content="#ffffff" /> */}
+        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
         <title>Vrental</title>
         <meta
           name="description"
@@ -94,7 +95,7 @@ export default function RootLayout({
       <UserContextProvider>
         <body className={roboto.className}>
           {children}
-          <ToastContainer />
+          <Toaster position="top-right" richColors expand={false} />
         </body>
       </UserContextProvider>
     </html>

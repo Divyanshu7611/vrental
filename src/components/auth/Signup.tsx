@@ -394,10 +394,9 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, SubmitHandler } from "react-hook-form";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "sonner";
 import Spinner from "../global/Spinner";
 import axios from "axios";
-import "react-toastify/dist/ReactToastify.css";
 
 interface FormValues {
   firstName: string;
@@ -833,7 +832,6 @@ export default function Signup() {
         </div>
       )}
 
-      <ToastContainer position="top-right" autoClose={5000} hideProgressBar />
-    </div>
+      </div>
   );
 }

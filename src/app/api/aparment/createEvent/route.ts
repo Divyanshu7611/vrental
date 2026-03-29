@@ -3,6 +3,7 @@ import { uploadImage } from "@/utilis/uploadImage";
 import Apartment from "@/models/Apartment";
 import { connectMongoDB } from "@/utilis/dbConnect";
 import User from "@/models/User";
+import jwt from "jsonwebtoken";
 
 export async function POST(req: NextRequest) {
   const url = new URL(req.url);
@@ -10,6 +11,57 @@ export async function POST(req: NextRequest) {
 
   try {
     await connectMongoDB();
+
+    // Verify authentication and role
+    const token = req.headers.get("authorization")?.split(" ")[1] || req.cookies.get("token")?.value;
+
+    if (!token) {
+      return NextResponse.json(
+        {
+          message: "Unauthorized - Please login to continue",
+          success: false,
+        },
+        { status: 401 }
+      );
+    }
+
+    let decoded: any;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET!);
+    } catch (error) {
+      return NextResponse.json(
+        {
+          message: "Invalid or expired token",
+          success: false,
+        },
+        { status: 401 }
+      );
+    }
+
+    // Check if user is OWNER
+    const user = await User.findById(userId);
+    if (!user) {
+      return NextResponse.json(
+        {
+          message: "User not found",
+          success: false,
+        },
+        { status: 404 }
+      );
+    }
+
+    if (user.role !== "OWNER") {
+      return NextResponse.json(
+        {
+          message: "Access denied. Only property owners can list properties.",
+          success: false,
+          requiredRole: "OWNER",
+          currentRole: user.role,
+        },
+        { status: 403 }
+      );
+    }
+
     const formData = await req.formData();
 
     const apartmentName = formData.get("apartmentName") as string;
@@ -89,6 +141,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Calculate membership expiry date
+    const currentDate = new Date();
+    const expiryDate = new Date(currentDate);
+    expiryDate.setMonth(expiryDate.getMonth() + membershipDuration);
+
     // Create new apartment
     const newApartment = await Apartment.create({
       apartmentName,
@@ -103,11 +160,12 @@ export async function POST(req: NextRequest) {
       contactNo,
       ownerID: userId,
       status: "Available For Rent",
-      paymentStatus: "Pending",
+      paymentStatus: txnID ? "Verified" : "Pending", // If txnID exists (from Razorpay), mark as Verified
       txnID,
       paymentAmount,
+      paymentDate: txnID ? currentDate : undefined,
       membershipDuration,
-      memberShipExpiry: new Date(Date.now() + membershipDuration * 30 * 24 * 60 * 60 * 1000),
+      memberShipExpiry: expiryDate,
     });
 
     await User.findByIdAndUpdate(

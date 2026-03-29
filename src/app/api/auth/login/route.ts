@@ -32,17 +32,23 @@ export async function POST(NextRequest: NextRequest) {
       const payload = {
         email: existingUser.email,
         id: existingUser._id,
+        role: existingUser.role, // Include role in JWT payload
       };
 
       const token = jwt.sign(payload, JwtKey, {
-        expiresIn: "2h",
+        expiresIn: "7d", // Extended expiry
+        algorithm: "HS256" // Explicit algorithm
       });
 
       existingUser.token = token;
-      existingUser.password = undefined!;
+      await existingUser.save(); // Save token to database
+
+      // Remove password from response
+      const userResponse = existingUser.toObject();
+      delete userResponse.password;
 
       const option = {
-        expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+        expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
         httpOnly: true,
       };
 
@@ -50,7 +56,7 @@ export async function POST(NextRequest: NextRequest) {
         {
           success: true,
           message: "Logged In Successfully",
-          existingUser,
+          existingUser: userResponse,
           cookie: "token",
           token,
           option,

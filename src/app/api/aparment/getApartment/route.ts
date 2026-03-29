@@ -19,6 +19,7 @@ export async function GET(req: NextRequest) {
     const apartments = await Apartment.find({
       category: category,
       paymentStatus: "Verified",
+      status: { $ne: "Deactivated" }, // Exclude deactivated apartments
     });
 
     return NextResponse.json(

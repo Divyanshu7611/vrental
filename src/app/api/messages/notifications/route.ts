@@ -1,10 +1,19 @@
 import Conversation from "@/models/Conversation";
+import User from "@/models/User";
+import Apartment from "@/models/Apartment";
 import { NextRequest, NextResponse } from "next/server";
 import { connectMongoDB } from "@/utilis/dbConnect";
+
+// Ensure models are registered
+const ensureModelsLoaded = () => {
+  // This forces the models to be loaded and registered with Mongoose
+  return { User, Apartment, Conversation };
+};
 
 export async function GET(req: NextRequest) {
   try {
     await connectMongoDB();
+    ensureModelsLoaded(); // Ensure models are loaded before populate
     const url = new URL(req.url);
     const userID = url.searchParams.get("userID");
 

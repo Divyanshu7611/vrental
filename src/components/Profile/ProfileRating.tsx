@@ -40,17 +40,18 @@ import React, { useContext } from "react";
 import StarRating from "./StarRating";
 import { useRouter } from "next/navigation";
 import { UserContext } from "@/context/UserContext";
-import { Pencil, Home } from "lucide-react";
+import { Pencil, Home, Eye } from "lucide-react";
 
 export default function ProfileRating() {
   const router = useRouter();
   const userContext = useContext(UserContext);
+  const isOwner = userContext?.userAuthData?.role === "OWNER";
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
       <div className="flex flex-col gap-6">
         {/* Action Buttons */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto w-full">
+        <div className={`grid grid-cols-1 ${isOwner ? 'sm:grid-cols-2' : 'sm:grid-cols-2'} gap-4 max-w-2xl mx-auto w-full`}>
           {/* Edit Profile Button */}
           <button
             className="group relative overflow-hidden rounded-xl bg-white border-2 border-gray-200 hover:border-blue-500 transition-all duration-300 hover:shadow-xl"
@@ -70,24 +71,44 @@ export default function ProfileRating() {
             <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 to-cyan-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
           </button>
 
-          {/* Apartments Button */}
-          <button
-            className="group relative overflow-hidden rounded-xl bg-white border-2 border-gray-200 hover:border-cyan-500 transition-all duration-300 hover:shadow-xl"
-            onClick={() => {
-              router.push("/list-apartment");
-            }}
-          >
-            <div className="relative flex items-center justify-center gap-3 px-6 py-4 transition-all">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <Home className="h-5 w-5 text-white" />
+          {/* Conditional Button - Add Apartment (OWNER) or Browse Properties (USER) */}
+          {isOwner ? (
+            <button
+              className="group relative overflow-hidden rounded-xl bg-white border-2 border-gray-200 hover:border-cyan-500 transition-all duration-300 hover:shadow-xl"
+              onClick={() => {
+                router.push("/list-apartment");
+              }}
+            >
+              <div className="relative flex items-center justify-center gap-3 px-6 py-4 transition-all">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <Home className="h-5 w-5 text-white" />
+                </div>
+                <div className="flex flex-col items-start">
+                  <span className="font-semibold text-gray-900 text-base">Add Apartment</span>
+                  <span className="text-xs text-gray-500">List a new property</span>
+                </div>
               </div>
-              <div className="flex flex-col items-start">
-                <span className="font-semibold text-gray-900 text-base">Add Apartment</span>
-                <span className="text-xs text-gray-500">List a new property</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            </button>
+          ) : (
+            <button
+              className="group relative overflow-hidden rounded-xl bg-white border-2 border-gray-200 hover:border-green-500 transition-all duration-300 hover:shadow-xl"
+              onClick={() => {
+                router.push("/");
+              }}
+            >
+              <div className="relative flex items-center justify-center gap-3 px-6 py-4 transition-all">
+                <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <Eye className="h-5 w-5 text-white" />
+                </div>
+                <div className="flex flex-col items-start">
+                  <span className="font-semibold text-gray-900 text-base">Browse Properties</span>
+                  <span className="text-xs text-gray-500">Find your perfect home</span>
+                </div>
               </div>
-            </div>
-            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-          </button>
+              <div className="absolute inset-0 bg-gradient-to-r from-green-500/5 to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+            </button>
+          )}
         </div>
       </div>
     </div>
