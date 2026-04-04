@@ -5,6 +5,7 @@ import Signup from "./Signup";
 import Login from "./Login";
 import ResetPassword from "./ResetLink";
 import RoleSelectionModal from "./RoleSelectionModal";
+import PhoneNumberModal from "./PhoneNumberModal";
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "@/utilis/firebase";
 import axios from "axios";
@@ -14,7 +15,10 @@ import { toast } from "sonner";
 export default function AuthMain() {
   const [view, setView] = useState<"signup" | "login" | "resetPassword">("login");
   const [showRoleModal, setShowRoleModal] = useState(false);
+  const [showPhoneModal, setShowPhoneModal] = useState(false);
   const [googleAuthData, setGoogleAuthData] = useState<any>(null);
+  const [selectedRole, setSelectedRole] = useState<"USER" | "OWNER" | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const userContext = useContext(UserContext);
   const provider = new GoogleAuthProvider();
 
@@ -75,17 +79,25 @@ export default function AuthMain() {
   }
 
   async function handleRoleSelection(role: "USER" | "OWNER") {
-    try {
-      if (!googleAuthData) return;
+    setSelectedRole(role);
+    setShowRoleModal(false);
+    setShowPhoneModal(true);
+  }
 
-      // Update user role
+  async function handlePhoneSubmit(phoneNumber: string) {
+    try {
+      if (!googleAuthData || !selectedRole) return;
+
+      setIsSubmitting(true);
+
+      // Update user role and phone number
       const response = await axios.post("/api/auth/google", {
-        token: googleAuthData.firebaseToken, // ✅ Use Firebase token for verification
+        token: googleAuthData.firebaseToken,
         email: googleAuthData.email,
         displayName: googleAuthData.displayName,
         photoUrl: googleAuthData.photoUrl,
-        phoneNumber: 1234567890,
-        role: role,
+        phoneNumber: phoneNumber,
+        role: selectedRole,
       });
 
       if (response.data.success) {
@@ -98,9 +110,9 @@ export default function AuthMain() {
         
         // Update context with fresh data
         userContext?.AuthDataHandler(response.data.data);
-        setShowRoleModal(false);
+        setShowPhoneModal(false);
         
-        toast.success(`Welcome! Your account has been set up as ${role === "OWNER" ? "Property Owner" : "Renter"}`);
+        toast.success(`Welcome! Your account has been set up as ${selectedRole === "OWNER" ? "Property Owner" : "Renter"}`);
         
         // Force reload to ensure context updates
         setTimeout(() => {
@@ -108,8 +120,9 @@ export default function AuthMain() {
         }, 500);
       }
     } catch (error: any) {
-      console.error("Role Selection Error:", error.message);
-      toast.error("Failed to set up your account. Please try again.");
+      console.error("Phone Submit Error:", error.message);
+      toast.error("Failed to complete setup. Please try again.");
+      setIsSubmitting(false);
     }
   }
 
@@ -212,6 +225,18 @@ export default function AuthMain() {
         }}
         onSelectRole={handleRoleSelection}
         userName={googleAuthData?.displayName?.split(' ')[0] || "there"}
+      />
+
+      {/* Phone Number Modal */}
+      <PhoneNumberModal
+        isOpen={showPhoneModal}
+        onClose={() => {
+          // Don't allow closing without providing phone number
+          // setShowPhoneModal(false);
+        }}
+        onSubmit={handlePhoneSubmit}
+        userName={googleAuthData?.displayName?.split(' ')[0] || "there"}
+        isSubmitting={isSubmitting}
       />
     </div>
   );

@@ -777,7 +777,9 @@ import { GiWashingMachine, GiCooler } from "react-icons/gi";
 import { BiSolidTv, BiFridge } from "react-icons/bi";
 import { BsBox } from "react-icons/bs";
 import { Home, Users, User, Heart, Users2, Building2, Store } from "lucide-react";
-// import { Home, Users, User, Heart, Users2, Building2, Store } from "lucide-react";
+import ReferralCodeInput from "./ReferralCodeInput";
+import GooglePlacesAutocomplete from "./GooglePlacesAutocomplete";
+import GoogleMapPicker from "./GoogleMapPicker";
 
 type FormValues = {
   apartmentName: string;
@@ -858,6 +860,8 @@ const Step1: React.FC = () => {
   const [city, setCity] = useState("");
   const [state, setState] = useState("");
   const [pincode, setPincode] = useState("");
+  const [mapLat, setMapLat] = useState<number | undefined>(undefined);
+  const [mapLng, setMapLng] = useState<number | undefined>(undefined);
 
   const [selectedPlan, setSelectedPlan] = useState("");
   const [planAmount, setPlanAmount] = useState(0);
@@ -1005,6 +1009,14 @@ const Step1: React.FC = () => {
                 "location",
                 `${localAddress}, ${city}, ${state}, ${pincode}`
               );
+              
+              // Add coordinates if available
+              if (mapLat && mapLng) {
+                apartmentFormData.append("latitude", mapLat.toString());
+                apartmentFormData.append("longitude", mapLng.toString());
+                console.log("Coordinates added to form:", { lat: mapLat, lng: mapLng });
+              }
+              
               apartmentFormData.append("availableFor", formData.availableFor);
               apartmentFormData.append("category", formData.category);
               apartmentFormData.append("txnID", response.razorpay_payment_id);
@@ -1013,14 +1025,30 @@ const Step1: React.FC = () => {
               apartmentFormData.append("paymentAmount", planAmount.toString());
               apartmentFormData.append("membershipDuration", planDuration.toString());
 
+              // Add referral code if exists
+              const referralCode = localStorage.getItem("pendingReferralCode");
+              if (referralCode) {
+                apartmentFormData.append("referralCode", referralCode);
+              }
+
               selectedImages.forEach((file) => apartmentFormData.append("image", file));
 
+              const token = localStorage.getItem("token");
               const apartmentResponse = await axios.post(
                 `/api/aparment/createEvent?id=${userContext?.userAuthData?._id}`,
-                apartmentFormData
+                apartmentFormData,
+                {
+                  headers: {
+                    Authorization: `Bearer ${token}`,
+                    "x-auth-token": token,
+                  },
+                }
               );
 
               if (apartmentResponse.data) {
+                // Clear the referral code from localStorage after successful submission
+                localStorage.removeItem("pendingReferralCode");
+                
                 toast.success("Payment successful! Your property is now listed.");
                 router.push("/profile");
               }
@@ -1321,15 +1349,24 @@ const Step1: React.FC = () => {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">
-                  Address *
+                  Search Location * (Google Maps)
                 </label>
-                <input
+                <GooglePlacesAutocomplete
                   value={localAddress}
-                  onChange={(e) => setLocalAddress(e.target.value)}
-                  placeholder="e.g., 121 Chawani"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
-                  required
+                  onChange={(value) => setLocalAddress(value)}
+                  onPlaceSelected={(place) => {
+                    setLocalAddress(place.address);
+                    setCity(place.city);
+                    setState(place.state);
+                    setPincode(place.pincode);
+                    setMapLat(place.lat);
+                    setMapLng(place.lng);
+                  }}
+                  placeholder="Search for your property location..."
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  Start typing to see location suggestions from Google Maps
+                </p>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1372,6 +1409,37 @@ const Step1: React.FC = () => {
                   required
                 />
               </div>
+            </div>
+
+            {/* Divider */}
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-300"></div>
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-4 bg-white text-gray-500 font-medium">OR</span>
+              </div>
+            </div>
+
+            {/* Google Map Picker */}
+            <div>
+              <h3 className="text-lg font-semibold text-gray-800 mb-3">
+                📍 Mark Location on Map
+              </h3>
+              <GoogleMapPicker
+                onLocationSelect={(location) => {
+                  setLocalAddress(location.address);
+                  setCity(location.city);
+                  setState(location.state);
+                  setPincode(location.pincode);
+                  setMapLat(location.lat);
+                  setMapLng(location.lng);
+                }}
+                initialLat={26.9124}
+                initialLng={75.7873}
+                externalLat={mapLat}
+                externalLng={mapLng}
+              />
             </div>
 
             <div className="flex justify-between pt-4 border-t border-gray-200">
@@ -1776,6 +1844,9 @@ const Step1: React.FC = () => {
             </div>
 
             <h2 className="text-2xl font-bold text-gray-800 mb-6">Choose Membership Plan</h2>
+
+            {/* Referral Code Section */}
+            <ReferralCodeInput />
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               {(() => {

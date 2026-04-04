@@ -55,6 +55,12 @@ export async function GET(req: NextRequest) {
 
     // Format user conversations (messages from owners)
     userConversations.forEach((conv: any) => {
+      // Skip if owner or apartment is null (deleted)
+      if (!conv.ownerID || !conv.apartmentID) {
+        console.log("Skipping conversation with null owner or apartment:", conv._id);
+        return;
+      }
+
       notifications.push({
         _id: conv._id,
         conversationID: conv.conversationID,
@@ -78,6 +84,12 @@ export async function GET(req: NextRequest) {
 
     // Format owner conversations (messages from renters)
     ownerConversations.forEach((conv: any) => {
+      // Skip if user or apartment is null (deleted)
+      if (!conv.userID || !conv.apartmentID) {
+        console.log("Skipping conversation with null user or apartment:", conv._id);
+        return;
+      }
+
       notifications.push({
         _id: conv._id,
         conversationID: conv.conversationID,

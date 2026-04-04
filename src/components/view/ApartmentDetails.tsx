@@ -29,6 +29,7 @@ import { MdTableRestaurant, MdCoffee } from "react-icons/md";
 import { GiWashingMachine, GiCooler } from "react-icons/gi";
 import { BiSolidTv, BiFridge } from "react-icons/bi";
 import { BsBox } from "react-icons/bs";
+import PropertyLocationMap from "./PropertyLocationMap";
 
 interface ApartmentDetailsProps {
   data: {
@@ -37,6 +38,10 @@ interface ApartmentDetailsProps {
     image_urls: string[];
     description: string;
     location: string;
+    coordinates?: {
+      latitude?: number;
+      longitude?: number;
+    };
     price: number;
     contactNo: number;
     category: string;
@@ -328,6 +333,15 @@ const ApartmentDetails: React.FC<ApartmentDetailsProps> = ({ data, ownerData, co
             <p className="text-gray-700 leading-relaxed whitespace-pre-line">
               {data.description}
             </p>
+          </div>
+
+          {/* Property Location Map */}
+          <div className="pt-4">
+            <PropertyLocationMap
+              coordinates={data.coordinates}
+              address={data.location}
+              propertyName={data.apartmentName}
+            />
           </div>
         </div>
   

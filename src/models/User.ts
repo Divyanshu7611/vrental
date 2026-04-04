@@ -38,6 +38,16 @@ export interface IUser extends Document {
     requestDate: Date;
     completedDate?: Date;
     transactionId?: string;
+    paymentMethod?: "UPI" | "BANK";
+    upiId?: string;
+    bankDetails?: {
+      accountNumber: string;
+      ifscCode: string;
+      accountHolderName: string;
+      bankName?: string;
+    };
+    razorpayPayoutId?: string;
+    razorpayFundAccountId?: string;
   }>;
 }
 
@@ -202,6 +212,26 @@ const userSchema: Schema = new Schema<IUser>({
         type: Date,
       },
       transactionId: {
+        type: String,
+      },
+      paymentMethod: {
+        type: String,
+        enum: ["UPI", "BANK"],
+      },
+      upiId: {
+        type: String,
+        trim: true,
+      },
+      bankDetails: {
+        accountNumber: String,
+        ifscCode: String,
+        accountHolderName: String,
+        bankName: String,
+      },
+      razorpayPayoutId: {
+        type: String,
+      },
+      razorpayFundAccountId: {
         type: String,
       },
     },

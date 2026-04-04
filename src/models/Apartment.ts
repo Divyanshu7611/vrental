@@ -7,6 +7,10 @@ export interface IApartment extends Document {
   price: number;
   facility: string; // This will store comma-separated facilities
   location: string;
+  coordinates?: {
+    latitude?: number;
+    longitude?: number;
+  };
   image_urls: string[]; // Image URLs
   category: string;
   availableFor: string;
@@ -63,6 +67,14 @@ const apartmentSchema: Schema = new Schema<IApartment>({
     type: String,
     required: true,
     trim: true,
+  },
+  coordinates: {
+    latitude: {
+      type: Number,
+    },
+    longitude: {
+      type: Number,
+    },
   },
   image_urls: [
     {

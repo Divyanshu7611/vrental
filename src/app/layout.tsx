@@ -4,6 +4,7 @@ import { Roboto } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { UserContextProvider } from "@/context/UserContext";
+import AdminRedirect from "@/components/global/AdminRedirect";
 
 const inter = Inter({ subsets: ["latin"] });
 const roboto = Roboto({
@@ -94,7 +95,9 @@ export default function RootLayout({
       </head>
       <UserContextProvider>
         <body className={roboto.className}>
-          {children}
+          <AdminRedirect>
+            {children}
+          </AdminRedirect>
           <Toaster position="top-right" richColors expand={false} />
         </body>
       </UserContextProvider>

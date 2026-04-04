@@ -71,21 +71,37 @@ export async function PUT(req: NextRequest) {
     const location = formData.get("location") as string;
     const availableFor = formData.get("availableFor") as string;
     const category = formData.get("category") as string;
+    
+    // Extract coordinates if provided
+    const latitude = formData.get("latitude");
+    const longitude = formData.get("longitude");
+
+    // Prepare update data
+    const updateData: any = {
+      apartmentName,
+      description,
+      price,
+      location,
+      facility,
+      furniture,
+      category,
+      availableFor,
+      contactNo,
+    };
+
+    // Add coordinates if provided
+    if (latitude && longitude) {
+      updateData.coordinates = {
+        latitude: Number(latitude),
+        longitude: Number(longitude),
+      };
+      console.log("Coordinates updated:", updateData.coordinates);
+    }
 
     // Update the apartment
     const updatedApartment = await Apartment.findByIdAndUpdate(
       apartmentId,
-      {
-        apartmentName,
-        description,
-        price,
-        location,
-        facility,
-        furniture,
-        category,
-        availableFor,
-        contactNo,
-      },
+      updateData,
       { new: true }
     );
 

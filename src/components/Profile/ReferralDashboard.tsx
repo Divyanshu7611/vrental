@@ -46,6 +46,15 @@ export default function ReferralDashboard() {
   const [withdrawAmount, setWithdrawAmount] = useState("");
   const [copied, setCopied] = useState(false);
   const [withdrawing, setWithdrawing] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"UPI" | "BANK">("UPI");
+  const [upiId, setUpiId] = useState("");
+  const [bankDetails, setBankDetails] = useState({
+    accountNumber: "",
+    ifscCode: "",
+    accountHolderName: "",
+    bankName: "",
+  });
 
   useEffect(() => {
     fetchReferralStats();
@@ -97,7 +106,7 @@ export default function ReferralDashboard() {
     }
   };
 
-  const handleWithdraw = async () => {
+  const openPaymentModal = () => {
     const points = parseInt(withdrawAmount);
 
     if (!points || points < 100) {
@@ -110,19 +119,57 @@ export default function ReferralDashboard() {
       return;
     }
 
+    setShowPaymentModal(true);
+  };
+
+  const handleWithdraw = async () => {
+    const points = parseInt(withdrawAmount);
+
+    // Validate payment details
+    if (paymentMethod === "UPI" && !upiId) {
+      toast.error("Please enter your UPI ID");
+      return;
+    }
+
+    if (paymentMethod === "BANK") {
+      if (!bankDetails.accountNumber || !bankDetails.ifscCode || !bankDetails.accountHolderName) {
+        toast.error("Please fill all bank details");
+        return;
+      }
+    }
+
     setWithdrawing(true);
 
     try {
       const token = localStorage.getItem("token");
+      const payload: any = {
+        points,
+        paymentMethod,
+      };
+
+      if (paymentMethod === "UPI") {
+        payload.upiId = upiId;
+      } else {
+        payload.bankDetails = bankDetails;
+      }
+
       const response = await axios.post(
         "/api/referral/withdraw",
-        { points },
+        payload,
         { headers: { Authorization: `Bearer ${token}` } }
       );
 
       if (response.data.success) {
         toast.success(response.data.message);
         setWithdrawAmount("");
+        setUpiId("");
+        setBankDetails({
+          accountNumber: "",
+          ifscCode: "",
+          accountHolderName: "",
+          bankName: "",
+        });
+        setShowPaymentModal(false);
         fetchReferralStats();
       }
     } catch (error: any) {
@@ -315,7 +362,7 @@ export default function ReferralDashboard() {
           </div>
 
           <button
-            onClick={handleWithdraw}
+            onClick={openPaymentModal}
             disabled={
               !stats.canWithdraw ||
               withdrawing ||
@@ -325,7 +372,7 @@ export default function ReferralDashboard() {
             }
             className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold py-3 rounded-lg hover:from-green-700 hover:to-green-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
           >
-            {withdrawing ? "Processing..." : "Request Withdrawal"}
+            Continue to Payment Details
           </button>
 
           {!stats.canWithdraw && (
@@ -439,6 +486,175 @@ export default function ReferralDashboard() {
             ))}
           </div>
         </motion.div>
+      )}
+
+      {/* Payment Details Modal */}
+      {showPaymentModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto"
+          >
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-bold text-gray-800">Payment Details</h2>
+                <button
+                  onClick={() => setShowPaymentModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <XCircle className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="mb-6 p-4 bg-blue-50 rounded-lg">
+                <p className="text-sm text-gray-600">Withdrawal Amount</p>
+                <p className="text-2xl font-bold text-blue-600">₹{withdrawAmount}</p>
+              </div>
+
+              {/* Payment Method Selection */}
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Select Payment Method
+                </label>
+                <div className="grid grid-cols-2 gap-4">
+                  <button
+                    onClick={() => setPaymentMethod("UPI")}
+                    className={`p-4 border-2 rounded-lg transition-all ${
+                      paymentMethod === "UPI"
+                        ? "border-blue-600 bg-blue-50"
+                        : "border-gray-200 hover:border-gray-300"
+                    }`}
+                  >
+                    <div className="text-center">
+                      <Wallet className="w-8 h-8 mx-auto mb-2 text-blue-600" />
+                      <p className="font-semibold text-gray-800">UPI</p>
+                      <p className="text-xs text-gray-500">Instant Transfer</p>
+                    </div>
+                  </button>
+                  <button
+                    onClick={() => setPaymentMethod("BANK")}
+                    className={`p-4 border-2 rounded-lg transition-all ${
+                      paymentMethod === "BANK"
+                        ? "border-blue-600 bg-blue-50"
+                        : "border-gray-200 hover:border-gray-300"
+                    }`}
+                  >
+                    <div className="text-center">
+                      <IndianRupee className="w-8 h-8 mx-auto mb-2 text-green-600" />
+                      <p className="font-semibold text-gray-800">Bank</p>
+                      <p className="text-xs text-gray-500">IMPS/NEFT</p>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              {/* UPI Form */}
+              {paymentMethod === "UPI" && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      UPI ID
+                    </label>
+                    <input
+                      type="text"
+                      value={upiId}
+                      onChange={(e) => setUpiId(e.target.value)}
+                      placeholder="yourname@paytm"
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                    />
+                    <p className="text-xs text-gray-500 mt-1">
+                      Enter your UPI ID (e.g., 9876543210@paytm)
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Bank Form */}
+              {paymentMethod === "BANK" && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Account Holder Name
+                    </label>
+                    <input
+                      type="text"
+                      value={bankDetails.accountHolderName}
+                      onChange={(e) =>
+                        setBankDetails({ ...bankDetails, accountHolderName: e.target.value })
+                      }
+                      placeholder="John Doe"
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Account Number
+                    </label>
+                    <input
+                      type="text"
+                      value={bankDetails.accountNumber}
+                      onChange={(e) =>
+                        setBankDetails({ ...bankDetails, accountNumber: e.target.value })
+                      }
+                      placeholder="1234567890"
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      IFSC Code
+                    </label>
+                    <input
+                      type="text"
+                      value={bankDetails.ifscCode}
+                      onChange={(e) =>
+                        setBankDetails({ ...bankDetails, ifscCode: e.target.value.toUpperCase() })
+                      }
+                      placeholder="SBIN0001234"
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      Bank Name (Optional)
+                    </label>
+                    <input
+                      type="text"
+                      value={bankDetails.bankName}
+                      onChange={(e) =>
+                        setBankDetails({ ...bankDetails, bankName: e.target.value })
+                      }
+                      placeholder="State Bank of India"
+                      className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Submit Button */}
+              <div className="mt-6 flex gap-3">
+                <button
+                  onClick={() => setShowPaymentModal(false)}
+                  className="flex-1 px-6 py-3 border-2 border-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-50 transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleWithdraw}
+                  disabled={withdrawing}
+                  className="flex-1 px-6 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold rounded-lg hover:from-green-700 hover:to-green-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+                >
+                  {withdrawing ? "Processing..." : "Submit Request"}
+                </button>
+              </div>
+
+              <p className="text-xs text-gray-500 text-center mt-4">
+                Your withdrawal will be processed within 3-5 business days
+              </p>
+            </div>
+          </motion.div>
+        </div>
       )}
     </div>
   );

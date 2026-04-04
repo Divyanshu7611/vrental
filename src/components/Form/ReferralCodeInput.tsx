@@ -24,20 +24,22 @@ export default function ReferralCodeInput({ onSuccess }: ReferralCodeInputProps)
     setLoading(true);
 
     try {
-      const token = localStorage.getItem("token");
       const response = await axios.post(
-        "/api/referral/apply",
-        { referralCode: referralCode.toUpperCase() },
-        { headers: { Authorization: `Bearer ${token}` } }
+        "/api/referral/verify-code",
+        { referralCode: referralCode.toUpperCase() }
       );
 
       if (response.data.success) {
-        toast.success(response.data.message);
+        toast.success(`Referral code verified! Referred by ${response.data.data.referrerName}`);
         setApplied(true);
+        
+        // Store the verified referral code in localStorage for later use
+        localStorage.setItem("pendingReferralCode", referralCode.toUpperCase());
+        
         if (onSuccess) onSuccess();
       }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Failed to apply referral code");
+      toast.error(error.response?.data?.message || "Invalid referral code");
     } finally {
       setLoading(false);
     }

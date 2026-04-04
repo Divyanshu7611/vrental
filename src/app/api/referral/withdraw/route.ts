@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
   try {
     await connectMongoDB();
 
-    const { points } = await req.json();
+    const { points, paymentMethod, upiId, bankDetails } = await req.json();
     const token = req.headers.get("authorization")?.split(" ")[1];
 
     if (!token) {
@@ -41,6 +41,40 @@ export async function POST(req: NextRequest) {
         },
         { status: 403 }
       );
+    }
+
+    // Validate payment method
+    if (!paymentMethod || (paymentMethod !== "UPI" && paymentMethod !== "BANK")) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Please select a valid payment method (UPI or BANK)",
+        },
+        { status: 400 }
+      );
+    }
+
+    // Validate payment details
+    if (paymentMethod === "UPI" && !upiId) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Please provide UPI ID",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (paymentMethod === "BANK") {
+      if (!bankDetails || !bankDetails.accountNumber || !bankDetails.ifscCode || !bankDetails.accountHolderName) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Please provide complete bank details (Account Number, IFSC Code, Account Holder Name)",
+          },
+          { status: 400 }
+        );
+      }
     }
 
     // Validate points
@@ -83,15 +117,37 @@ export async function POST(req: NextRequest) {
     // Deduct points
     user.referralPoints -= points;
 
-    // Add withdrawal request
-    user.withdrawalHistory.push({
+    // Prepare withdrawal data
+    const withdrawalData: any = {
       amount: points, // 1 point = 1 rupee
       pointsDeducted: points,
       status: "PENDING",
       requestDate: new Date(),
-    });
+      paymentMethod,
+    };
+
+    // Add payment details based on method
+    if (paymentMethod === "UPI") {
+      withdrawalData.upiId = upiId;
+      console.log("Saving UPI withdrawal:", { upiId, paymentMethod });
+    } else if (paymentMethod === "BANK") {
+      withdrawalData.bankDetails = {
+        accountNumber: bankDetails.accountNumber,
+        ifscCode: bankDetails.ifscCode,
+        accountHolderName: bankDetails.accountHolderName,
+        bankName: bankDetails.bankName || "",
+      };
+      console.log("Saving BANK withdrawal:", withdrawalData.bankDetails);
+    }
+
+    console.log("Final withdrawal data before save:", withdrawalData);
+
+    // Add withdrawal request
+    user.withdrawalHistory.push(withdrawalData);
 
     await user.save();
+
+    console.log("Withdrawal saved successfully!");
 
     return NextResponse.json(
       {
