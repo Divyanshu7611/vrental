@@ -3,6 +3,8 @@ import { connectMongoDB } from "@/utilis/dbConnect";
 import { verifyToken } from "@/utilis/jwt";
 import { NextRequest, NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 export async function PUT(req: NextRequest) {
   const { phone, profession, age, bio, firstName, lastName } = await req.json();
   try {

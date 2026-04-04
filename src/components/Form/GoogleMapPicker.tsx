@@ -258,7 +258,10 @@ const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
             <ul className="text-blue-700 space-y-1 text-xs">
               <li>• <strong>Click</strong> anywhere on the map to place the marker</li>
               <li>• <strong>Drag</strong> the marker to adjust the exact location</li>
-              <li>• Use the <strong>"Use My Location"</strong> button to auto-detect</li>
+              <li>
+                • Use the <strong>&quot;Use My Location&quot;</strong> button to
+                auto-detect
+              </li>
             </ul>
           </div>
         </div>

@@ -3,6 +3,8 @@ import { connectMongoDB } from "@/utilis/dbConnect";
 import Apartment from "@/models/Apartment";
 import jwt, { JwtPayload } from "jsonwebtoken";
 
+export const dynamic = "force-dynamic";
+
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
 export async function PUT(req: NextRequest) {

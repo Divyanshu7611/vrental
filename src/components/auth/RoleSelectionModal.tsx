@@ -52,7 +52,7 @@ export default function RoleSelectionModal({
             Welcome, {userName}!
           </h2>
           <p className="text-gray-600 text-xs sm:text-sm px-4">
-            Let us know how you'll be using VRENTAL
+            Let us know how you&apos;ll be using VRENTAL
           </p>
         </div>
 
@@ -81,7 +81,7 @@ export default function RoleSelectionModal({
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-base sm:text-lg text-gray-800 mb-0.5 sm:mb-1">
-                  I'm looking to rent
+                  I&apos;m looking to rent
                 </h3>
                 <p className="text-xs sm:text-sm text-gray-600 leading-tight sm:leading-normal">
                   Find your perfect room, flat, PG, or co-living space
@@ -130,7 +130,7 @@ export default function RoleSelectionModal({
               </div>
               <div className="flex-1 min-w-0">
                 <h3 className="font-semibold text-base sm:text-lg text-gray-800 mb-0.5 sm:mb-1">
-                  I'm a property owner
+                  I&apos;m a property owner
                 </h3>
                 <p className="text-xs sm:text-sm text-gray-600 leading-tight sm:leading-normal">
                   List your properties and connect with potential renters

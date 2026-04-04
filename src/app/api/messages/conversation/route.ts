@@ -4,6 +4,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectMongoDB } from "@/utilis/dbConnect";
 import admin, { getFirestore } from "@/utilis/firebaseAdmin";
 
+export const dynamic = "force-dynamic";
+
 // Helper function to generate conversation ID
 function generateConversationID(userID: string, ownerID: string, apartmentID: string): string {
   // Sort IDs to ensure consistent conversation ID regardless of who initiates

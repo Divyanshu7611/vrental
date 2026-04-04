@@ -8,6 +8,8 @@ import mailerSender from "@/utilis/mailSender";
 import registrationSuccess from "@/mail/templates/registrationSuccess";
 import jwt from "jsonwebtoken";
 
+export const dynamic = "force-dynamic";
+
 async function generatingTharID() {
   let clientID;
   let existingUser;

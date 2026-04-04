@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getFirestore } from "@/utilis/firebaseAdmin";
 import admin from "@/utilis/firebaseAdmin";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   try {
     const db = getFirestore();

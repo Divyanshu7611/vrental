@@ -4,6 +4,8 @@ import { connectMongoDB } from "@/utilis/dbConnect";
 import User from "@/models/User";
 import jwt from "jsonwebtoken";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   try {
     await connectMongoDB();

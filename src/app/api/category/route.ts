@@ -2,6 +2,8 @@ import { connectMongoDB } from "@/utilis/dbConnect";
 import { NextRequest, NextResponse } from "next/server";
 import Category from "@/models/Category";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request: NextRequest) {
   const { category } = await request.json();
 

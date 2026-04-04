@@ -132,7 +132,7 @@ export default function PhoneNumberModal({
             </p>
           )}
           <p className="mt-2 text-xs text-gray-500">
-            We'll use this to keep you updated about your bookings
+            We&apos;ll use this to keep you updated about your bookings
           </p>
         </div>
 

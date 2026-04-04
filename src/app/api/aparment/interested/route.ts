@@ -6,6 +6,8 @@ import mailerSender from "@/utilis/mailSender";
 import apartmentRegistrationOwnerTemplate from "@/mail/templates/apartmentOwnerReg";
 import apartmentRegistrationTemplate from "@/mail/templates/apartmentReg";
 
+export const dynamic = "force-dynamic";
+
 async function sendMailUser(
   email: string,
   apartmentName: string,

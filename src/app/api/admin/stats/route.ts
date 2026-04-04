@@ -4,6 +4,8 @@ import User from "@/models/User";
 import Apartment from "@/models/Apartment";
 import jwt from "jsonwebtoken";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   try {
     await connectMongoDB();

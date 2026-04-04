@@ -4,6 +4,8 @@ import Apartment from "@/models/Apartment";
 import { NextRequest, NextResponse } from "next/server";
 import { connectMongoDB } from "@/utilis/dbConnect";
 
+export const dynamic = "force-dynamic";
+
 // Ensure models are registered
 const ensureModelsLoaded = () => {
   // This forces the models to be loaded and registered with Mongoose

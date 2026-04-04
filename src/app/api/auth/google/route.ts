@@ -7,6 +7,8 @@ import { ClientRequest } from "http";
 import { Phone } from "lucide-react";
 import jwt from "jsonwebtoken";
 
+export const dynamic = "force-dynamic";
+
 async function generateVrentalId(){
     let clientId;
     let existingUser;

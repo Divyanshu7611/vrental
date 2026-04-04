@@ -217,7 +217,7 @@ function Hero() {
             px-4 py-2 rounded-full text-sm font-medium text-blue-700 
             animate-slide-down shadow-sm">
             <TrendingUp className="w-4 h-4" />
-            <span>India's Fastest Growing Rental Platform</span>
+            <span>India&apos;s Fastest Growing Rental Platform</span>
           </div>
 
           {/* Main Heading with Animation */}

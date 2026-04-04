@@ -3,7 +3,9 @@ import { connectMongoDB } from "@/utilis/dbConnect";
 import User from "@/models/User";
 import Apartment from "@/models/Apartment";
 import jwt from "jsonwebtoken";
-import { sendEmail } from "@/utilis/mailSender";
+import mailerSender from "@/utilis/mailSender";
+
+export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   try {
@@ -133,7 +135,11 @@ export async function POST(req: NextRequest) {
       </div>
     `;
 
-    await sendEmail(ownerEmail, emailSubject, emailBody);
+    await mailerSender({
+      email: ownerEmail,
+      title: emailSubject,
+      body: emailBody,
+    });
 
     return NextResponse.json(
       {

@@ -4,6 +4,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectMongoDB } from "@/utilis/dbConnect";
 import admin, { getFirestore } from "@/utilis/firebaseAdmin";
 
+export const dynamic = "force-dynamic";
+
 export async function PUT(req: NextRequest) {
   try {
     await connectMongoDB();

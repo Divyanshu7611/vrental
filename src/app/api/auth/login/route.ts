@@ -6,6 +6,8 @@ import jwt from "jsonwebtoken";
 import { NextRequest, NextResponse } from "next/server";
 import { Cookie } from "next/font/google";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(NextRequest: NextRequest) {
   const { email, password } = await NextRequest.json();
 

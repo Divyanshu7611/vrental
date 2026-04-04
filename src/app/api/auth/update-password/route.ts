@@ -4,6 +4,8 @@ import bcrypt from "bcrypt";
 import { Underdog } from "next/font/google";
 import { NextRequest, NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request: NextRequest) {
   const { newPassword, resetToken } = await request.json();
   try {

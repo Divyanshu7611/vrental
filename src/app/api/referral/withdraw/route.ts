@@ -3,6 +3,8 @@ import { connectMongoDB } from "@/utilis/dbConnect";
 import User from "@/models/User";
 import jwt from "jsonwebtoken";
 
+export const dynamic = "force-dynamic";
+
 const MINIMUM_WITHDRAWAL_POINTS = 100;
 
 export async function POST(req: NextRequest) {

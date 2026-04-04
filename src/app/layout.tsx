@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Roboto } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { UserContextProvider } from "@/context/UserContext";
@@ -86,7 +87,6 @@ export default function RootLayout({
         <link rel="manifest" href="/site.webmanifest" />
         {/* <meta name="msapplication-TileColor" content="#ffffff" />
         <meta name="theme-color" content="#ffffff" /> */}
-        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
         <title>Vrental</title>
         <meta
           name="description"
@@ -99,6 +99,10 @@ export default function RootLayout({
             {children}
           </AdminRedirect>
           <Toaster position="top-right" richColors expand={false} />
+          <Script
+            src="https://checkout.razorpay.com/v1/checkout.js"
+            strategy="afterInteractive"
+          />
         </body>
       </UserContextProvider>
     </html>

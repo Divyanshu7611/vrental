@@ -3,6 +3,8 @@ import { connectMongoDB } from "@/utilis/dbConnect";
 import User from "@/models/User";
 import jwt from "jsonwebtoken";
 
+export const dynamic = "force-dynamic";
+
 const POINTS_PER_REFERRAL = 10; // Points earned per successful referral
 
 export async function POST(req: NextRequest) {

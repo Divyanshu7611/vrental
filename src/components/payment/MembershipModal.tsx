@@ -271,9 +271,6 @@ const MembershipModal: React.FC<MembershipModalProps> = ({
 
   return (
     <>
-      {/* Razorpay Script */}
-      <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
       <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
         <div className="bg-white rounded-3xl shadow-2xl w-full max-w-5xl max-h-[90vh] overflow-y-auto">
           {/* Header */}

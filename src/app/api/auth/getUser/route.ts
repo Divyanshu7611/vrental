@@ -2,6 +2,8 @@ import User from "@/models/User";
 import { NextRequest, NextResponse } from "next/server";
 import { connectMongoDB } from "@/utilis/dbConnect";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   const url = new URL(req.url);
   const id = url.searchParams.get("id");
