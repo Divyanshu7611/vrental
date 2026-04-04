@@ -21,4 +21,4 @@ jobs:
             git pull origin main
             npm install
             npm run build
-            pm2 restart next-app || pm2 start npm --name "vrental" -- start
+            pm2 restart vrental || pm2 start npm --name "vrental" -- start
