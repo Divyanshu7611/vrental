@@ -1,9 +1,8 @@
 "use client";
 import React, { useState, useEffect, useContext } from "react";
 import { useForm, SubmitHandler, FieldErrors } from "react-hook-form";
-import { toast, ToastContainer } from "react-toastify";
+import { toast } from "sonner";
 import Spinner from "../global/Spinner";
-import "react-toastify/dist/ReactToastify.css";
 import axios from "axios";
 import { UserContext } from "@/context/UserContext";
 import { useRouter } from "next/navigation";
@@ -108,18 +107,6 @@ export default function Login() {
           </button>
         </form>
       )}
-      <ToastContainer 
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
     </>
   );
 }

@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectMongoDB } from "@/utilis/dbConnect";
 import otpGenerator from "otp-generator";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(request: NextRequest) {
   const { email } = await request.json();
   try {

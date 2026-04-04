@@ -4,18 +4,30 @@ import { FcGoogle } from "react-icons/fc";
 import Signup from "./Signup";
 import Login from "./Login";
 import ResetPassword from "./ResetLink";
+import RoleSelectionModal from "./RoleSelectionModal";
+import PhoneNumberModal from "./PhoneNumberModal";
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 import { auth } from "@/utilis/firebase";
 import axios from "axios";
 import { UserContext } from "@/context/UserContext";
+import { toast } from "sonner";
 
 export default function AuthMain() {
   const [view, setView] = useState<"signup" | "login" | "resetPassword">("login");
+  const [showRoleModal, setShowRoleModal] = useState(false);
+  const [showPhoneModal, setShowPhoneModal] = useState(false);
+  const [googleAuthData, setGoogleAuthData] = useState<any>(null);
+  const [selectedRole, setSelectedRole] = useState<"USER" | "OWNER" | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const userContext = useContext(UserContext);
   const provider = new GoogleAuthProvider();
 
   async function handleGoogleLogin() {
     try {
+      // Clear old localStorage data before login
+      localStorage.removeItem("token");
+      localStorage.removeItem("userAuthData");
+      
       const result = await signInWithPopup(auth, provider);
       const token = await result.user.getIdToken();
 
@@ -28,12 +40,89 @@ export default function AuthMain() {
       });
 
       if (response.data.success) {
-        localStorage.setItem("token", token);
-        userContext?.AuthDataHandler(response.data.data);
-        window.location.href = "/";
+        // Check if this is a new user
+        if (response.data.isNewUser) {
+          // Store the auth data temporarily and show role selection modal
+          setGoogleAuthData({
+            firebaseToken: token,
+            jwtToken: response.data.token, // ��� Store JWT token
+            email: result.user.email,
+            displayName: result.user.displayName,
+            photoUrl: result.user.photoURL,
+            userData: response.data.data,
+          });
+          setShowRoleModal(true);
+        } else {
+          // Existing user - proceed with login
+          // Clear any old data first
+          localStorage.clear();
+          
+          // Save fresh data from database
+          localStorage.setItem("token", response.data.token);
+          localStorage.setItem("userAuthData", JSON.stringify(response.data.data));
+          
+          // Update context with fresh data
+          userContext?.AuthDataHandler(response.data.data);
+          
+          toast.success(`Welcome back, ${response.data.data.firstName}!`);
+          
+          // Force reload to ensure context updates
+          setTimeout(() => {
+            window.location.href = "/";
+          }, 500);
+        }
       }
     } catch (error: any) {
       console.error("Google Sign-in Error:", error.message);
+      toast.error("Failed to sign in with Google. Please try again.");
+    }
+  }
+
+  async function handleRoleSelection(role: "USER" | "OWNER") {
+    setSelectedRole(role);
+    setShowRoleModal(false);
+    setShowPhoneModal(true);
+  }
+
+  async function handlePhoneSubmit(phoneNumber: string) {
+    try {
+      if (!googleAuthData || !selectedRole) return;
+
+      setIsSubmitting(true);
+
+      // Update user role and phone number
+      const response = await axios.post("/api/auth/google", {
+        token: googleAuthData.firebaseToken,
+        email: googleAuthData.email,
+        displayName: googleAuthData.displayName,
+        photoUrl: googleAuthData.photoUrl,
+        phoneNumber: phoneNumber,
+        role: selectedRole,
+      });
+
+      if (response.data.success) {
+        // Clear any old data first
+        localStorage.clear();
+        
+        // Save fresh data from database
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("userAuthData", JSON.stringify(response.data.data));
+        
+        // Update context with fresh data
+        userContext?.AuthDataHandler(response.data.data);
+        setShowPhoneModal(false);
+        
+        toast.success(`Welcome! Your account has been set up as ${selectedRole === "OWNER" ? "Property Owner" : "Renter"}`);
+        
+        // Force reload to ensure context updates
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 500);
+      }
+    } catch (error: any) {
+      console.error("Phone Submit Error:", error.message);
+      toast.error("Failed to complete setup. Please try again.");
+      setIsSubmitting(false);
     }
   }
 
@@ -126,6 +215,29 @@ export default function AuthMain() {
         )}
 
       </div>
+
+      {/* Role Selection Modal for New Google Users */}
+      <RoleSelectionModal
+        isOpen={showRoleModal}
+        onClose={() => {
+          // Don't allow closing without selecting a role for new users
+          // setShowRoleModal(false);
+        }}
+        onSelectRole={handleRoleSelection}
+        userName={googleAuthData?.displayName?.split(' ')[0] || "there"}
+      />
+
+      {/* Phone Number Modal */}
+      <PhoneNumberModal
+        isOpen={showPhoneModal}
+        onClose={() => {
+          // Don't allow closing without providing phone number
+          // setShowPhoneModal(false);
+        }}
+        onSubmit={handlePhoneSubmit}
+        userName={googleAuthData?.displayName?.split(' ')[0] || "there"}
+        isSubmitting={isSubmitting}
+      />
     </div>
   );
 }

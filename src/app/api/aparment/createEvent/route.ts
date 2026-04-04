@@ -3,6 +3,9 @@ import { uploadImage } from "@/utilis/uploadImage";
 import Apartment from "@/models/Apartment";
 import { connectMongoDB } from "@/utilis/dbConnect";
 import User from "@/models/User";
+import jwt from "jsonwebtoken";
+
+export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   const url = new URL(req.url);
@@ -10,6 +13,65 @@ export async function POST(req: NextRequest) {
 
   try {
     await connectMongoDB();
+
+    // Verify authentication and role
+    const authHeader = req.headers.get("authorization");
+    const cookieToken = req.cookies.get("token")?.value;
+    const localStorageToken = req.headers.get("x-auth-token"); // Alternative header
+    
+    const token = authHeader?.split(" ")[1] || cookieToken || localStorageToken;
+
+    if (!token) {
+      console.log("No token found in request");
+      return NextResponse.json(
+        {
+          message: "Unauthorized - Please login to continue",
+          success: false,
+        },
+        { status: 401 }
+      );
+    }
+
+    let decoded: any;
+    try {
+      decoded = jwt.verify(token, process.env.JWT_SECRET || "Divyanshu", {
+        algorithms: ["HS256"]
+      });
+    } catch (error) {
+      console.log("Token verification failed:", error);
+      return NextResponse.json(
+        {
+          message: "Invalid or expired token",
+          success: false,
+        },
+        { status: 401 }
+      );
+    }
+
+    // Check if user is OWNER
+    const user = await User.findById(userId);
+    if (!user) {
+      return NextResponse.json(
+        {
+          message: "User not found",
+          success: false,
+        },
+        { status: 404 }
+      );
+    }
+
+    if (user.role !== "OWNER") {
+      return NextResponse.json(
+        {
+          message: "Access denied. Only property owners can list properties.",
+          success: false,
+          requiredRole: "OWNER",
+          currentRole: user.role,
+        },
+        { status: 403 }
+      );
+    }
+
     const formData = await req.formData();
 
     const apartmentName = formData.get("apartmentName") as string;
@@ -25,6 +87,11 @@ export async function POST(req: NextRequest) {
     const txnID = formData.get("txnID") as string;
     const paymentAmount = Number(formData.get("paymentAmount"));
     const membershipDuration = Number(formData.get("membershipDuration"));
+    const referralCode = formData.get("referralCode") as string;
+    
+    // Extract coordinates if provided
+    const latitude = formData.get("latitude");
+    const longitude = formData.get("longitude");
 
 
     // Validation
@@ -89,8 +156,13 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Create new apartment
-    const newApartment = await Apartment.create({
+    // Calculate membership expiry date
+    const currentDate = new Date();
+    const expiryDate = new Date(currentDate);
+    expiryDate.setMonth(expiryDate.getMonth() + membershipDuration);
+
+    // Prepare apartment data
+    const apartmentData: any = {
       apartmentName,
       description,
       price,
@@ -103,18 +175,68 @@ export async function POST(req: NextRequest) {
       contactNo,
       ownerID: userId,
       status: "Available For Rent",
-      paymentStatus: "Pending",
+      paymentStatus: txnID ? "Verified" : "Pending", // If txnID exists (from Razorpay), mark as Verified
       txnID,
       paymentAmount,
+      paymentDate: txnID ? currentDate : undefined,
       membershipDuration,
-      memberShipExpiry: new Date(Date.now() + membershipDuration * 30 * 24 * 60 * 60 * 1000),
-    });
+      memberShipExpiry: expiryDate,
+    };
+
+    // Add coordinates if provided
+    if (latitude && longitude) {
+      apartmentData.coordinates = {
+        latitude: Number(latitude),
+        longitude: Number(longitude),
+      };
+      console.log("Coordinates saved:", apartmentData.coordinates);
+    }
+
+    // Create new apartment
+    const newApartment = await Apartment.create(apartmentData);
 
     await User.findByIdAndUpdate(
       userId,
       { $addToSet: { apartments: newApartment._id } },
       { new: true }
     );
+
+    // Process referral code if provided
+    if (referralCode && referralCode.trim()) {
+      try {
+        const referrer = await User.findOne({
+          referralCode: referralCode.toUpperCase(),
+        });
+
+        if (referrer && referrer.role === "OWNER") {
+          // Credit referrer with 10 points for property listing referral
+          const pointsToAdd = 10;
+          
+          referrer.referralPoints = (referrer.referralPoints || 0) + pointsToAdd;
+          referrer.referralEarnings = (referrer.referralEarnings || 0) + pointsToAdd;
+          
+          // Add to referral history
+          if (!referrer.referralHistory) {
+            referrer.referralHistory = [];
+          }
+          
+          referrer.referralHistory.push({
+            referredUserId: userId,
+            referredUserName: `${user.firstName} ${user.lastName}`,
+            pointsEarned: pointsToAdd,
+            date: new Date(),
+            type: "PROPERTY_LISTING",
+          });
+          
+          await referrer.save();
+          
+          console.log(`Referral processed: ${pointsToAdd} points credited to ${referrer.email}`);
+        }
+      } catch (referralError) {
+        console.error("Error processing referral code:", referralError);
+        // Don't fail the apartment creation if referral processing fails
+      }
+    }
 
     const updatedUser = await User.findById(userId).populate("apartments");
     return NextResponse.json(

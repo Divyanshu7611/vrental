@@ -6,6 +6,9 @@ import { nanoid } from "nanoid";
 import OTP from "@/models/OTP";
 import mailerSender from "@/utilis/mailSender";
 import registrationSuccess from "@/mail/templates/registrationSuccess";
+import jwt from "jsonwebtoken";
+
+export const dynamic = "force-dynamic";
 
 async function generatingTharID() {
   let clientID;
@@ -42,6 +45,7 @@ export async function POST(request: NextRequest) {
     profession,
     age,
     bio,
+    role,
   } = await request.json();
 
   try {
@@ -91,6 +95,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Generate referral code for new user
+    const referralCode = nanoid(8).toUpperCase();
+
     // Create new user
     const newUser = await User.create({
       firstName,
@@ -101,12 +108,34 @@ export async function POST(request: NextRequest) {
       image: `https://api.dicebear.com/5.x/initials/svg?seed=${firstName} ${lastName}&backgroundColor=418FA9`,
       clientID,
       adharNo: "",
-      role: "USER",
+      role: role || "USER",
       termsAndConditions: true,
       profession: profession || "",
       age: age || "",
       bio: bio || "",
+      referralCode: referralCode,
+      referralPoints: 0,
+      referralEarnings: 0,
+      referralHistory: [],
+      withdrawalHistory: [],
     });
+
+    // Generate JWT token
+    const JwtKey = process.env.JWT_SECRET || "Divyanshu";
+    const payload = {
+      email: newUser.email,
+      id: newUser._id,
+      role: newUser.role,
+    };
+
+    const token = jwt.sign(payload, JwtKey, {
+      expiresIn: "7d",
+      algorithm: "HS256"
+    });
+
+    // Update user with token
+    newUser.token = token;
+    await newUser.save();
 
     // Send registration success email
     const mailResult = await sendMail(email, clientID, firstName);
@@ -117,8 +146,17 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Remove password from response
+    const userResponse = newUser.toObject();
+    delete userResponse.password;
+
     return NextResponse.json(
-      { success: true, message: "User Entry Created Successfully" },
+      { 
+        success: true, 
+        message: "User Entry Created Successfully",
+        token: token,
+        data: userResponse
+      },
       { status: 201 }
     );
   } catch (error) {

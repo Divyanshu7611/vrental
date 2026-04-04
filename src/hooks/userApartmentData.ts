@@ -20,6 +20,10 @@ interface UserData {
 interface ApartmentData {
   apartmentName: string;
   location: string;
+  coordinates?: {
+    latitude?: number;
+    longitude?: number;
+  };
   image_urls: string[];
   public_ids: string[];
   description: string;

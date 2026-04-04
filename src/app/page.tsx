@@ -12,6 +12,9 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Star, MapPin, Tag, Home as HomeIcon } from "lucide-react";
+import { MdBedroomParent, MdApartment, MdGroups, MdHotel, MdPeople, MdStorefront } from "react-icons/md";
+import { BsBuilding, BsHouseDoor } from "react-icons/bs";
+import { FaUsers } from "react-icons/fa";
 
 interface Apartment {
   _id: string;
@@ -23,7 +26,14 @@ interface Apartment {
   averageRating: number;
 }
 
-const categories = ["ROOM", "HOSTEL", "PG", "FLAT", "CO-LIVING"];
+const categories = [
+  { name: "ROOM", icon: MdBedroomParent },
+  { name: "HOSTEL", icon: MdHotel },
+  { name: "PG", icon: BsHouseDoor },
+  { name: "FLAT", icon: MdApartment },
+  { name: "CO-LIVING", icon: FaUsers },
+  { name: "SHOP", icon: MdStorefront },
+];
 
 const SkeletonCard = () => (
   <div className="p-4 border flex flex-col bg-white justify-between gap-5 rounded-2xl shadow-lg w-full h-[450px]">
@@ -221,23 +231,76 @@ function Home() {
                 Browse through our curated collection of properties
               </p>
 
-              {/* Category Buttons */}
-              <div className="flex flex-wrap justify-center gap-4 mb-12">
-                {categories.map((category) => (
-                  <motion.button
-                    key={category}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => handleCategoryChange(category)}
-                    className={`px-8 py-3 rounded-full font-semibold text-sm transition-all duration-300 shadow-md ${
-                      selectedCategory === category
-                        ? "bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-lg shadow-blue-500/50"
-                        : "bg-white text-gray-700 hover:bg-gray-50 hover:shadow-lg"
-                    }`}
-                  >
-                    {category}
-                  </motion.button>
-                ))}
+              {/* Category Buttons - Modern E-commerce Style */}
+              <div className="relative">
+                {/* Desktop View - Horizontal Scroll */}
+                <div className="hidden md:flex flex-wrap justify-center gap-3 lg:gap-4 mb-12">
+                  {categories.map((category) => {
+                    const Icon = category.icon;
+                    return (
+                      <motion.button
+                        key={category.name}
+                        whileHover={{ scale: 1.05, y: -2 }}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handleCategoryChange(category.name)}
+                        className={`relative px-6 lg:px-8 py-3 lg:py-3.5 rounded-2xl font-semibold text-sm lg:text-base transition-all duration-300 overflow-hidden group flex items-center gap-2 ${
+                          selectedCategory === category.name
+                            ? "bg-gradient-to-r from-blue-600 to-cyan-500 text-white shadow-xl shadow-blue-500/30"
+                            : "bg-white text-gray-700 hover:bg-gray-50 shadow-md hover:shadow-lg border border-gray-200"
+                        }`}
+                      >
+                        {/* Shine effect on hover */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-200%] group-hover:translate-x-[200%] transition-transform duration-700"></div>
+                        <Icon className={`relative z-10 w-5 h-5 ${selectedCategory === category.name ? 'animate-pulse' : ''}`} />
+                        <span className="relative z-10">{category.name}</span>
+                        {selectedCategory === category.name && (
+                          <motion.div
+                            layoutId="activeCategory"
+                            className="absolute inset-0 bg-gradient-to-r from-blue-600 to-cyan-500 rounded-2xl"
+                            style={{ zIndex: -1 }}
+                            transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                          />
+                        )}
+                      </motion.button>
+                    );
+                  })}
+                </div>
+
+                {/* Mobile View - Horizontal Scrollable Cards */}
+                <div className="md:hidden mb-8 -mx-4 px-4">
+                  <div className="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
+                    {categories.map((category, index) => {
+                      const Icon = category.icon;
+                      return (
+                        <motion.button
+                          key={category.name}
+                          initial={{ opacity: 0, x: 20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ delay: index * 0.1 }}
+                          whileTap={{ scale: 0.95 }}
+                          onClick={() => handleCategoryChange(category.name)}
+                          className={`flex-shrink-0 snap-center relative px-6 py-4 rounded-2xl font-semibold text-sm transition-all duration-300 min-w-[140px] ${
+                            selectedCategory === category.name
+                              ? "bg-gradient-to-br from-blue-600 to-cyan-500 text-white shadow-xl shadow-blue-500/30"
+                              : "bg-white text-gray-700 shadow-md border border-gray-200"
+                          }`}
+                        >
+                          <div className="flex flex-col items-center gap-2">
+                            <Icon className={`w-8 h-8 ${selectedCategory === category.name ? 'animate-bounce' : ''}`} />
+                            <span>{category.name}</span>
+                          </div>
+                          {selectedCategory === category.name && (
+                            <motion.div
+                              className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-8 h-1 bg-white rounded-full"
+                              layoutId="mobileCategoryIndicator"
+                              transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                            />
+                          )}
+                        </motion.button>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
 
               {/* Cards Grid */}

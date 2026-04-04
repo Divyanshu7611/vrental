@@ -25,14 +25,17 @@ export default function ResetPassword() {
       setLoading(true);
       const response = await axios.post("/api/auth/reset-password", data);
       setLoading(false);
+      
       if (response.data.success) {
-        toast.success("Reset link sent to your email.");
+        toast.success(response.data.message || "Reset link sent to your email! Please check your inbox.");
       } else {
-        toast.error("Failed to send reset link.");
+        toast.error(response.data.message || "Failed to send reset link.");
       }
-    } catch (error) {
+    } catch (error: any) {
       setLoading(false);
-      toast.error("Something went wrong. Please try again.");
+      const errorMessage = error.response?.data?.message || "Something went wrong. Please try again.";
+      toast.error(errorMessage);
+      console.error("Reset password error:", error);
     }
   };
 

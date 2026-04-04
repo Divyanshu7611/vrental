@@ -5,6 +5,8 @@ import { connectMongoDB } from "@/utilis/dbConnect";
 import { NextRequest, NextResponse } from "next/server";
 import { URL } from "url";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   const url = new URL(req.url);
   const apartmentID = url.searchParams.get("id");

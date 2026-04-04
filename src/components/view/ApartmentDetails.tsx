@@ -29,13 +29,19 @@ import { MdTableRestaurant, MdCoffee } from "react-icons/md";
 import { GiWashingMachine, GiCooler } from "react-icons/gi";
 import { BiSolidTv, BiFridge } from "react-icons/bi";
 import { BsBox } from "react-icons/bs";
+import PropertyLocationMap from "./PropertyLocationMap";
 
 interface ApartmentDetailsProps {
   data: {
+    _id?: string;
     apartmentName: string;
     image_urls: string[];
     description: string;
     location: string;
+    coordinates?: {
+      latitude?: number;
+      longitude?: number;
+    };
     price: number;
     contactNo: number;
     category: string;
@@ -44,6 +50,7 @@ interface ApartmentDetailsProps {
     availableFor: string;
     averageRating: number;
     status: string;
+    ownerID?: string | { $oid: string };
   };
 }
 
@@ -327,13 +334,27 @@ const ApartmentDetails: React.FC<ApartmentDetailsProps> = ({ data, ownerData, co
               {data.description}
             </p>
           </div>
+
+          {/* Property Location Map */}
+          <div className="pt-4">
+            <PropertyLocationMap
+              coordinates={data.coordinates}
+              address={data.location}
+              propertyName={data.apartmentName}
+            />
+          </div>
         </div>
   
         {/* RIGHT SIDE → Owner Card */}
         <div className="lg:w-96 flex-shrink-0">
           <OwnerDetails
-            data={ownerData}
+            data={{
+              ...ownerData,
+              _id: ownerData?._id || (typeof data.ownerID === 'object' ? data.ownerID.$oid : data.ownerID) || ownerData?._id,
+            }}
             contactNo={data.contactNo}
+            apartmentID={data._id}
+            apartmentName={data.apartmentName}
           />
         </div>
       </div>

@@ -7,6 +7,10 @@ export interface IApartment extends Document {
   price: number;
   facility: string; // This will store comma-separated facilities
   location: string;
+  coordinates?: {
+    latitude?: number;
+    longitude?: number;
+  };
   image_urls: string[]; // Image URLs
   category: string;
   availableFor: string;
@@ -27,6 +31,8 @@ export interface IApartment extends Document {
   paymentAmount: number;
   memberShipExpiry: Date;
   membershipDuration: number;
+  deactivatedAt?: Date;
+  deactivationReason?: string;
 }
 
 const apartmentSchema: Schema = new Schema<IApartment>({
@@ -62,6 +68,14 @@ const apartmentSchema: Schema = new Schema<IApartment>({
     required: true,
     trim: true,
   },
+  coordinates: {
+    latitude: {
+      type: Number,
+    },
+    longitude: {
+      type: Number,
+    },
+  },
   image_urls: [
     {
       type: String, // Image URLs as strings
@@ -87,8 +101,14 @@ const apartmentSchema: Schema = new Schema<IApartment>({
   },
   status: {
     type: String,
-    enum: ["Not Available For Rent", "Available For Rent"],
+    enum: ["Not Available For Rent", "Available For Rent", "Deactivated"],
     default: "Available For Rent",
+  },
+  deactivatedAt: {
+    type: Date,
+  },
+  deactivationReason: {
+    type: String,
   },
   ratings: [
     {

@@ -88,9 +88,9 @@
                       <div className="flex-shrink-0 w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
                         <Mail className="w-6 h-6 text-purple-600" />
                       </div>
-                      <div>
+                      <div className="min-w-0 flex-1">
                         <p className="text-sm font-medium text-gray-500 mb-1">Email</p>
-                        <p className="text-sm font-semibold text-gray-900 truncate">
+                        <p className="text-sm font-semibold text-gray-900 truncate break-all">
                           {userContext?.userAuthData?.email || 'N/A'}
                         </p>
                       </div>

@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Roboto } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
-import { ToastContainer } from "react-toastify";
+import { Toaster } from "sonner";
 import { UserContextProvider } from "@/context/UserContext";
+import AdminRedirect from "@/components/global/AdminRedirect";
 
 const inter = Inter({ subsets: ["latin"] });
 const roboto = Roboto({
@@ -93,8 +95,14 @@ export default function RootLayout({
       </head>
       <UserContextProvider>
         <body className={roboto.className}>
-          {children}
-          <ToastContainer />
+          <AdminRedirect>
+            {children}
+          </AdminRedirect>
+          <Toaster position="top-right" richColors expand={false} />
+          <Script
+            src="https://checkout.razorpay.com/v1/checkout.js"
+            strategy="afterInteractive"
+          />
         </body>
       </UserContextProvider>
     </html>
