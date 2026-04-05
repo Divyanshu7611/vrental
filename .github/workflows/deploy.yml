@@ -3,22 +3,219 @@ name: Deploy to EC2
 on:
   push:
     branches:
-      - main   # change if your branch is master
+      - main
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy via SSH
+      # 1. Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Setup Node
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # 3. Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # 4. Build project (IMPORTANT: happens here, not EC2)
+      - name: Build project
+        run: npm run build
+
+      # 5. Copy project to EC2
+      - name: Copy files to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          source: "."
+          target: "/home/ubuntu/vrental"
+
+      # 6. Restart app on EC2 (NO BUILD HERE)
+      - name: Restart app on EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
+          key: ${{ secrets.EC2_KEY }}
           script: |
             cd /home/ubuntu/vrental
-            git pull origin main
-            npm install
-            npm run build
+            npm install --production
             pm2 restart vrental || pm2 start npm --name "vrental" -- start
+
+      # 7. Send SUCCESS email
+      - name: Send success email
+        if: success()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "✅ Deployment Successful - vrental"
+          to: |
+            youremail1@gmail.com,
+            youremail2@gmail.com
+          from: GitHub Actions
+          body: |
+            🎉 Deployment Successful!
+
+            Project: vrental
+            Branch: ${{ github.ref_name }}
+            Commit: ${{ github.sha }}
+            Message: ${{ github.event.head_commit.message }}
+
+            🚀 Your latest changes are LIVE:
+            https://vrental.in
+
+            Regards,
+            CI/CD Pipeline
+
+      # 8. Send FAILURE email
+      - name: Send failure email
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "🚨 Deployment Failed - vrental"
+          to: |
+            youremail1@gmail.com,
+            youremail2@gmail.com
+          from: GitHub Actions
+          body: |
+            ❌ Deployment Failed!
+
+            Project: vrental
+            Branch: ${{ github.ref_name }}
+            Commit: ${{ github.sha }}
+            Message: ${{ github.event.head_commit.message }}
+
+            ⚠️ Something went wrong during deployment.
+
+            🔍 Check logs:
+            https://github.com/${{ github.repository }}/actions
+
+            Fix ASAP 🚨
+
+            Regards,
+            CI/CD Pipelinename: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 2. Setup Node
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # 3. Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # 4. Build project (IMPORTANT: happens here, not EC2)
+      - name: Build project
+        run: npm run build
+
+      # 5. Copy project to EC2
+      - name: Copy files to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          source: "."
+          target: "/home/ubuntu/vrental"
+
+      # 6. Restart app on EC2 (NO BUILD HERE)
+      - name: Restart app on EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            cd /home/ubuntu/vrental
+            npm install --production
+            pm2 restart vrental || pm2 start npm --name "vrental" -- start
+
+      # 7. Send SUCCESS email
+      - name: Send success email
+        if: success()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "✅ Deployment Successful - vrental"
+          to: |
+            dshapbss202@gmail.com,
+            vrental91@gmail.com
+          from: GitHub Actions
+          body: |
+            🎉 Deployment Successful!
+
+            Project: vrental
+            Branch: ${{ github.ref_name }}
+            Commit: ${{ github.sha }}
+            Message: ${{ github.event.head_commit.message }}
+
+            🚀 Your latest changes are LIVE:
+            https://vrental.in
+
+            Regards,
+            CI/CD Pipeline
+
+      # 8. Send FAILURE email
+      - name: Send failure email
+        if: failure()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.EMAIL_USERNAME }}
+          password: ${{ secrets.EMAIL_PASSWORD }}
+          subject: "🚨 Deployment Failed - vrental"
+          to: |
+            dshapbss202@gmail.com,
+            vrental91@gmail.com
+          from: GitHub Actions
+          body: |
+            ❌ Deployment Failed!
+
+            Project: vrental
+            Branch: ${{ github.ref_name }}
+            Commit: ${{ github.sha }}
+            Message: ${{ github.event.head_commit.message }}
+
+            ⚠️ Something went wrong during deployment.
+
+            🔍 Check logs:
+            https://github.com/${{ github.repository }}/actions
+
+            Fix ASAP 🚨
+
+            Regards,
+            CI/CD Pipeline
