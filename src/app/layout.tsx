@@ -5,6 +5,7 @@ import Script from "next/script";
 import "./globals.css";
 import { Toaster } from "sonner";
 import { UserContextProvider } from "@/context/UserContext";
+import { LocationProvider } from "@/context/LocationContext";
 import AdminRedirect from "@/components/global/AdminRedirect";
 
 const inter = Inter({ subsets: ["latin"] });
@@ -95,14 +96,16 @@ export default function RootLayout({
       </head>
       <UserContextProvider>
         <body className={roboto.className}>
-          <AdminRedirect>
-            {children}
-          </AdminRedirect>
-          <Toaster position="top-right" richColors expand={false} />
-          <Script
-            src="https://checkout.razorpay.com/v1/checkout.js"
-            strategy="afterInteractive"
-          />
+          <LocationProvider>
+            <AdminRedirect>
+              {children}
+            </AdminRedirect>
+            <Toaster position="top-right" richColors expand={false} />
+            <Script
+              src="https://checkout.razorpay.com/v1/checkout.js"
+              strategy="afterInteractive"
+            />
+          </LocationProvider>
         </body>
       </UserContextProvider>
     </html>

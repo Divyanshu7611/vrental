@@ -266,9 +266,10 @@ import { TbLogout } from "react-icons/tb";
 import { CgProfile } from "react-icons/cg";
 import { MdOutlineAddHomeWork, MdOutlineLocalOffer, MdOutlineShoppingCart } from "react-icons/md";
 import { PiShoppingCart } from "react-icons/pi";
-import { ChevronDown, Home, Building2, Users, Users2, Store, Info, Plus, PlusCircle, HomeIcon, Upload } from "lucide-react";
+import { ChevronDown, Home, Building2, Users, Users2, Store, Info, Upload } from "lucide-react";
 import Link from "next/link";
 import NotificationDropdown from "./NotificationDropdown";
+import NavbarLocationPicker from "./NavbarLocationPicker";
 
 export default function Navbar() {
   const [isToken, setToken] = useState<boolean>(false);
@@ -323,6 +324,24 @@ export default function Navbar() {
     }
   }, [isCategoriesOpen]);
 
+  useEffect(() => {
+    if (!isSidebarOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [isSidebarOpen]);
+
+  useEffect(() => {
+    if (!isSidebarOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setSidebarOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isSidebarOpen]);
+
   return (
     <div>
       {/* ✅ PROMOTIONAL BANNER FOR OWNERS */}
@@ -356,23 +375,35 @@ export default function Navbar() {
             : `${isToken && userContext?.userAuthData?.role === "OWNER" ? "top-14" : "top-4"} w-[95%] lg:w-[80%] rounded-full px-3 lg:px-8 bg-white/70 backdrop-blur-xl shadow-md`
         }`}
       >
-        <div className="flex justify-between items-center">
-          {/* Logo */}
-          <div className="text-2xl font-bold text-[#00E0FF]">
-            <img
-              src="/assets/Logo.png"
-              alt="Logo"
-              width={60}
-              height={60}
-              className="cursor-pointer"
-              onClick={() => router.push("/")}
-            />
+        <div className="flex justify-between items-center gap-2">
+          {/* Logo + location (desktop) */}
+          <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1 lg:flex-initial">
+            <div className="text-2xl font-bold text-[#00E0FF] shrink-0">
+              <img
+                src="/assets/Logo.png"
+                alt="Logo"
+                width={80}
+                height={80}
+                className="cursor-pointer"
+                onClick={() => router.push("/")}
+              />
+            </div>
+            <div className="hidden sm:flex min-w-0 flex-1 max-w-[200px] md:max-w-[260px] lg:max-w-[300px]">
+              <NavbarLocationPicker variant="desktop" />
+            </div>
           </div>
 
           {/* Mobile Hamburger and Notifications */}
           <div className="lg:hidden flex items-center gap-3">
             {isToken && <NotificationDropdown />}
-            <button className="text-2xl text-black" onClick={toggleSidebar}>
+            <button
+              type="button"
+              className="flex h-11 w-11 items-center justify-center rounded-full text-2xl text-gray-800 transition hover:bg-gray-100 active:scale-95"
+              onClick={toggleSidebar}
+              aria-expanded={isSidebarOpen}
+              aria-controls="mobile-nav-drawer"
+              aria-label={isSidebarOpen ? "Close menu" : "Open menu"}
+            >
               {isSidebarOpen ? <RxCross2 /> : <GiHamburgerMenu />}
             </button>
           </div>
@@ -502,83 +533,156 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* Sidebar */}
-      <div
-        className={`fixed top-0 right-0 h-full bg-white shadow-lg transform ${
-          isSidebarOpen ? "translate-x-0" : "translate-x-full"
-        } transition-transform duration-300 ease-in-out z-40 w-64`}
-      >
-        <button className="text-2xl text-black p-4" onClick={toggleSidebar}>
-          &times;
-        </button>
+      {/* Mobile menu: backdrop + drawer above navbar (z-50) and owner banner (z-60) */}
+      <div className="lg:hidden" aria-hidden={!isSidebarOpen}>
+        <button
+          type="button"
+          className={`fixed inset-0 z-[100] bg-slate-900/45 backdrop-blur-[3px] transition-opacity duration-300 ease-out motion-reduce:transition-none ${
+            isSidebarOpen ? "opacity-100" : "pointer-events-none opacity-0"
+          }`}
+          aria-label="Close menu"
+          tabIndex={isSidebarOpen ? 0 : -1}
+          onClick={() => setSidebarOpen(false)}
+        />
 
-        <ul className="flex flex-col gap-4 mt-10 px-4">
-          <li className="text-base font-semibold text-black">
-            <a href="/" onClick={toggleSidebar}>Home</a>
-          </li>
+        <aside
+          id="mobile-nav-drawer"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Main menu"
+          className={`fixed top-0 right-0 z-[110] flex h-[100dvh] max-h-[100dvh] w-[min(20.5rem,92vw)] flex-col bg-white shadow-[0_0_40px_-10px_rgba(15,23,42,0.35)] transition-[transform,visibility] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none rounded-l-3xl border-l border-gray-100 overflow-hidden ${
+            isSidebarOpen
+              ? "translate-x-0 visible"
+              : "pointer-events-none translate-x-full invisible"
+          }`}
+        >
+          <div className="shrink-0 bg-gradient-to-br from-blue-600 via-blue-600 to-cyan-600 px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-4 text-white shadow-md">
+            <div className="flex items-center justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/80">Menu</p>
+                <p className="truncate text-lg font-bold tracking-tight">Vrental</p>
+              </div>
+              <button
+                type="button"
+                onClick={toggleSidebar}
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/15 text-white ring-1 ring-white/30 transition hover:bg-white/25 active:scale-95"
+                aria-label="Close menu"
+              >
+                <RxCross2 className="h-6 w-6" />
+              </button>
+            </div>
+          </div>
 
-          {/* Categories Section */}
-          <li>
-            <div className="text-base font-semibold text-black mb-2">Categories</div>
-            <ul className="ml-4 space-y-2">
-              {categories.map((cat) => (
-                <li key={cat.value} className="text-sm">
-                  <a 
-                    href={`/category?category=${cat.value}`}
+          <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+            <div className="mb-5 rounded-2xl border border-gray-100 bg-gray-50/80 p-3">
+              <p className="mb-2 text-xs font-semibold text-gray-500">Your area</p>
+              <NavbarLocationPicker variant="sidebar" />
+            </div>
+
+            <nav className="flex flex-col gap-1">
+              <a
+                href="/"
+                onClick={toggleSidebar}
+                className="flex items-center gap-3 rounded-xl px-3 py-3 text-[15px] font-semibold text-gray-800 transition hover:bg-blue-50 hover:text-blue-700 active:bg-blue-100/80"
+              >
+                <Home className="h-5 w-5 text-blue-600 opacity-90" />
+                Home
+              </a>
+
+              <div className="my-2 border-t border-gray-100" />
+
+              <p className="px-3 pb-1 text-xs font-bold uppercase tracking-wide text-gray-400">Categories</p>
+              <ul className="space-y-0.5">
+                {categories.map((cat) => (
+                  <li key={cat.value}>
+                    <a
+                      href={`/category?category=${cat.value}`}
+                      onClick={toggleSidebar}
+                      className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-blue-50 hover:text-blue-700"
+                    >
+                      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-600">
+                        {cat.icon}
+                      </span>
+                      {cat.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="my-2 border-t border-gray-100" />
+
+              <a
+                href="/about"
+                onClick={toggleSidebar}
+                className="flex items-center gap-3 rounded-xl px-3 py-3 text-[15px] font-semibold text-gray-800 transition hover:bg-blue-50 hover:text-blue-700"
+              >
+                <Info className="h-5 w-5 text-blue-600 opacity-90" />
+                About
+              </a>
+
+              {isToken ? (
+                <>
+                  <div className="my-2 border-t border-gray-100" />
+                  <a
+                    href="/profile"
                     onClick={toggleSidebar}
-                    className="flex items-center gap-2 text-gray-600 hover:text-blue-600"
+                    className="flex items-center gap-3 rounded-xl px-3 py-3 text-[15px] font-semibold text-gray-800 transition hover:bg-blue-50 hover:text-blue-700"
                   >
-                    {cat.icon}
-                    {cat.label}
+                    <CgProfile className="h-5 w-5 text-blue-600" />
+                    Profile
                   </a>
-                </li>
-              ))}
-            </ul>
-          </li>
 
-          <li className="text-base font-semibold text-black">
-            <a href="/about" onClick={toggleSidebar}>About</a>
-          </li>
+                  {userContext?.userAuthData?.role === "OWNER" && (
+                    <a
+                      href="/list-apartment"
+                      onClick={toggleSidebar}
+                      className="flex items-center gap-3 rounded-xl px-3 py-3 text-[15px] font-semibold text-gray-800 transition hover:bg-blue-50 hover:text-blue-700"
+                    >
+                      <Upload className="h-5 w-5 text-blue-600" />
+                      List Property
+                    </a>
+                  )}
 
-          {isToken ? (
-            <>
-              <li className="text-base font-semibold text-black cursor-pointer">
-                <a href="/profile" onClick={toggleSidebar}>Profile</a>
-              </li>
-
-              {userContext?.userAuthData?.role === "OWNER" && (
-                <li className="text-base font-semibold text-black cursor-pointer">
-                  <a href="/list-apartment" onClick={toggleSidebar} className="flex items-center gap-2">
-                    <Upload className="w-4 h-4" />
-                    List Property
+                  <a
+                    href="/wishlist"
+                    onClick={toggleSidebar}
+                    className="flex items-center gap-3 rounded-xl px-3 py-3 text-[15px] font-semibold text-gray-800 transition hover:bg-blue-50 hover:text-blue-700"
+                  >
+                    <MdOutlineShoppingCart className="h-5 w-5 text-blue-600" />
+                    Wishlist
                   </a>
-                </li>
+
+                  <button
+                    type="button"
+                    className="mt-2 flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-[15px] font-semibold text-red-700 transition hover:bg-red-50"
+                    onClick={() => {
+                      toast.success("Logout Successfully");
+                      localStorage.removeItem("token");
+                      localStorage.removeItem("userAuthData");
+                      setSidebarOpen(false);
+                      window.location.reload();
+                      router.push("/");
+                    }}
+                  >
+                    <TbLogout className="h-5 w-5" />
+                    Logout
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div className="my-2 border-t border-gray-100" />
+                  <a
+                    href="/auth"
+                    onClick={toggleSidebar}
+                    className="mt-1 flex items-center justify-center rounded-xl bg-gradient-to-r from-blue-600 to-cyan-600 px-4 py-3.5 text-center text-[15px] font-bold text-white shadow-md shadow-blue-500/25 transition hover:shadow-lg active:scale-[0.98]"
+                  >
+                    Login
+                  </a>
+                </>
               )}
-
-              <li className="text-base font-semibold text-black cursor-pointer">
-                <a href="/wishlist" onClick={toggleSidebar}>Wishlist</a>
-              </li>
-
-              <li className="text-base font-semibold text-black cursor-pointer">
-                <a
-                  onClick={() => {
-                    toast.success("Logout Successfully");
-                    localStorage.removeItem("token");
-                    localStorage.removeItem("userAuthData");
-                    window.location.reload();
-                    router.push("/");
-                  }}
-                >
-                  Logout
-                </a>
-              </li>
-            </>
-          ) : (
-            <li className="text-base font-semibold text-black cursor-pointer">
-              <a href="/auth">Login</a>
-            </li>
-          )}
-        </ul>
+            </nav>
+          </div>
+        </aside>
       </div>
 
       {/* ✅ Important: give space so content doesn't hide behind fixed navbar */}
