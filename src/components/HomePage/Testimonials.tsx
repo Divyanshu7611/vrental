@@ -31,30 +31,31 @@ const testimonials = [
 
 const TestimonialSlider: React.FC = () => {
   return (
-    <section className="py-16">
-      <div className="max-w-7xl mx-auto">
-        <h2 className="text-3xl md:text-4xl font-bold text-center text-black mb-10">
+    <section className="py-10 sm:py-14 md:py-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-black mb-6 sm:mb-10 leading-tight">
           What Our Users Say
         </h2>
 
         <Swiper
           modules={[Pagination, Autoplay]}
-          spaceBetween={20}
+          spaceBetween={16}
           slidesPerView={1}
           autoplay={{ delay: 3500 }}
           breakpoints={{
+            640: { spaceBetween: 20 },
             768: { slidesPerView: 2 },
           }}
-          className="pb-10"
+          className="pb-10 !px-0.5"
         >
           {testimonials.map((testimonial, index) => (
             <SwiperSlide key={index} className="rounded-2xl">
-              <div className="shadow-lg rounded-2xl p-6 flex flex-col justify-between transition duration-300 hover:shadow-xl border border-gray-200">
-                <FaQuoteLeft className="text-blue-500 text-4xl mb-4" />
-                <p className="text-gray-700 italic">{testimonial.message}</p>
-                <div className="mt-6 text-right">
-                  <p className="text-lg font-semibold text-gray-800">{testimonial.name}</p>
-                  <p className="text-sm text-gray-500">{testimonial.location}</p>
+              <div className="shadow-lg rounded-2xl p-4 sm:p-6 flex flex-col justify-between transition duration-300 hover:shadow-xl border border-gray-200 h-full min-h-[220px] sm:min-h-0">
+                <FaQuoteLeft className="text-blue-500 text-2xl sm:text-4xl mb-3 sm:mb-4 shrink-0" />
+                <p className="text-gray-700 italic text-sm sm:text-base leading-relaxed flex-1">{testimonial.message}</p>
+                <div className="mt-4 sm:mt-6 text-right">
+                  <p className="text-base sm:text-lg font-semibold text-gray-800">{testimonial.name}</p>
+                  <p className="text-xs sm:text-sm text-gray-500 mt-0.5">{testimonial.location}</p>
                 </div>
               </div>
             </SwiperSlide>

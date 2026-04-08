@@ -1,6 +1,5 @@
 "use client";
 import React, { Suspense, useState, useEffect } from "react";
-import { SquarePenIcon } from "lucide-react";
 import Hero from "@/components/HomePage/Hero";
 import Loading from "./loading";
 import FeaturesSection from "@/components/HomePage/Featured";
@@ -36,8 +35,8 @@ const categories = [
 ];
 
 const SkeletonCard = () => (
-  <div className="p-4 border flex flex-col bg-white justify-between gap-5 rounded-2xl shadow-lg w-full h-[450px]">
-    <div className="bg-gray-200 animate-pulse h-[280px] w-full rounded-xl relative overflow-hidden">
+  <div className="p-4 border flex flex-col bg-white justify-between gap-5 rounded-2xl shadow-lg w-full min-h-[380px] sm:min-h-[430px]">
+    <div className="bg-gray-200 animate-pulse h-[220px] sm:h-[260px] md:h-[280px] w-full rounded-xl relative overflow-hidden">
       <div
         className="absolute inset-0 bg-gradient-to-r from-gray-200 via-gray-100 to-gray-200"
         style={{
@@ -56,28 +55,11 @@ const SkeletonCard = () => (
 );
 
 function Home() {
-  const [showButton, setShowButton] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("ROOM");
   const [categoryData, setCategoryData] = useState<Record<string, Apartment[]>>({});
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const hasFetchedRef = React.useRef<Record<string, boolean>>({});
-
-  // Handle scrolling logic
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 100) {
-        setShowButton(true);
-      } else {
-        setShowButton(false);
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, []);
 
   // Fetch data for a specific category only once
   const fetchCategoryData = React.useCallback(async (category: string) => {
@@ -140,13 +122,13 @@ function Home() {
         transition={{ duration: 0.4 }}
         whileHover={{ y: -8, transition: { duration: 0.3 } }}
         onClick={() => router.push(`/apartment?apartmentID=${apartment._id}`)}
-        className="group relative p-5 border border-gray-200 flex flex-col bg-white justify-between gap-5 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer w-full overflow-hidden"
+        className="group relative p-4 sm:p-5 border border-gray-200 flex flex-col bg-white justify-between gap-4 sm:gap-5 rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 cursor-pointer w-full overflow-hidden"
       >
         {/* Gradient overlay on hover */}
         <div className="absolute inset-0 bg-gradient-to-br from-blue-500/0 to-purple-500/0 group-hover:from-blue-500/5 group-hover:to-purple-500/5 transition-all duration-500 rounded-2xl pointer-events-none"></div>
 
         {/* Image Section */}
-        <div className="relative w-full h-[280px] overflow-hidden rounded-xl">
+        <div className="relative w-full h-[220px] sm:h-[260px] md:h-[280px] overflow-hidden rounded-xl">
           <Image
             src={apartment.image_urls[0]}
             alt={`${apartment.category} image`}
@@ -173,10 +155,10 @@ function Home() {
         {/* Content Section */}
         <div className="flex flex-col gap-4 relative z-10">
           <div className="flex items-center justify-between">
-            <h1 className="flex items-center gap-2 font-bold text-3xl text-gray-900 group-hover:text-blue-600 transition-colors duration-300">
-              <Tag size={24} className="text-blue-500" />
+            <h1 className="flex flex-wrap items-baseline gap-x-2 gap-y-1 font-bold text-2xl sm:text-3xl text-gray-900 group-hover:text-blue-600 transition-colors duration-300">
+              <Tag size={22} className="text-blue-500 shrink-0" />
               ₹{apartment.price}
-              <span className="text-sm font-normal text-gray-500">/month</span>
+              <span className="text-xs sm:text-sm font-normal text-gray-500">/month</span>
             </h1>
           </div>
 
@@ -213,21 +195,21 @@ function Home() {
 
   return (
     <Suspense fallback={<Loading />}>
-      <div className="min-h-screen min-w-screen flex flex-col">
+      <div className="min-h-screen w-full min-w-0 flex flex-col overflow-x-hidden">
         <Navbar />
         <Hero />
         <div className="bg-gradient-to-b from-gray-50 to-gray-100">
-          <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-16">
+          <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8 py-10 sm:py-14 md:py-16">
             {/* Category Section */}
-            <div className="mb-12">
+            <div className="mb-8 sm:mb-12">
               <motion.h2
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="text-4xl md:text-5xl font-bold text-center mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
+                className="text-[1.625rem] leading-tight sm:text-3xl md:text-4xl lg:text-5xl font-bold text-center mb-3 sm:mb-4 px-1 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
               >
                 Find Your Perfect Space
               </motion.h2>
-              <p className="text-center text-gray-600 mb-8 text-lg">
+              <p className="text-center text-gray-600 mb-6 sm:mb-8 text-sm sm:text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
                 Browse through our curated collection of properties
               </p>
 
@@ -311,7 +293,7 @@ function Home() {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.3 }}
-                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+                  className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
                 >
                   {loading
                     ? Array(3)
@@ -336,7 +318,7 @@ function Home() {
                 >
                   <a
                     href={`/category?category=${selectedCategory}`}
-                    className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-full hover:shadow-xl hover:scale-105 transition-all duration-300"
+                    className="inline-flex items-center justify-center gap-2 px-6 py-3.5 sm:px-8 sm:py-4 text-sm sm:text-base bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-full hover:shadow-xl hover:scale-105 transition-all duration-300 max-w-full text-center"
                   >
                     View All {selectedCategory} Properties
                     <svg
@@ -380,14 +362,14 @@ function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              className="my-16"
+              className="my-10 sm:my-16"
             >
-              <div className="text-center mb-8">
+              <div className="text-center mb-6 sm:mb-8 px-1">
                 <motion.h2
                   initial={{ opacity: 0, y: -20 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  className="text-3xl md:text-4xl font-bold mb-3 text-gray-900"
+                  className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-2 sm:mb-3 text-gray-900 leading-snug"
                 >
                   Everything You Need to{" "}
                   <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
@@ -399,7 +381,7 @@ function Home() {
                   whileInView={{ opacity: 1 }}
                   viewport={{ once: true }}
                   transition={{ delay: 0.2 }}
-                  className="text-gray-600 text-base max-w-2xl mx-auto"
+                  className="text-gray-600 text-sm sm:text-base max-w-2xl mx-auto leading-relaxed"
                 >
                   From searching to settling in, we provide all the tools and support you need
                 </motion.p>
@@ -413,7 +395,7 @@ function Home() {
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ delay: 0.1 }}
-                  className="relative md:row-span-2 h-[240px] md:h-auto rounded-2xl overflow-hidden group cursor-pointer shadow-lg hover:shadow-xl transition-all duration-500"
+                  className="relative md:row-span-2 min-h-[200px] h-[200px] sm:h-[240px] md:h-auto rounded-2xl overflow-hidden group cursor-pointer shadow-lg hover:shadow-xl transition-all duration-500"
                 >
                   <Image
                     src="https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?q=80&w=2070"
@@ -423,9 +405,9 @@ function Home() {
                     sizes="(max-width: 768px) 100vw, 50vw"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
-                  <div className="absolute bottom-0 left-0 p-6 text-white">
-                    <h3 className="text-2xl font-bold mb-2">Easy Property Search</h3>
-                    <p className="text-gray-200 text-xs leading-relaxed">
+                  <div className="absolute bottom-0 left-0 p-4 sm:p-6 text-white">
+                    <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-1 sm:mb-2">Easy Property Search</h3>
+                    <p className="text-gray-200 text-[11px] sm:text-xs leading-relaxed">
                       Browse thousands of verified properties with advanced filters
                     </p>
                   </div>
@@ -437,7 +419,7 @@ function Home() {
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ delay: 0.2 }}
-                  className="relative h-[180px] rounded-2xl overflow-hidden group cursor-pointer shadow-lg hover:shadow-xl transition-all duration-500"
+                  className="relative min-h-[160px] h-[160px] sm:h-[180px] rounded-2xl overflow-hidden group cursor-pointer shadow-lg hover:shadow-xl transition-all duration-500"
                 >
                   <Image
                     src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?q=80&w=2073"
@@ -447,9 +429,9 @@ function Home() {
                     sizes="(max-width: 768px) 100vw, 50vw"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-blue-900/80 via-blue-800/30 to-transparent"></div>
-                  <div className="absolute bottom-0 left-0 p-6 text-white">
-                    <h3 className="text-xl font-bold mb-2">Instant Booking</h3>
-                    <p className="text-gray-100 text-xs leading-relaxed">
+                  <div className="absolute bottom-0 left-0 p-4 sm:p-6 text-white">
+                    <h3 className="text-base sm:text-lg md:text-xl font-bold mb-1 sm:mb-2">Instant Booking</h3>
+                    <p className="text-gray-100 text-[11px] sm:text-xs leading-relaxed">
                       Book your favorite property instantly with just a few clicks
                     </p>
                   </div>
@@ -461,7 +443,7 @@ function Home() {
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ delay: 0.3 }}
-                  className="relative h-[180px] rounded-2xl overflow-hidden group cursor-pointer shadow-lg hover:shadow-xl transition-all duration-500"
+                  className="relative min-h-[160px] h-[160px] sm:h-[180px] rounded-2xl overflow-hidden group cursor-pointer shadow-lg hover:shadow-xl transition-all duration-500"
                 >
                   <Image
                     src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?q=80&w=2088"
@@ -471,9 +453,9 @@ function Home() {
                     sizes="(max-width: 768px) 100vw, 50vw"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-green-900/80 via-green-800/30 to-transparent"></div>
-                  <div className="absolute bottom-0 left-0 p-6 text-white">
-                    <h3 className="text-xl font-bold mb-2">Dedicated Support</h3>
-                    <p className="text-gray-100 text-xs leading-relaxed">
+                  <div className="absolute bottom-0 left-0 p-4 sm:p-6 text-white">
+                    <h3 className="text-base sm:text-lg md:text-xl font-bold mb-1 sm:mb-2">Dedicated Support</h3>
+                    <p className="text-gray-100 text-[11px] sm:text-xs leading-relaxed">
                       24/7 expert assistance for your rental journey
                     </p>
                   </div>
@@ -485,7 +467,7 @@ function Home() {
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ delay: 0.4 }}
-                  className="relative md:col-span-2 h-[180px] rounded-2xl overflow-hidden group cursor-pointer shadow-lg hover:shadow-xl transition-all duration-500"
+                  className="relative md:col-span-2 h-[200px] sm:h-[180px] rounded-2xl overflow-hidden group cursor-pointer shadow-lg hover:shadow-xl transition-all duration-500"
                 >
                   <Image
                     src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?q=80&w=2070"
@@ -495,16 +477,16 @@ function Home() {
                     sizes="(max-width: 768px) 100vw, 100vw"
                   />
                   <div className="absolute inset-0 bg-gradient-to-r from-orange-900/85 via-orange-800/60 to-transparent"></div>
-                  <div className="absolute inset-0 flex items-center p-6 md:p-8">
-                    <div className="flex items-center gap-6">
+                  <div className="absolute inset-0 flex items-center p-4 sm:p-6 md:p-8">
+                    <div className="flex items-start sm:items-center gap-3 sm:gap-6">
                       <div className="flex-shrink-0">
-                        <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center text-white text-3xl shadow-lg border-2 border-white/30">
+                        <div className="w-12 h-12 sm:w-16 sm:h-16 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center text-white text-2xl sm:text-3xl shadow-lg border-2 border-white/30">
                           🔒
                         </div>
                       </div>
-                      <div>
-                        <h3 className="text-2xl font-bold mb-2 text-white">Secure Booking</h3>
-                        <p className="text-gray-100 text-sm leading-relaxed">
+                      <div className="min-w-0">
+                        <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-1 sm:mb-2 text-white">Secure Booking</h3>
+                        <p className="text-gray-100 text-xs sm:text-sm leading-relaxed">
                           Book with confidence using our secure payment system and verified property listings
                         </p>
                       </div>
@@ -520,12 +502,12 @@ function Home() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              className="my-20"
+              className="my-12 sm:my-20"
             >
-              <div className="bg-white rounded-3xl shadow-2xl overflow-hidden">
+              <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl overflow-hidden">
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
                   {/* Image Section */}
-                  <div className="relative h-[400px] lg:h-auto">
+                  <div className="relative h-[240px] sm:h-[320px] md:h-[400px] lg:h-auto lg:min-h-[420px]">
                     <Image
                       src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=2070"
                       alt="Beautiful property"
@@ -537,18 +519,18 @@ function Home() {
                   </div>
 
                   {/* Content Section */}
-                  <div className="p-8 lg:p-12 flex flex-col justify-center">
+                  <div className="p-5 sm:p-8 lg:p-12 flex flex-col justify-center">
                     <motion.h2
                       initial={{ opacity: 0, x: -20 }}
                       whileInView={{ opacity: 1, x: 0 }}
                       viewport={{ once: true }}
                       transition={{ delay: 0.2 }}
-                      className="text-3xl lg:text-4xl font-bold mb-6 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
+                      className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-4 sm:mb-6 leading-snug bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent"
                     >
                       Discover What Sets Us Apart
                     </motion.h2>
 
-                    <div className="space-y-6">
+                    <div className="space-y-4 sm:space-y-6">
                       {[
                         {
                           icon: "🏠",
@@ -577,16 +559,16 @@ function Home() {
                           whileInView={{ opacity: 1, x: 0 }}
                           viewport={{ once: true }}
                           transition={{ delay: 0.3 + index * 0.1 }}
-                          className="flex items-start gap-4 group"
+                          className="flex items-start gap-3 sm:gap-4 group"
                         >
-                          <div className="flex-shrink-0 w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white text-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
+                          <div className="flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center text-white text-lg sm:text-xl shadow-lg group-hover:scale-110 transition-transform duration-300">
                             {feature.icon}
                           </div>
-                          <div>
-                            <h3 className="text-lg font-semibold text-gray-800 mb-1 group-hover:text-blue-600 transition-colors duration-300">
+                          <div className="min-w-0">
+                            <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-0.5 sm:mb-1 group-hover:text-blue-600 transition-colors duration-300">
                               {feature.title}
                             </h3>
-                            <p className="text-gray-600 text-sm leading-relaxed">
+                            <p className="text-gray-600 text-xs sm:text-sm leading-relaxed">
                               {feature.description}
                             </p>
                           </div>
@@ -602,7 +584,7 @@ function Home() {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => router.push("/about")}
-                      className="mt-8 px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 w-fit"
+                      className="mt-6 sm:mt-8 px-6 py-3.5 sm:px-8 sm:py-4 text-sm sm:text-base bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 w-full sm:w-fit inline-flex justify-center"
                     >
                       Learn More About Us
                     </motion.button>
@@ -616,22 +598,6 @@ function Home() {
           </div>
         </div>
         <Footer />
-
-        {/* Add Apartment Button */}
-        {showButton && (
-          <motion.button
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            className="fixed bottom-8 right-5 p-4 flex justify-center items-center bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full shadow-2xl hover:shadow-blue-500/50 transition-all duration-300"
-            onClick={() => {
-              window.location.href = "/list-apartment";
-            }}
-          >
-            <SquarePenIcon className="w-6 h-6" />
-          </motion.button>
-        )}
       </div>
     </Suspense>
   );
