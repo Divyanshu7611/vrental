@@ -36,6 +36,10 @@ export default function UserProfileDashboard() {
   const completedFields = profileFields.filter(field => field && field !== '').length;
   const profileCompletion = Math.round((completedFields / profileFields.length) * 100);
 
+  const savedListingsCount = userContext?.wishlist
+    ? Object.values(userContext.wishlist).filter((item) => item && item.id).length
+    : 0;
+
   return (
     <div className="w-full bg-gradient-to-br from-white via-blue-50/50 to-cyan-50/50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
@@ -53,7 +57,7 @@ export default function UserProfileDashboard() {
 
         {/* Quick Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {/* Wishlist Card */}
+          {/* Saved listings */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -72,9 +76,9 @@ export default function UserProfileDashboard() {
                 </span>
               </div>
               <h3 className="text-3xl font-bold text-white mb-1">
-                {userContext?.userAuthData?.participated?.length || 0}
+                {savedListingsCount}
               </h3>
-              <p className="text-sm text-white/90">Wishlist Items</p>
+              <p className="text-sm text-white/90">Saved listings</p>
             </div>
           </motion.div>
 
@@ -258,8 +262,8 @@ export default function UserProfileDashboard() {
                   <Heart className="w-5 h-5 text-white" />
                 </div>
                 <div className="text-left">
-                  <p className="font-semibold text-gray-900 text-sm">My Wishlist</p>
-                  <p className="text-xs text-gray-600">View saved properties</p>
+                  <p className="font-semibold text-gray-900 text-sm">Saved listings</p>
+                  <p className="text-xs text-gray-600">Homes you&apos;ve saved</p>
                 </div>
               </button>
 

@@ -26,12 +26,26 @@ export async function POST(request: NextRequest){
     try {
         await connectMongoDB()
 
+        if (!email || typeof email !== "string" || !email.trim()) {
+          return NextResponse.json(
+            { success: false, message: "Email is required" },
+            { status: 400 }
+          );
+        }
+
         // const decodedToken = await admin.auth().verifyIdToken(token);
         // const {uid,email,name,picture,phone_number} = decodedToken;
 
         // password pending
-        let user = await User.findOne({
-            email})
+        const rawEmail = typeof email === "string" ? email.trim() : "";
+        const emailNorm = rawEmail ? rawEmail.toUpperCase() : "";
+
+        let user = emailNorm
+          ? await User.findOne({ email: emailNorm })
+          : null;
+        if (!user && rawEmail) {
+          user = await User.findOne({ email: rawEmail });
+        }
 
             let isNewUser = false;
 
@@ -45,13 +59,14 @@ export async function POST(request: NextRequest){
                 const referralCode = nanoid(8).toUpperCase();
                 
                 user = await User.create({
-                    email,
+                    email: emailNorm,
                     firstName,
                     lastName,
                     image: photoUrl || `https://api.dicebear.com/5.x/initials/svg?seed=${firstName} ${lastName}&backgroundColor=418FA9`,
                     adharNo: "",
                     role: role || "USER",
                     termsAndConditions: true,
+                    emailVerified: true,
                     clientID,
                     profession: "",
                     age: "",
@@ -65,6 +80,9 @@ export async function POST(request: NextRequest){
                     withdrawalHistory: [],
                 })
             } else {
+                if (emailNorm && user.email !== emailNorm) {
+                    user.email = emailNorm;
+                }
                 // Existing user - check if they need referral code migration
                 if (!user.referralCode) {
                     user.referralCode = nanoid(8).toUpperCase();
@@ -81,7 +99,10 @@ export async function POST(request: NextRequest){
                 if (!user.withdrawalHistory) {
                     user.withdrawalHistory = [];
                 }
-                
+                if (user.emailVerified !== true) {
+                    user.emailVerified = true;
+                }
+
                 // Update role if provided and different
                 if (role && user.role !== role) {
                     user.role = role;

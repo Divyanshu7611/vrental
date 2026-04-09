@@ -347,9 +347,12 @@ const FlatCard: React.FC<FlatCardProps> = ({
         {/* Subtle Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
         
-        {/* Wishlist Heart Button */}
+        {/* Save listing (heart) */}
         <button
+          type="button"
           onClick={handleWishlistToggle}
+          aria-label={isInWishlist ? "Remove from saved listings" : "Save listing"}
+          title={isInWishlist ? "Remove from saved" : "Save listing"}
           className={`absolute top-2.5 right-2.5 p-2 rounded-full backdrop-blur-sm transition-all duration-300 z-10 ${
             isInWishlist
               ? "bg-red-500 text-white"

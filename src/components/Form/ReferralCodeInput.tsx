@@ -24,9 +24,14 @@ export default function ReferralCodeInput({ onSuccess }: ReferralCodeInputProps)
     setLoading(true);
 
     try {
+      const token =
+        typeof localStorage !== "undefined" ? localStorage.getItem("token") : null;
       const response = await axios.post(
         "/api/referral/verify-code",
-        { referralCode: referralCode.toUpperCase() }
+        { referralCode: referralCode.toUpperCase() },
+        {
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        }
       );
 
       if (response.data.success) {
@@ -70,7 +75,8 @@ export default function ReferralCodeInput({ onSuccess }: ReferralCodeInputProps)
         <div className="flex-1">
           <h3 className="font-bold text-gray-800 mb-1">Have a Referral Code?</h3>
           <p className="text-sm text-gray-600">
-            Enter a referral code from a property owner to help them earn rewards!
+            Enter a friend&apos;s or owner&apos;s code. They earn points when you sign up or when you list a
+            property using their code (you cannot use your own code).
           </p>
         </div>
       </div>

@@ -2,10 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectMongoDB } from "@/utilis/dbConnect";
 import User from "@/models/User";
 import jwt from "jsonwebtoken";
+import { POINTS_PER_SIGNUP_REFERRAL } from "@/lib/referralConstants";
 
 export const dynamic = "force-dynamic";
-
-const POINTS_PER_REFERRAL = 10; // Points earned per successful referral
 
 export async function POST(req: NextRequest) {
   try {
@@ -73,12 +72,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check if referrer is an OWNER
-    if (referrer.role !== "OWNER") {
+    if (referrer.role !== "OWNER" && referrer.role !== "USER") {
       return NextResponse.json(
         {
           success: false,
-          message: "Referral code is only valid for property owners",
+          message: "This referral code is not valid",
         },
         { status: 400 }
       );
@@ -88,24 +86,24 @@ export async function POST(req: NextRequest) {
     currentUser.referredBy = referrer._id.toString();
     await currentUser.save();
 
-    // Add points to referrer
-    referrer.referralPoints += POINTS_PER_REFERRAL;
-    referrer.referralEarnings += POINTS_PER_REFERRAL; // 1 point = 1 rupee
+    referrer.referralPoints += POINTS_PER_SIGNUP_REFERRAL;
+    referrer.referralEarnings += POINTS_PER_SIGNUP_REFERRAL;
     referrer.referralHistory.push({
       referredUserId: currentUser._id,
       referredUserName: `${currentUser.firstName} ${currentUser.lastName}`,
-      pointsEarned: POINTS_PER_REFERRAL,
+      pointsEarned: POINTS_PER_SIGNUP_REFERRAL,
       date: new Date(),
+      source: "SIGNUP",
     });
     await referrer.save();
 
     return NextResponse.json(
       {
         success: true,
-        message: `Referral code applied successfully! ${referrer.firstName} earned ${POINTS_PER_REFERRAL} points.`,
+        message: `Referral code applied successfully! ${referrer.firstName} earned ${POINTS_PER_SIGNUP_REFERRAL} points.`,
         data: {
           referrerName: `${referrer.firstName} ${referrer.lastName}`,
-          pointsEarned: POINTS_PER_REFERRAL,
+          pointsEarned: POINTS_PER_SIGNUP_REFERRAL,
         },
       },
       { status: 200 }

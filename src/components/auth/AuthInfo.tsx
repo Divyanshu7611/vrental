@@ -41,7 +41,7 @@ export default function AuthInfo() {
       {/* Logo */}
       <div className="flex items-center gap-3">
         <Image
-          src="/assets/Logo.png"
+          src="/assets/logo.png"
           alt="Vrental"
           width={50}
           height={50}

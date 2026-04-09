@@ -49,13 +49,21 @@ export async function PUT(req: NextRequest) {
       firstName,
       lastName,
     });
-    const updatedUser = await User.findById(userID).lean(); // Use lean() to get a plain JS object
+    const updatedUser = await User.findById(userID).select("-password").lean();
+    if (!updatedUser) {
+      return NextResponse.json(
+        { error: "User not found", success: false },
+        { status: 404 }
+      );
+    }
+
+    const safeUser = { ...updatedUser, _id: String(updatedUser._id) };
 
     return NextResponse.json(
       {
         message: "Profile Updated Successfully",
         success: true,
-        User: updatedUser,
+        User: safeUser,
       },
       { status: 200 }
     );

@@ -51,11 +51,14 @@ export async function POST(request: NextRequest) {
   try {
     await connectMongoDB();
 
+    const emailNorm =
+      typeof email === "string" ? email.trim().toUpperCase() : "";
+
     // // Input validation
     if (
       !firstName ||
       !lastName ||
-      !email ||
+      !emailNorm ||
       !password ||
       !phone ||
       !otp
@@ -67,7 +70,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if user already exists
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ email: emailNorm });
     if (existingUser) {
       return NextResponse.json(
         { success: false, message: "User Already Exists" },
@@ -83,14 +86,14 @@ export async function POST(request: NextRequest) {
     // Generate unique client ID
     const clientID = await generatingTharID();
 
-    // Check OTP validity
-    const recentOtp = await OTP.findOne({ email })
+    const otpCode = String(otp).trim();
+    const recentOtp = await OTP.findOne({ email: emailNorm })
       .sort({ createdAt: -1 })
       .limit(1);
 
-    if (!recentOtp || otp !== recentOtp.otp) {
+    if (!recentOtp || otpCode !== recentOtp.otp) {
       return NextResponse.json(
-        { success: false, message: "Invalid or Expired OTP" },
+        { success: false, message: "Invalid or expired OTP. Request a new code." },
         { status: 403 }
       );
     }
@@ -102,7 +105,7 @@ export async function POST(request: NextRequest) {
     const newUser = await User.create({
       firstName,
       lastName,
-      email,
+      email: emailNorm,
       password: hashedPassword,
       phone,
       image: `https://api.dicebear.com/5.x/initials/svg?seed=${firstName} ${lastName}&backgroundColor=418FA9`,
@@ -110,6 +113,7 @@ export async function POST(request: NextRequest) {
       adharNo: "",
       role: role || "USER",
       termsAndConditions: true,
+      emailVerified: true,
       profession: profession || "",
       age: age || "",
       bio: bio || "",
@@ -119,6 +123,8 @@ export async function POST(request: NextRequest) {
       referralHistory: [],
       withdrawalHistory: [],
     });
+
+    await OTP.deleteMany({ email: emailNorm });
 
     // Generate JWT token
     const JwtKey = process.env.JWT_SECRET || "Divyanshu";
@@ -137,14 +143,10 @@ export async function POST(request: NextRequest) {
     newUser.token = token;
     await newUser.save();
 
-    // Send registration success email
-    const mailResult = await sendMail(email, clientID, firstName);
-    if (!mailResult.success) {
-      return NextResponse.json(
-        { success: false, message: mailResult.message },
-        { status: 500 }
-      );
-    }
+    // Welcome email (non-blocking — account is already created and verified)
+    void sendMail(emailNorm, clientID, firstName).catch((err) =>
+      console.error("Registration welcome email failed:", err)
+    );
 
     // Remove password from response
     const userResponse = newUser.toObject();

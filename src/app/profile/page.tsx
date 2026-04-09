@@ -1,30 +1,52 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import Navbar from "@/components/global/Navbar";
 import Footer from "@/components/global/Footer";
 import ProfileDetails from "@/components/Profile/ProfileDetails";
 import ProfileRating from "@/components/Profile/ProfileRating";
 import UserProfileDashboard from "@/components/Profile/UserProfileDashboard";
-import SmallCard from "@/components/mini/SmallCard";
 import { UserContext } from "@/context/UserContext";
 import { useContext } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import ProfileCard from "@/components/mini/profileCard";
 import Spinner from "@/components/global/Spinner";
 import MessageNotifications from "@/components/Profile/MessageNotifications";
-import { Home, TrendingUp, DollarSign, CheckCircle, Clock, Star, Award, BarChart3, Gift, Wallet } from "lucide-react";
+import ReferralDashboard from "@/components/Profile/ReferralDashboard";
+import { Home, TrendingUp, DollarSign, CheckCircle, Clock, Award, BarChart3, Gift, Wallet, LayoutGrid } from "lucide-react";
+import { MIN_REFERRAL_WITHDRAWAL_POINTS } from "@/lib/referralConstants";
 
 
-export default function Page() {
+function ProfilePageContent() {
   const [aparmentData, handleApartmentData] = useState<any>([]);
   const [loading, setLoading] = useState(true);
   const [referralStats, setReferralStats] = useState<any>(null);
   const [loadingReferral, setLoadingReferral] = useState(true);
+  const [profileTab, setProfileTab] = useState<"overview" | "referrals">(() => {
+    if (typeof window === "undefined") return "overview";
+    return new URLSearchParams(window.location.search).get("tab") === "referrals"
+      ? "referrals"
+      : "overview";
+  });
   const userContext = useContext(UserContext);
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const t = searchParams.get("tab");
+    setProfileTab(t === "referrals" ? "referrals" : "overview");
+  }, [searchParams]);
+
+  const goProfileTab = (t: "overview" | "referrals") => {
+    setProfileTab(t);
+    if (t === "referrals") {
+      router.replace("/profile?tab=referrals", { scroll: false });
+    } else {
+      router.replace("/profile", { scroll: false });
+    }
+  };
   
   useEffect(() => {
     const fetchData = async () => {
@@ -59,7 +81,8 @@ export default function Page() {
 
     if (userContext?.userAuthData?._id) {
       fetchData();
-      if (userContext?.userAuthData?.role === "OWNER") {
+      const r = userContext?.userAuthData?.role;
+      if (r === "OWNER" || r === "USER") {
         fetchReferralStats();
       } else {
         setLoadingReferral(false);
@@ -91,6 +114,8 @@ export default function Page() {
 
   // Check if user is OWNER or regular USER
   const isOwner = userContext?.userAuthData?.role === "OWNER";
+  const showReferralTabs =
+    userContext?.userAuthData?.role === "OWNER" || userContext?.userAuthData?.role === "USER";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-cyan-50">
@@ -106,19 +131,64 @@ export default function Page() {
             <ProfileDetails />
           </div>
 
+          {showReferralTabs && (
+            <div className="w-full border-b border-gray-200 bg-white/95 backdrop-blur-sm sticky top-[4.5rem] z-20 shadow-sm">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex gap-2 py-2">
+                <button
+                  type="button"
+                  onClick={() => goProfileTab("overview")}
+                  className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
+                    profileTab === "overview"
+                      ? "bg-blue-600 text-white shadow-md"
+                      : "text-gray-600 hover:bg-gray-100"
+                  }`}
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                  Overview
+                </button>
+                <button
+                  type="button"
+                  onClick={() => goProfileTab("referrals")}
+                  className={`inline-flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
+                    profileTab === "referrals"
+                      ? "bg-blue-600 text-white shadow-md"
+                      : "text-gray-600 hover:bg-gray-100"
+                  }`}
+                >
+                  <Gift className="h-4 w-4" />
+                  Referrals
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Conditional Rendering Based on Role */}
           {!isOwner ? (
-            // USER Profile Dashboard
             <>
-              <UserProfileDashboard />
-              
-              {/* Message Notifications Section */}
-              <div className="w-full py-8 px-4 sm:px-6 lg:px-8 border-b border-gray-100">
-                <div className="max-w-7xl mx-auto">
-                  <MessageNotifications />
+              {profileTab === "overview" && (
+                <>
+                  <UserProfileDashboard />
+                  <div className="w-full py-8 px-4 sm:px-6 lg:px-8 border-b border-gray-100">
+                    <div className="max-w-7xl mx-auto">
+                      <MessageNotifications />
+                    </div>
+                  </div>
+                </>
+              )}
+              {profileTab === "referrals" && showReferralTabs && (
+                <div className="w-full py-8 px-4 sm:px-6 lg:px-8">
+                  <div className="max-w-7xl mx-auto">
+                    <ReferralDashboard embedded />
+                  </div>
                 </div>
-              </div>
+              )}
             </>
+          ) : profileTab === "referrals" && showReferralTabs ? (
+            <div className="w-full py-8 px-4 sm:px-6 lg:px-8">
+              <div className="max-w-7xl mx-auto">
+                <ReferralDashboard embedded />
+              </div>
+            </div>
           ) : (
             // OWNER Profile Dashboard (Original)
             <>
@@ -187,7 +257,7 @@ export default function Page() {
                 {/* Referral Points Card - Only for Owners */}
                 {userContext?.userAuthData?.role === "OWNER" && !loadingReferral && (
                   <div 
-                    onClick={() => router.push("/profile/referrals")}
+                    onClick={() => goProfileTab("referrals")}
                     className="bg-gradient-to-br from-pink-500 to-rose-600 rounded-xl p-6 shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer group relative overflow-hidden"
                   >
                     {/* Animated background effect */}
@@ -211,7 +281,7 @@ export default function Page() {
                         <Wallet className="w-3 h-3" />
                         <span>= ₹{referralStats?.referralPoints || 0}</span>
                       </div>
-                      {referralStats && referralStats.referralPoints >= 100 ? (
+                      {referralStats && referralStats.referralPoints >= MIN_REFERRAL_WITHDRAWAL_POINTS ? (
                         <div className="mt-3 px-2 py-1 bg-white/20 backdrop-blur-sm rounded-full text-xs font-medium text-white inline-flex items-center gap-1">
                           <CheckCircle className="w-3 h-3" />
                           Can Withdraw
@@ -219,7 +289,7 @@ export default function Page() {
                       ) : (
                         <div className="mt-3 px-2 py-1 bg-white/10 backdrop-blur-sm rounded-full text-xs font-medium text-white/70 inline-flex items-center gap-1">
                           <Clock className="w-3 h-3" />
-                          {100 - (referralStats?.referralPoints || 0)} pts to withdraw
+                          {MIN_REFERRAL_WITHDRAWAL_POINTS - (referralStats?.referralPoints || 0)} pts to withdraw
                         </div>
                       )}
                     </div>
@@ -424,5 +494,19 @@ export default function Page() {
       <Footer />
       <ToastContainer />
     </div>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-slate-50">
+          <Spinner />
+        </div>
+      }
+    >
+      <ProfilePageContent />
+    </Suspense>
   );
 }

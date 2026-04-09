@@ -7,7 +7,14 @@ import GooglePlacesAutocomplete from "@/components/Form/GooglePlacesAutocomplete
 import { useUserLocation } from "@/context/LocationContext";
 import type { ParsedPlace } from "@/utilis/parseGooglePlace";
 
-export default function NavbarLocationPicker({ variant = "desktop" }: { variant?: "desktop" | "sidebar" }) {
+export default function NavbarLocationPicker({
+  variant = "desktop",
+  dropdownAlign = "left",
+}: {
+  variant?: "desktop" | "sidebar";
+  /** When the trigger sits on the right side of the navbar, align the panel to the right. */
+  dropdownAlign?: "left" | "right";
+}) {
   const { location, label, setLocation, detectCurrentLocation, detecting } =
     useUserLocation();
   const [open, setOpen] = useState(false);
@@ -58,9 +65,9 @@ export default function NavbarLocationPicker({ variant = "desktop" }: { variant?
         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
           Your location
         </p>
-        <div className="flex items-center gap-2 text-blue-600 mb-2">
-          <MapPin className="w-4 h-4 shrink-0" />
-          <span className="text-sm font-medium text-gray-800 line-clamp-2">{display}</span>
+        <div className="mb-2 flex items-center gap-2 text-black">
+          <MapPin className="h-4 w-4 shrink-0" strokeWidth={2.25} />
+          <span className="text-sm font-medium text-gray-900 line-clamp-2">{display}</span>
         </div>
         <GooglePlacesAutocomplete
           hideIcon
@@ -74,12 +81,12 @@ export default function NavbarLocationPicker({ variant = "desktop" }: { variant?
           type="button"
           onClick={() => void handleUseLocation()}
           disabled={detecting}
-          className="mt-3 w-full flex items-center justify-center gap-2 py-2.5 text-sm font-medium text-blue-700 bg-blue-50 rounded-xl hover:bg-blue-100 transition-colors disabled:opacity-60"
+          className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-gray-100 py-2.5 text-sm font-medium text-gray-900 transition-colors hover:bg-gray-200 disabled:opacity-60"
         >
           {detecting ? (
-            <Loader2 className="w-4 h-4 animate-spin" />
+            <Loader2 className="h-4 w-4 animate-spin text-black" />
           ) : (
-            <Navigation className="w-4 h-4" />
+            <Navigation className="h-4 w-4 text-black" strokeWidth={2.25} />
           )}
           Use current location
         </button>
@@ -92,21 +99,26 @@ export default function NavbarLocationPicker({ variant = "desktop" }: { variant?
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex items-center gap-1.5 min-w-0 max-w-full py-1.5 px-2 rounded-xl hover:bg-blue-50/80 transition-colors text-left border border-transparent hover:border-blue-100"
+        className="flex items-center gap-1.5 min-w-0 max-w-full py-1.5 px-2 rounded-xl hover:bg-gray-100 transition-colors text-left border border-transparent hover:border-gray-200"
         aria-expanded={open}
         aria-haspopup="dialog"
       >
-        <MapPin className="w-4 h-4 text-blue-600 shrink-0" />
-        <span className="text-xs sm:text-sm font-semibold text-gray-800 truncate min-w-0">
+        <MapPin className="w-4 h-4 shrink-0 text-black" strokeWidth={2.25} />
+        <span className="text-xs sm:text-sm font-semibold text-gray-900 truncate min-w-0">
           {display}
         </span>
         <ChevronDown
-          className={`w-3.5 h-3.5 text-gray-500 shrink-0 transition-transform ${open ? "rotate-180" : ""}`}
+          className={`w-3.5 h-3.5 shrink-0 text-black transition-transform ${open ? "rotate-180" : ""}`}
+          strokeWidth={2.25}
         />
       </button>
 
       {open && (
-        <div className="absolute left-0 top-full mt-2 w-[min(100vw-2rem,22rem)] z-[70] bg-white rounded-xl shadow-xl border border-gray-200 p-3">
+        <div
+          className={`absolute top-full mt-2 w-[min(100vw-2rem,22rem)] z-[70] bg-white rounded-xl shadow-xl border border-gray-200 p-3 ${
+            dropdownAlign === "right" ? "right-0 left-auto" : "left-0"
+          }`}
+        >
           <p className="text-xs text-gray-500 mb-2">Search or use your current location</p>
           <GooglePlacesAutocomplete
             hideIcon
