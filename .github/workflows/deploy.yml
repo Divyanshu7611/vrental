@@ -51,61 +51,61 @@ jobs:
             pm2 restart vrental || pm2 start npm --name "vrental" -- start
 
       # 7. Send SUCCESS email
-      - name: Send success email
-        if: success()
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 465
-          username: ${{ secrets.EMAIL_USERNAME }}
-          password: ${{ secrets.EMAIL_PASSWORD }}
-          subject: "✅ Deployment Successful - vrental"
-          to: |
-            youremail1@gmail.com,
-            youremail2@gmail.com
-          from: GitHub Actions
-          body: |
-            🎉 Deployment Successful!
+      # - name: Send success email
+      #   if: success()
+      #   uses: dawidd6/action-send-mail@v3
+      #   with:
+      #     server_address: smtp.gmail.com
+      #     server_port: 465
+      #     username: ${{ secrets.EMAIL_USERNAME }}
+      #     password: ${{ secrets.EMAIL_PASSWORD }}
+      #     subject: "✅ Deployment Successful - vrental"
+      #     to: |
+      #       youremail1@gmail.com,
+      #       youremail2@gmail.com
+      #     from: GitHub Actions
+      #     body: |
+      #       🎉 Deployment Successful!
 
-            Project: vrental
-            Branch: ${{ github.ref_name }}
-            Commit: ${{ github.sha }}
-            Message: ${{ github.event.head_commit.message }}
+      #       Project: vrental
+      #       Branch: ${{ github.ref_name }}
+      #       Commit: ${{ github.sha }}
+      #       Message: ${{ github.event.head_commit.message }}
 
-            🚀 Your latest changes are LIVE:
-            https://vrental.in
+      #       🚀 Your latest changes are LIVE:
+      #       https://vrental.in
 
-            Regards,
-            CI/CD Pipeline
+      #       Regards,
+      #       CI/CD Pipeline
 
-      # 8. Send FAILURE email
-      - name: Send failure email
-        if: failure()
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com
-          server_port: 465
-          username: ${{ secrets.EMAIL_USERNAME }}
-          password: ${{ secrets.EMAIL_PASSWORD }}
-          subject: "🚨 Deployment Failed - vrental"
-          to: |
-            youremail1@gmail.com,
-            youremail2@gmail.com
-          from: GitHub Actions
-          body: |
-            ❌ Deployment Failed!
+      # # 8. Send FAILURE email
+      # - name: Send failure email
+      #   if: failure()
+      #   uses: dawidd6/action-send-mail@v3
+      #   with:
+      #     server_address: smtp.gmail.com
+      #     server_port: 465
+      #     username: ${{ secrets.EMAIL_USERNAME }}
+      #     password: ${{ secrets.EMAIL_PASSWORD }}
+      #     subject: "🚨 Deployment Failed - vrental"
+      #     to: |
+      #       youremail1@gmail.com,
+      #       youremail2@gmail.com
+      #     from: GitHub Actions
+      #     body: |
+      #       ❌ Deployment Failed!
 
-            Project: vrental
-            Branch: ${{ github.ref_name }}
-            Commit: ${{ github.sha }}
-            Message: ${{ github.event.head_commit.message }}
+      #       Project: vrental
+      #       Branch: ${{ github.ref_name }}
+      #       Commit: ${{ github.sha }}
+      #       Message: ${{ github.event.head_commit.message }}
 
-            ⚠️ Something went wrong during deployment.
+      #       ⚠️ Something went wrong during deployment.
 
-            🔍 Check logs:
-            https://github.com/${{ github.repository }}/actions
+      #       🔍 Check logs:
+      #       https://github.com/${{ github.repository }}/actions
 
-            Fix ASAP 🚨
+      #       Fix ASAP 🚨
 
-            Regards,
-            CI/CD Pipelinename: Deploy to EC2
+      #       Regards,
+      #       CI/CD Pipelinename: Deploy to EC2
