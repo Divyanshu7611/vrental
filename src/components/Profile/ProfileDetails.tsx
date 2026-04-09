@@ -4,8 +4,7 @@
   import { useRouter } from "next/navigation";
   import { useContext } from "react";
   import { Card, CardContent } from "@/components/ui/card";
-  import { Badge } from "@/components/ui/badge";
-  import { UserCircle, Briefcase, Info, Hash, Calendar, Mail, Phone, Shield, CheckCircle2 } from "lucide-react";
+  import { Briefcase, Info, Calendar, Mail, Phone, Shield, CheckCircle2 } from "lucide-react";
 
   export default function ProfileDetails() {
     const router = useRouter();
@@ -46,16 +45,12 @@
 
                 {/* User Info Section */}
                 <div className="mt-6 sm:mt-8 space-y-6">
-                  {/* Name and ID */}
+                  {/* Name */}
                   <div className="text-center sm:text-left">
-                    <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-3">
+                    <h1 className="text-3xl sm:text-4xl font-bold text-gray-900">
                       {userContext?.userAuthData?.firstName}{" "}
                       {userContext?.userAuthData?.lastName}
                     </h1>
-                    <Badge variant="secondary" className="mt-2 px-3 py-1.5 text-sm bg-blue-50 text-blue-700 border-blue-200">
-                      <Hash className="w-3.5 h-3.5 mr-1.5" />
-                      ID: {userContext?.userAuthData?.clientID}
-                    </Badge>
                   </div>
 
                   {/* Details Grid */}

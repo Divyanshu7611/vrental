@@ -20,6 +20,8 @@ export interface IUser extends Document {
   bio: string;
   token?: string;
   termsAndConditions: boolean;
+  /** Set true after email OTP verification (manual signup) or OAuth. */
+  emailVerified?: boolean;
   // Referral System
   referralCode: string; // Unique referral code (same as _id)
   referredBy?: string; // ID of the user who referred this user
@@ -30,6 +32,9 @@ export interface IUser extends Document {
     referredUserName: string;
     pointsEarned: number;
     date: Date;
+    source?: "SIGNUP" | "APARTMENT_LISTING";
+    apartmentId?: Types.ObjectId;
+    apartmentName?: string;
   }>;
   withdrawalHistory: Array<{
     amount: number;
@@ -144,6 +149,10 @@ const userSchema: Schema = new Schema<IUser>({
     trim: true,
     default: false,
   },
+  emailVerified: {
+    type: Boolean,
+    default: false,
+  },
   // Referral System Fields
   referralCode: {
     type: String,
@@ -186,6 +195,19 @@ const userSchema: Schema = new Schema<IUser>({
       date: {
         type: Date,
         default: Date.now,
+      },
+      source: {
+        type: String,
+        enum: ["SIGNUP", "APARTMENT_LISTING"],
+        default: "SIGNUP",
+      },
+      apartmentId: {
+        type: Schema.Types.ObjectId,
+        ref: "Apartment",
+      },
+      apartmentName: {
+        type: String,
+        trim: true,
       },
     },
   ],

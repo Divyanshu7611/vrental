@@ -4,6 +4,9 @@ import Apartment from "@/models/Apartment";
 import { connectMongoDB } from "@/utilis/dbConnect";
 import User from "@/models/User";
 import jwt from "jsonwebtoken";
+import {
+  POINTS_PER_APARTMENT_LISTING_REFERRAL,
+} from "@/lib/referralConstants";
 
 export const dynamic = "force-dynamic";
 
@@ -201,36 +204,43 @@ export async function POST(req: NextRequest) {
       { new: true }
     );
 
-    // Process referral code if provided
+    // Process referral code if provided (OWNER or USER referrers; not self)
     if (referralCode && referralCode.trim()) {
       try {
         const referrer = await User.findOne({
           referralCode: referralCode.toUpperCase(),
         });
 
-        if (referrer && referrer.role === "OWNER") {
-          // Credit referrer with 10 points for property listing referral
-          const pointsToAdd = 10;
-          
+        const canRefer =
+          referrer &&
+          (referrer.role === "OWNER" || referrer.role === "USER") &&
+          referrer._id.toString() !== user._id.toString();
+
+        if (canRefer) {
+          const pointsToAdd = POINTS_PER_APARTMENT_LISTING_REFERRAL;
+
           referrer.referralPoints = (referrer.referralPoints || 0) + pointsToAdd;
           referrer.referralEarnings = (referrer.referralEarnings || 0) + pointsToAdd;
-          
-          // Add to referral history
+
           if (!referrer.referralHistory) {
             referrer.referralHistory = [];
           }
-          
+
           referrer.referralHistory.push({
-            referredUserId: userId,
+            referredUserId: user._id,
             referredUserName: `${user.firstName} ${user.lastName}`,
             pointsEarned: pointsToAdd,
             date: new Date(),
-            type: "PROPERTY_LISTING",
+            source: "APARTMENT_LISTING",
+            apartmentId: newApartment._id,
+            apartmentName,
           });
-          
+
           await referrer.save();
-          
-          console.log(`Referral processed: ${pointsToAdd} points credited to ${referrer.email}`);
+
+          console.log(
+            `Referral processed: ${pointsToAdd} points credited to ${referrer.email} for listing ${apartmentName}`
+          );
         }
       } catch (referralError) {
         console.error("Error processing referral code:", referralError);

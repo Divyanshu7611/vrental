@@ -391,12 +391,12 @@
 
 
 "use client";
-import React, { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect, useCallback, useContext } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { toast } from "sonner";
 import Spinner from "../global/Spinner";
 import axios from "axios";
+import { UserContext } from "@/context/UserContext";
 
 interface FormValues {
   firstName: string;
@@ -417,16 +417,14 @@ export default function Signup() {
     getValues,
     setValue,
   } = useForm<FormValues>();
-  const router = useRouter();
+  const userContext = useContext(UserContext);
   const [step, setStep] = useState(1);
   const [selectedRole, setSelectedRole] = useState<"USER" | "OWNER">("USER");
   const [state, setState] = useState({
     isEmailSent: false,
     isLoading: false,
     countdown: 0,
-    otp: "",
     enteredOtp: "",
-    isOtpVerified: false,
     showTermsModal: false,
     isTermsAccepted: false,
   });
@@ -468,44 +466,58 @@ export default function Signup() {
       if (data.success) {
         setState((prev) => ({
           ...prev,
-          otp: data.otp,
           isEmailSent: true,
           isLoading: false,
         }));
         setStep(2);
         startCountdown();
-        handleSuccess("OTP sent to your email");
+        handleSuccess(data.message || "OTP sent to your email");
       } else {
-        handleError("Failed to send OTP");
+        handleError(data.message || "Failed to send OTP");
       }
-    } catch (error) {
-      handleError("An error occurred while sending OTP");
+    } catch (error: unknown) {
+      const msg =
+        axios.isAxiosError(error) && error.response?.data?.message
+          ? String(error.response.data.message)
+          : "Could not send OTP. Check your email address and try again.";
+      handleError(msg);
       console.error("OTP Error:", error);
     }
   };
 
   const verifyOtp = async () => {
-    if (state.otp === state.enteredOtp) {
-      try {
-        setState((prev) => ({ ...prev, isLoading: true }));
-        const formData = getValues();
-        const { data: responseData } = await axios.post("/api/auth/register", {
-          ...formData,
-          otp: state.otp,
-        });
+    const entered = state.enteredOtp.trim().replace(/\s/g, "");
+    if (entered.length < 6) {
+      handleError("Enter the 6-digit code from your email");
+      return;
+    }
 
-        if (responseData.success) {
-          handleSuccess("Registration successful!");
-          router.refresh();
-        } else {
-          handleError("Registration failed. Please try again.");
-        }
-      } catch (error) {
-        handleError("Something went wrong during registration");
-        console.error("Registration Error:", error);
+    try {
+      setState((prev) => ({ ...prev, isLoading: true }));
+      const formData = getValues();
+      const { data: responseData } = await axios.post("/api/auth/register", {
+        ...formData,
+        otp: entered,
+      });
+
+      if (responseData.success && responseData.token) {
+        localStorage.setItem("token", responseData.token);
+        localStorage.setItem("userAuthData", JSON.stringify(responseData.data));
+        userContext?.AuthDataHandler(responseData.data);
+        handleSuccess("Email verified — welcome to VRENTAL!");
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 400);
+      } else {
+        handleError(responseData.message || "Registration failed. Please try again.");
       }
-    } else {
-      handleError("Invalid OTP");
+    } catch (error: unknown) {
+      const msg =
+        axios.isAxiosError(error) && error.response?.data?.message
+          ? String(error.response.data.message)
+          : "Something went wrong during registration";
+      handleError(msg);
+      console.error("Registration Error:", error);
     }
   };
 

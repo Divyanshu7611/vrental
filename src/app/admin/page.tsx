@@ -19,17 +19,30 @@ import {
   Ban,
   CheckCheck,
   Wallet,
+  Gift,
 } from "lucide-react";
+
+interface ReferralHistoryEntry {
+  referredUserName?: string;
+  pointsEarned?: number;
+  date?: string;
+  source?: "SIGNUP" | "APARTMENT_LISTING";
+  apartmentName?: string;
+  apartmentId?: string;
+}
 
 interface User {
   _id: string;
   firstName: string;
   lastName: string;
   email: string;
-  phoneNumber: string;
+  phoneNumber?: string;
+  phone?: number;
   role: string;
+  referralCode?: string;
   referralPoints: number;
   referralEarnings: number;
+  referralHistory?: ReferralHistoryEntry[];
   withdrawalRequests?: any[];
   createdAt: string;
 }
@@ -112,6 +125,7 @@ export default function AdminDashboard() {
   const [users, setUsers] = useState<User[]>([]);
   const [withdrawals, setWithdrawals] = useState<WithdrawalRequest[]>([]);
   const [expiringApartments, setExpiringApartments] = useState<Apartment[]>([]);
+  const [referralLogUser, setReferralLogUser] = useState<User | null>(null);
 
   useEffect(() => {
     // Check if user is admin
@@ -528,13 +542,19 @@ export default function AdminDashboard() {
                         Phone
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Referral code
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Referral Points
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Earnings
+                        Earnings (1 pt = ₹1)
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Joined
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Referral log
                       </th>
                     </tr>
                   </thead>
@@ -561,16 +581,29 @@ export default function AdminDashboard() {
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          {user.phoneNumber || "N/A"}
+                          {user.phoneNumber ?? user.phone ?? "N/A"}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-gray-900">
+                          {user.referralCode || "—"}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {user.referralPoints || 0}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                          ₹{((user.referralEarnings || 0) * 10).toLocaleString()}
+                          ₹{(user.referralEarnings || 0).toLocaleString()}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           {new Date(user.createdAt).toLocaleDateString()}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          <button
+                            type="button"
+                            onClick={() => setReferralLogUser(user)}
+                            className="inline-flex items-center gap-1 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50"
+                          >
+                            <Gift className="h-3.5 w-3.5" />
+                            View log
+                          </button>
                         </td>
                       </tr>
                     ))}
@@ -761,6 +794,95 @@ export default function AdminDashboard() {
           </div>
         </div>
       </div>
+
+      {referralLogUser && (
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="referral-log-title"
+        >
+          <div className="max-h-[90vh] w-full max-w-3xl overflow-hidden rounded-2xl bg-white shadow-2xl">
+            <div className="flex items-start justify-between gap-4 border-b border-gray-100 px-6 py-4">
+              <div>
+                <h2 id="referral-log-title" className="text-lg font-bold text-gray-900">
+                  Referral activity
+                </h2>
+                <p className="text-sm text-gray-600">
+                  {referralLogUser.firstName} {referralLogUser.lastName} · Code{" "}
+                  <span className="font-mono font-semibold">{referralLogUser.referralCode || "—"}</span>
+                </p>
+                <p className="mt-1 text-xs text-gray-500">
+                  Listing rows show which property an <strong>owner</strong> registered using this user&apos;s
+                  code (for verification).
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setReferralLogUser(null)}
+                className="rounded-lg p-2 text-gray-500 hover:bg-gray-100"
+                aria-label="Close"
+              >
+                <XCircle className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="max-h-[calc(90vh-8rem)] overflow-y-auto px-6 py-4">
+              {!referralLogUser.referralHistory?.length ? (
+                <p className="text-sm text-gray-500">No referral events yet.</p>
+              ) : (
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b text-left text-xs font-semibold uppercase text-gray-500">
+                      <th className="py-2 pr-2">Type</th>
+                      <th className="py-2 pr-2">Owner / user</th>
+                      <th className="py-2 pr-2">Apartment</th>
+                      <th className="py-2 pr-2">Pts</th>
+                      <th className="py-2">Date</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {referralLogUser.referralHistory.map((row, i) => (
+                      <tr key={i} className="border-b border-gray-50">
+                        <td className="py-3 pr-2">
+                          {row.source === "APARTMENT_LISTING" ? (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-cyan-50 px-2 py-0.5 text-xs font-medium text-cyan-800">
+                              <Home className="h-3 w-3" />
+                              Listing
+                            </span>
+                          ) : (
+                            <span className="inline-flex rounded-full bg-violet-50 px-2 py-0.5 text-xs font-medium text-violet-800">
+                              Sign-up
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-3 pr-2 text-gray-900">{row.referredUserName || "—"}</td>
+                        <td className="py-3 pr-2">
+                          {row.apartmentName ? (
+                            <div>
+                              <div className="font-medium text-gray-900">{row.apartmentName}</div>
+                              {row.apartmentId && (
+                                <div className="font-mono text-xs text-gray-400">
+                                  {String(row.apartmentId)}
+                                </div>
+                              )}
+                            </div>
+                          ) : (
+                            <span className="text-gray-400">—</span>
+                          )}
+                        </td>
+                        <td className="py-3 pr-2 font-semibold text-green-700">+{row.pointsEarned ?? 0}</td>
+                        <td className="py-3 text-gray-600">
+                          {row.date ? new Date(row.date).toLocaleString() : "—"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

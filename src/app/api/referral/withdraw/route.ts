@@ -2,10 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectMongoDB } from "@/utilis/dbConnect";
 import User from "@/models/User";
 import jwt from "jsonwebtoken";
+import { MIN_REFERRAL_WITHDRAWAL_POINTS } from "@/lib/referralConstants";
 
 export const dynamic = "force-dynamic";
-
-const MINIMUM_WITHDRAWAL_POINTS = 100;
 
 export async function POST(req: NextRequest) {
   try {
@@ -34,12 +33,11 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check if user is an OWNER
-    if (user.role !== "OWNER") {
+    if (user.role !== "OWNER" && user.role !== "USER") {
       return NextResponse.json(
         {
           success: false,
-          message: "Only property owners can withdraw referral earnings",
+          message: "Referral withdrawals are only available for renter and owner accounts",
         },
         { status: 403 }
       );
@@ -80,11 +78,11 @@ export async function POST(req: NextRequest) {
     }
 
     // Validate points
-    if (!points || points < MINIMUM_WITHDRAWAL_POINTS) {
+    if (!points || points < MIN_REFERRAL_WITHDRAWAL_POINTS) {
       return NextResponse.json(
         {
           success: false,
-          message: `Minimum withdrawal is ${MINIMUM_WITHDRAWAL_POINTS} points (₹${MINIMUM_WITHDRAWAL_POINTS})`,
+          message: `Minimum withdrawal is ${MIN_REFERRAL_WITHDRAWAL_POINTS} points (₹${MIN_REFERRAL_WITHDRAWAL_POINTS})`,
         },
         { status: 400 }
       );

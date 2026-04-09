@@ -16,8 +16,10 @@ export async function POST(NextRequest: NextRequest) {
   try {
     await connectMongoDB();
 
-    // Verification
-    const existingUser = await User.findOne({ email });
+    const emailNorm =
+      typeof email === "string" ? email.trim().toUpperCase() : "";
+
+    const existingUser = await User.findOne({ email: emailNorm });
 
     if (!existingUser) {
       return NextResponse.json(
@@ -26,6 +28,16 @@ export async function POST(NextRequest: NextRequest) {
           message: "User Not Found, Please sign up",
         },
         { status: 404 }
+      );
+    }
+
+    if (existingUser.emailVerified === false) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Please verify your email before logging in. Sign up again to receive a new OTP.",
+        },
+        { status: 403 }
       );
     }
 

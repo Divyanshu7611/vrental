@@ -1,66 +1,75 @@
 import OTP from "@/models/OTP";
+import User from "@/models/User";
 import { NextRequest, NextResponse } from "next/server";
 import { connectMongoDB } from "@/utilis/dbConnect";
 import otpGenerator from "otp-generator";
 
 export const dynamic = "force-dynamic";
 
+function normalizeEmail(email: string) {
+  return email.trim().toUpperCase();
+}
+
 export async function POST(request: NextRequest) {
-  const { email } = await request.json();
   try {
+    const body = await request.json();
+    const rawEmail = body?.email;
+    if (!rawEmail || typeof rawEmail !== "string") {
+      return NextResponse.json(
+        { success: false, message: "Email is required" },
+        { status: 400 }
+      );
+    }
+
+    const email = normalizeEmail(rawEmail);
+
     await connectMongoDB();
-    // checkk user already exist or not
-    const existUser = await OTP.findOne({ email });
-    if (existUser) {
+
+    const existingAccount = await User.findOne({ email });
+    if (existingAccount) {
       return NextResponse.json(
         {
           success: false,
-          message: "User already Exist",
+          message: "An account with this email already exists. Please log in.",
         },
-        { status: 403 }
+        { status: 400 }
       );
     }
-    var otp = otpGenerator.generate(6, {
+
+    // Allow resend: remove any previous pending OTPs for this email
+    await OTP.deleteMany({ email });
+
+    let otp = otpGenerator.generate(6, {
       specialChars: false,
       upperCaseAlphabets: false,
       lowerCaseAlphabets: false,
     });
 
-    console.log("OTP IS :", otp);
-    // check unique otp or not
-    let uniqueOTP = await OTP.findOne({ otp: otp });
+    let uniqueOTP = await OTP.findOne({ otp });
     while (uniqueOTP) {
       otp = otpGenerator.generate(6, {
         specialChars: false,
         upperCaseAlphabets: false,
         lowerCaseAlphabets: false,
       });
-      uniqueOTP = await OTP.findOne({ otp: otp });
+      uniqueOTP = await OTP.findOne({ otp });
     }
 
-    // create otp payload
-    const otpPayload = { email, otp };
-    //    create otp entry into db
-    const otpBody = await OTP.create(otpPayload);
-    // return respooonse
+    await OTP.create({ email, otp });
+
     return NextResponse.json(
       {
         success: true,
-        message: "OTP Send Successfuly",
-        otp: otp,
+        message: "OTP sent to your email. Check your inbox (and spam).",
       },
       { status: 200 }
     );
-    // await DisconnectMongoDB();
   } catch (error) {
-    // await DisconnectMongoDB();
-    console.log(error);
-    return NextResponse.json(
-      {
-        success: false,
-        message: "Internal Server Error",
-      },
-      { status: 500 }
-    );
+    console.error("OTP route error:", error);
+    const message =
+      error instanceof Error && error.message.includes("Failed To Send Email")
+        ? "Could not send email. Check server mail settings (Brevo / SMTP)."
+        : "Could not send OTP. Please try again later.";
+    return NextResponse.json({ success: false, message }, { status: 502 });
   }
 }

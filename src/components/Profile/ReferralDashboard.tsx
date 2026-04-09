@@ -14,7 +14,13 @@ import {
   XCircle,
   IndianRupee,
   Share2,
+  Home,
 } from "lucide-react";
+import {
+  MIN_REFERRAL_WITHDRAWAL_POINTS,
+  POINTS_PER_APARTMENT_LISTING_REFERRAL,
+  POINTS_PER_SIGNUP_REFERRAL,
+} from "@/lib/referralConstants";
 
 interface ReferralStats {
   referralCode: string;
@@ -28,6 +34,9 @@ interface ReferralStats {
     referredUserName: string;
     pointsEarned: number;
     date: string;
+    source?: "SIGNUP" | "APARTMENT_LISTING";
+    apartmentName?: string;
+    apartmentId?: string;
   }>;
   withdrawalHistory: Array<{
     amount: number;
@@ -38,9 +47,15 @@ interface ReferralStats {
     transactionId?: string;
   }>;
   isOwner: boolean;
+  role?: string;
 }
 
-export default function ReferralDashboard() {
+type ReferralDashboardProps = {
+  /** When true, used inside profile tabs (no full-page loading layout). */
+  embedded?: boolean;
+};
+
+export default function ReferralDashboard({ embedded = false }: ReferralDashboardProps) {
   const [stats, setStats] = useState<ReferralStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [withdrawAmount, setWithdrawAmount] = useState("");
@@ -89,7 +104,7 @@ export default function ReferralDashboard() {
 
   const shareReferralCode = async () => {
     if (stats?.referralCode) {
-      const shareText = `Join VRENTAL using my referral code: ${stats.referralCode} and help me earn rewards!`;
+      const shareText = shareBlurb;
       
       if (navigator.share) {
         try {
@@ -109,8 +124,10 @@ export default function ReferralDashboard() {
   const openPaymentModal = () => {
     const points = parseInt(withdrawAmount);
 
-    if (!points || points < 100) {
-      toast.error("Minimum withdrawal is 100 points (₹100)");
+    if (!points || points < MIN_REFERRAL_WITHDRAWAL_POINTS) {
+      toast.error(
+        `Minimum withdrawal is ${MIN_REFERRAL_WITHDRAWAL_POINTS} points (₹${MIN_REFERRAL_WITHDRAWAL_POINTS})`
+      );
       return;
     }
 
@@ -181,30 +198,42 @@ export default function ReferralDashboard() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+      <div
+        className={`flex justify-center items-center ${embedded ? "min-h-[240px]" : "min-h-screen"}`}
+      >
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600" />
       </div>
     );
   }
 
-  if (!stats?.isOwner) {
+  if (!stats) {
     return (
-      <div className="max-w-4xl mx-auto p-6">
-        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-6 text-center">
-          <Gift className="w-12 h-12 text-yellow-600 mx-auto mb-4" />
-          <h3 className="text-xl font-bold text-gray-800 mb-2">
-            Referral Program for Property Owners Only
-          </h3>
-          <p className="text-gray-600">
-            Upgrade to a property owner account to access the referral program and earn rewards!
-          </p>
+      <div className={`max-w-4xl mx-auto ${embedded ? "py-4" : "p-6"}`}>
+        <p className="text-center text-gray-600">Could not load referral data. Please try again later.</p>
+      </div>
+    );
+  }
+
+  const role = stats.role || (stats.isOwner ? "OWNER" : "USER");
+  if (role === "ADMIN") {
+    return (
+      <div className={`max-w-4xl mx-auto ${embedded ? "py-4" : "p-6"}`}>
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-6 text-center">
+          <Gift className="w-12 h-12 text-amber-600 mx-auto mb-4" />
+          <h3 className="text-xl font-bold text-gray-800 mb-2">Referrals</h3>
+          <p className="text-gray-600">Referral rewards are not available for admin accounts.</p>
         </div>
       </div>
     );
   }
 
+  const isOwner = role === "OWNER";
+  const shareBlurb = isOwner
+    ? `List on VRENTAL with my referral code ${stats.referralCode} — I earn rewards when you publish a property!`
+    : `Use my VRENTAL referral code ${stats.referralCode} when a property owner lists their apartment — we both support the community and I earn reward points!`;
+
   return (
-    <div className="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+    <div className={`max-w-7xl mx-auto ${embedded ? "px-0 py-2 sm:py-4" : "p-4 sm:p-6 lg:p-8"}`}>
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
@@ -215,7 +244,9 @@ export default function ReferralDashboard() {
           Referral Dashboard
         </h1>
         <p className="text-gray-600">
-          Share your referral code and earn rewards when others register properties!
+          {isOwner
+            ? "Share your code with other owners — you earn points when they list a property using it."
+            : "Share your code with property owners — you earn points when they register a listing with your code."}
         </p>
       </motion.div>
 
@@ -317,15 +348,33 @@ export default function ReferralDashboard() {
             <ul className="space-y-2 text-sm text-gray-600">
               <li className="flex items-start gap-2">
                 <span className="text-blue-600 mt-0.5">•</span>
-                <span>Share your referral code with property owners</span>
+                <span>
+                  {isOwner
+                    ? "Share your code with other owners listing on VRENTAL."
+                    : "Share your code with friends who list properties as owners."}
+                </span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-blue-600 mt-0.5">•</span>
-                <span>When they register a property using your code, you earn 10 points (₹10)</span>
+                <span>
+                  Someone signs up with your code: you earn {POINTS_PER_SIGNUP_REFERRAL} points (₹
+                  {POINTS_PER_SIGNUP_REFERRAL}).
+                </span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-blue-600 mt-0.5">•</span>
-                <span>Withdraw your earnings once you reach 100 points (₹100)</span>
+                <span>
+                  An owner publishes a listing with your code: you earn{" "}
+                  {POINTS_PER_APARTMENT_LISTING_REFERRAL} points (₹{POINTS_PER_APARTMENT_LISTING_REFERRAL}
+                  ). They cannot use their own code.
+                </span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-blue-600 mt-0.5">•</span>
+                <span>
+                  Withdraw from {MIN_REFERRAL_WITHDRAWAL_POINTS} points (₹{MIN_REFERRAL_WITHDRAWAL_POINTS})
+                  upward.
+                </span>
               </li>
             </ul>
           </div>
@@ -351,8 +400,8 @@ export default function ReferralDashboard() {
               type="number"
               value={withdrawAmount}
               onChange={(e) => setWithdrawAmount(e.target.value)}
-              placeholder="Min. 100 points"
-              min="100"
+              placeholder={`Min. ${MIN_REFERRAL_WITHDRAWAL_POINTS} points`}
+              min={MIN_REFERRAL_WITHDRAWAL_POINTS}
               max={stats.referralPoints}
               className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
             />
@@ -368,7 +417,7 @@ export default function ReferralDashboard() {
               withdrawing ||
               stats.pendingWithdrawals > 0 ||
               !withdrawAmount ||
-              parseInt(withdrawAmount) < 100
+              parseInt(withdrawAmount) < MIN_REFERRAL_WITHDRAWAL_POINTS
             }
             className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white font-semibold py-3 rounded-lg hover:from-green-700 hover:to-green-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
           >
@@ -377,7 +426,7 @@ export default function ReferralDashboard() {
 
           {!stats.canWithdraw && (
             <p className="text-xs text-orange-600 mt-3 text-center">
-              Minimum 100 points required to withdraw
+              Minimum {MIN_REFERRAL_WITHDRAWAL_POINTS} points required to withdraw
             </p>
           )}
 
@@ -403,10 +452,16 @@ export default function ReferralDashboard() {
               <thead>
                 <tr className="border-b">
                   <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">
-                    User
+                    From (owner who acted)
                   </th>
                   <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">
-                    Points Earned
+                    Type
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">
+                    Property
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">
+                    Points
                   </th>
                   <th className="text-left py-3 px-4 text-sm font-semibold text-gray-600">
                     Date
@@ -417,8 +472,27 @@ export default function ReferralDashboard() {
                 {stats.referralHistory.map((ref, index) => (
                   <tr key={index} className="border-b hover:bg-gray-50">
                     <td className="py-3 px-4">{ref.referredUserName}</td>
+                    <td className="py-3 px-4 text-sm">
+                      {ref.source === "APARTMENT_LISTING" ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-cyan-50 px-2 py-0.5 text-cyan-800">
+                          <Home className="h-3.5 w-3.5" />
+                          Listing
+                        </span>
+                      ) : (
+                        <span className="inline-flex rounded-full bg-violet-50 px-2 py-0.5 text-violet-800">
+                          Sign-up
+                        </span>
+                      )}
+                    </td>
+                    <td className="py-3 px-4 text-sm text-gray-700">
+                      {ref.apartmentName ? (
+                        <span className="font-medium">{ref.apartmentName}</span>
+                      ) : (
+                        <span className="text-gray-400">—</span>
+                      )}
+                    </td>
                     <td className="py-3 px-4 text-green-600 font-semibold">
-                      +{ref.pointsEarned} points
+                      +{ref.pointsEarned} pts
                     </td>
                     <td className="py-3 px-4 text-sm text-gray-600">
                       {new Date(ref.date).toLocaleDateString()}

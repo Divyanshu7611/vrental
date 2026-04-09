@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectMongoDB } from "@/utilis/dbConnect";
 import User from "@/models/User";
 import jwt from "jsonwebtoken";
+import { MIN_REFERRAL_WITHDRAWAL_POINTS } from "@/lib/referralConstants";
 
 export const dynamic = "force-dynamic";
 
@@ -23,7 +24,7 @@ export async function GET(req: NextRequest) {
       algorithms: ["HS256"]
     });
     const user = await User.findById(decoded.id).select(
-      "referralCode referralPoints referralEarnings referralHistory withdrawalHistory role"
+      "referralCode referralPoints referralEarnings referralHistory withdrawalHistory role firstName lastName"
     );
 
     if (!user) {
@@ -61,10 +62,11 @@ export async function GET(req: NextRequest) {
           totalReferrals,
           totalWithdrawn,
           pendingWithdrawals: pendingWithdrawals.length,
-          canWithdraw: user.referralPoints >= 100,
+          canWithdraw: user.referralPoints >= MIN_REFERRAL_WITHDRAWAL_POINTS,
           referralHistory: user.referralHistory,
           withdrawalHistory: user.withdrawalHistory,
           isOwner: user.role === "OWNER",
+          role: user.role,
         },
       },
       { status: 200 }
