@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
-import { MapPin, ChevronDown, Loader2, Navigation } from "lucide-react";
+import { MapPin, ChevronDown, Loader2, Navigation, Map } from "lucide-react";
 import { toast } from "sonner";
 import GooglePlacesAutocomplete from "@/components/Form/GooglePlacesAutocomplete";
 import { useUserLocation } from "@/context/LocationContext";
@@ -10,10 +10,13 @@ import type { ParsedPlace } from "@/utilis/parseGooglePlace";
 export default function NavbarLocationPicker({
   variant = "desktop",
   dropdownAlign = "left",
+  onShowNearbyMap,
 }: {
-  variant?: "desktop" | "sidebar" | "modal";
+  variant?: "desktop" | "sidebar" | "modal" | "hero";
   /** When the trigger sits on the right side of the navbar, align the panel to the right. */
   dropdownAlign?: "left" | "right";
+  /** Hero only: opens the nearby listings map (shown as a compact button on mobile). */
+  onShowNearbyMap?: () => void;
 }) {
   const { location, label, setLocation, detectCurrentLocation, detecting } =
     useUserLocation();
@@ -59,13 +62,19 @@ export default function NavbarLocationPicker({
 
   const display = label || "City, State";
 
-  if (variant === "sidebar" || variant === "modal") {
+  if (variant === "sidebar" || variant === "modal" || variant === "hero") {
     const wrapClass =
       variant === "sidebar"
         ? "mb-6 pb-4 border-b border-gray-100"
-        : "mt-3 rounded-xl border border-gray-200 bg-gray-50/90 p-3 sm:p-4";
+        : variant === "hero"
+          ? "w-full rounded-xl border border-gray-200 bg-white/95 backdrop-blur-sm shadow-sm p-3 sm:p-4"
+          : "mt-3 rounded-xl border border-gray-200 bg-gray-50/90 p-3 sm:p-4";
     const title =
-      variant === "sidebar" ? "Your location" : "Update your area";
+      variant === "sidebar"
+        ? "Your location"
+        : variant === "hero"
+          ? "Select your area"
+          : "Update your area";
     return (
       <div className={wrapClass}>
         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
@@ -96,6 +105,16 @@ export default function NavbarLocationPicker({
           )}
           Use current location
         </button>
+        {variant === "hero" && onShowNearbyMap ? (
+          <button
+            type="button"
+            onClick={onShowNearbyMap}
+            className="md:hidden mt-3 flex w-full items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-600 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-blue-700 active:scale-[0.99]"
+          >
+            <Map className="h-4 w-4 shrink-0" strokeWidth={2.25} aria-hidden />
+            Show listings on map
+          </button>
+        ) : null}
       </div>
     );
   }

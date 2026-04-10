@@ -157,6 +157,7 @@
 import React, { useState } from "react";
 import { Home, TrendingUp, Shield, Clock, Map, ArrowRight } from "lucide-react";
 import NearbyApartmentsMapModal from "@/components/HomePage/NearbyApartmentsMapModal";
+import NavbarLocationPicker from "@/components/global/NavbarLocationPicker";
 import { useUserLocation } from "@/context/LocationContext";
 
 function Hero() {
@@ -238,11 +239,16 @@ function Hero() {
             </p>
           </div>
 
-          <div className="max-w-5xl w-full">
+          <div className="max-w-5xl w-full space-y-4">
+            <NavbarLocationPicker
+              variant="hero"
+              onShowNearbyMap={() => setMapModalOpen(true)}
+            />
+
             <button
               type="button"
               onClick={() => setMapModalOpen(true)}
-              className="group w-full rounded-xl border border-gray-200 bg-white text-left shadow-sm transition-[border-color,box-shadow] hover:border-gray-300 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+              className="group hidden md:block w-full rounded-xl border border-gray-200 bg-white text-left shadow-sm transition-[border-color,box-shadow] hover:border-gray-300 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
             >
               <span className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:gap-5 sm:p-5">
                 <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white">
@@ -260,11 +266,11 @@ function Hero() {
                     {label ? (
                       <>
                         Focused around <strong className="font-semibold text-gray-800">{label}</strong>
-                        <span className="text-gray-500"> — open the map to change your search area anytime.</span>
+                        <span className="text-gray-500"> — adjust your area in Select your area above anytime.</span>
                       </>
                     ) : (
                       <>
-                        Open the map and set your <strong className="font-semibold text-gray-800">city &amp; area</strong> there to focus pins, then explore listings on the map.
+                        Use <strong className="font-semibold text-gray-800">Select your area</strong> above, then open the map to explore pins near that location.
                       </>
                     )}
                   </span>
@@ -282,20 +288,7 @@ function Hero() {
           <NearbyApartmentsMapModal open={mapModalOpen} onClose={() => setMapModalOpen(false)} />
 
           {/* Stats */}
-          <div className="flex flex-wrap gap-4 sm:gap-8 animate-fade-in pb-2 sm:pb-0">
-            {stats.map((stat, index) => (
-              <div key={index} className="flex items-center gap-2.5 sm:gap-3 group cursor-pointer">
-                <div className="p-1.5 sm:p-2 bg-blue-100 rounded-lg group-hover:bg-blue-200 
-                  transition-colors group-hover:scale-110 duration-300">
-                  <stat.icon className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
-                </div>
-                <div>
-                  <div className="text-lg sm:text-xl md:text-2xl font-bold text-gray-800">{stat.value}</div>
-                  <div className="text-[11px] sm:text-xs md:text-sm text-gray-600">{stat.label}</div>
-                </div>
-              </div>
-            ))}
-          </div>
+         
 
         </div>
       </div>

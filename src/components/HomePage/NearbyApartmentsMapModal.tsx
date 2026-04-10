@@ -6,8 +6,6 @@ import { X, MapPin, Loader2, Navigation } from "lucide-react";
 import axios from "axios";
 import { useUserLocation, type UserLocation } from "@/context/LocationContext";
 import { filterListingsNearArea } from "@/utilis/listingAreaFilter";
-import NavbarLocationPicker from "@/components/global/NavbarLocationPicker";
-
 /** ~100 km covers most metro areas; listings can also match saved city/state in address text */
 const NEARBY_RADIUS_KM = 100;
 
@@ -270,7 +268,7 @@ export default function NearbyApartmentsMapModal({
             return {
               pos: gpsPos,
               message:
-                "Using device location (blue pin). Set city & state above to filter listings to that area.",
+                "Using device location (blue pin). Set city & state on the home page to filter listings to that area.",
             };
           }
 
@@ -298,7 +296,7 @@ export default function NearbyApartmentsMapModal({
           return {
             pos: null,
             message:
-              "Set your area above to show only nearby listings. Showing all pins across India.",
+              "Set your area on the home page to show only nearby listings. Showing all pins across India.",
           };
         };
 
@@ -328,13 +326,13 @@ export default function NearbyApartmentsMapModal({
               sl?.state
             );
             if (plotListings.length === 0) {
-              filterNote = ` No listings with map pins within ~${NEARBY_RADIUS_KM} km of ${areaDesc} (or whose address includes that city/state) in this dataset. Update your area above to load that region from the server.`;
+              filterNote = ` No listings with map pins within ~${NEARBY_RADIUS_KM} km of ${areaDesc} (or whose address includes that city/state) in this dataset. Update your area on the home page to load that region from the server.`;
             } else {
               filterNote = ` Showing ${plotListings.length} near ${areaDesc} (within ~${NEARBY_RADIUS_KM} km or matching city/state in the listing address).`;
             }
           } else {
             plotListings = data;
-            filterNote = ` Showing all ${data.length} listing(s) with pins — set your city above to load that area.`;
+            filterNote = ` Showing all ${data.length} listing(s) with pins — set your city on the home page to load that area.`;
           }
         }
 
@@ -484,7 +482,7 @@ export default function NearbyApartmentsMapModal({
       onClick={onClose}
     >
       <div
-        className="bg-white w-full max-w-5xl max-h-[min(100dvh,100svh)] sm:max-h-[90vh] rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden sm:my-auto"
+        className="bg-white w-full max-w-5xl max-h-[min(70svh,28rem)] sm:max-h-[90vh] rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden sm:my-auto"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start gap-2 sm:gap-3 sm:justify-between px-3 pt-3 pb-2 sm:px-5 sm:py-3 border-b border-gray-100 shrink-0">
@@ -496,18 +494,21 @@ export default function NearbyApartmentsMapModal({
               <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 shrink-0" />
               <span className="line-clamp-2">Nearby registered apartments</span>
             </h2>
-            <p className="text-[11px] sm:text-sm text-gray-600 mt-1 flex items-start gap-1.5">
+            <p className="text-[11px] text-gray-600 mt-1 sm:hidden">
+              Pins use your saved area from the hero. Close to change location there.
+            </p>
+            <p className="hidden sm:flex text-sm text-gray-600 mt-1 items-start gap-1.5">
               <Navigation className="w-3.5 h-3.5 mt-0.5 shrink-0 text-cyan-600" />
               <span>
                 Pins follow your{" "}
-                <strong className="text-gray-800">saved area</strong> (~{NEARBY_RADIUS_KM}{" "}
-                km or same city/state in the listing). Use the fields below to change it.
+                <strong className="text-gray-800">saved area</strong> from the home page (~{NEARBY_RADIUS_KM}{" "}
+                km or same city/state in the listing). Close the map and use{" "}
+                <strong className="text-gray-800">Select your area</strong> on the hero to change it.
               </span>
             </p>
             {userLabel && (
-              <p className="text-xs text-blue-700 mt-2 font-medium line-clamp-3">{userLabel}</p>
+              <p className="text-xs text-blue-700 mt-1.5 sm:mt-2 font-medium line-clamp-2 sm:line-clamp-3">{userLabel}</p>
             )}
-            <NavbarLocationPicker variant="modal" />
           </div>
           <button
             type="button"
@@ -519,25 +520,25 @@ export default function NearbyApartmentsMapModal({
           </button>
         </div>
 
-        <div className="relative flex-1 min-h-[min(55vh,420px)] sm:min-h-[400px]">
+        <div className="relative w-full h-[200px] shrink-0 sm:h-auto sm:flex-1 sm:min-h-[min(55vh,420px)] md:min-h-[400px]">
           {loading && (
             <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-gray-50">
               <Loader2 className="w-10 h-10 animate-spin text-blue-600 mb-2" />
               <p className="text-sm text-gray-600">Loading map & listings…</p>
             </div>
           )}
-          <div ref={mapRef} className="w-full h-full min-h-[min(55vh,420px)] sm:min-h-[400px]" />
+          <div ref={mapRef} className="h-full w-full min-h-[200px] sm:min-h-[min(55vh,420px)] md:min-h-[400px]" />
         </div>
 
-        <div className="px-4 py-3 sm:px-5 border-t border-gray-100 bg-gray-50 shrink-0 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:pb-3">
+        <div className="px-3 py-2.5 sm:px-5 sm:py-3 border-t border-gray-100 bg-gray-50 shrink-0 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:pb-3">
           <button
             type="button"
             onClick={onClose}
-            className="sm:hidden w-full mb-3 min-h-12 rounded-xl bg-slate-800 text-white text-sm font-semibold active:bg-slate-900 transition-colors"
+            className="sm:hidden w-full mb-2 min-h-11 rounded-xl bg-slate-800 text-white text-sm font-semibold active:bg-slate-900 transition-colors"
           >
             Close map
           </button>
-          <p className="text-sm text-gray-700">
+          <p className="text-xs sm:text-sm text-gray-700">
             {totalWithPins > 0 && listings.length !== totalWithPins ? (
               <>
                 <span className="font-semibold">{listings.length}</span> near your selected area

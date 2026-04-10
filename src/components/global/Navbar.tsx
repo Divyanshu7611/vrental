@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { TbLogout } from "react-icons/tb";
 import { CgProfile } from "react-icons/cg";
 import { MdOutlineAddHomeWork, MdOutlineLocalOffer } from "react-icons/md";
-import { ChevronDown, Home, Building2, Users, Users2, Store, Info, Upload, Heart } from "lucide-react";
+import { ChevronDown, Home, Building2, Users, Users2, Store, Info, Upload, Heart, Gift } from "lucide-react";
 import Link from "next/link";
 import NotificationDropdown from "./NotificationDropdown";
 import NavbarLocationPicker from "./NavbarLocationPicker";
@@ -331,6 +331,52 @@ export default function Navbar() {
             </div>
 
             <nav className="flex flex-col gap-1">
+              {isToken ? (
+                <>
+                  <a
+                    href="/profile"
+                    onClick={toggleSidebar}
+                    className="flex items-center gap-3 rounded-xl px-3 py-3 text-[15px] font-semibold text-gray-900 transition hover:bg-gray-100"
+                  >
+                    <CgProfile className="h-5 w-5 shrink-0 text-black" />
+                    Profile
+                  </a>
+                  {(userContext?.userAuthData?.role === "OWNER" ||
+                    userContext?.userAuthData?.role === "USER") && (
+                    <p className="flex items-start gap-2 rounded-lg bg-blue-50/90 px-3 py-2 text-[11px] leading-snug text-gray-600">
+                      <Gift className="h-3.5 w-3.5 shrink-0 text-blue-600 mt-0.5" strokeWidth={2.25} aria-hidden />
+                      <span>
+                        Referrals and rewards are in{" "}
+                        <span className="font-semibold text-gray-800">Profile</span> →{" "}
+                        <span className="font-semibold text-gray-800">Referrals</span> tab.
+                      </span>
+                    </p>
+                  )}
+
+                  {userContext?.userAuthData?.role === "OWNER" && (
+                    <a
+                      href="/list-apartment"
+                      onClick={toggleSidebar}
+                      className="flex items-center gap-3 rounded-xl px-3 py-3 text-[15px] font-semibold text-gray-900 transition hover:bg-gray-100"
+                    >
+                      <Upload className="h-5 w-5 shrink-0 text-black" strokeWidth={2.25} />
+                      List Property
+                    </a>
+                  )}
+
+                  <a
+                    href="/wishlist"
+                    onClick={toggleSidebar}
+                    className="flex items-center gap-3 rounded-xl px-3 py-3 text-[15px] font-semibold text-gray-900 transition hover:bg-gray-100"
+                  >
+                    <Heart className="h-5 w-5 shrink-0 text-black" strokeWidth={2.25} />
+                    Saved listings
+                  </a>
+
+                  <div className="my-2 border-t border-gray-100" />
+                </>
+              ) : null}
+
               <a
                 href="/"
                 onClick={toggleSidebar}
@@ -382,38 +428,9 @@ export default function Navbar() {
               {isToken ? (
                 <>
                   <div className="my-2 border-t border-gray-100" />
-                  <a
-                    href="/profile"
-                    onClick={toggleSidebar}
-                    className="flex items-center gap-3 rounded-xl px-3 py-3 text-[15px] font-semibold text-gray-900 transition hover:bg-gray-100"
-                  >
-                    <CgProfile className="h-5 w-5 shrink-0 text-black" />
-                    Profile
-                  </a>
-
-                  {userContext?.userAuthData?.role === "OWNER" && (
-                    <a
-                      href="/list-apartment"
-                      onClick={toggleSidebar}
-                      className="flex items-center gap-3 rounded-xl px-3 py-3 text-[15px] font-semibold text-gray-900 transition hover:bg-gray-100"
-                    >
-                      <Upload className="h-5 w-5 shrink-0 text-black" strokeWidth={2.25} />
-                      List Property
-                    </a>
-                  )}
-
-                  <a
-                    href="/wishlist"
-                    onClick={toggleSidebar}
-                    className="flex items-center gap-3 rounded-xl px-3 py-3 text-[15px] font-semibold text-gray-900 transition hover:bg-gray-100"
-                  >
-                    <Heart className="h-5 w-5 shrink-0 text-black" strokeWidth={2.25} />
-                    Saved listings
-                  </a>
-
                   <button
                     type="button"
-                    className="mt-2 flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-[15px] font-semibold text-gray-900 transition hover:bg-gray-100"
+                    className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-left text-[15px] font-semibold text-gray-900 transition hover:bg-gray-100"
                     onClick={() => {
                       toast.success("Logout Successfully");
                       localStorage.removeItem("token");
