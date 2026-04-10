@@ -6,8 +6,9 @@ import { X, MapPin, Loader2, Navigation } from "lucide-react";
 import axios from "axios";
 import { useUserLocation, type UserLocation } from "@/context/LocationContext";
 import { filterListingsNearArea } from "@/utilis/listingAreaFilter";
+import NavbarLocationPicker from "@/components/global/NavbarLocationPicker";
 
-/** ~100 km covers most metro areas; listings can also match navbar city/state in address text */
+/** ~100 km covers most metro areas; listings can also match saved city/state in address text */
 const NEARBY_RADIUS_KM = 100;
 
 export interface MapListing {
@@ -142,6 +143,11 @@ export default function NearbyApartmentsMapModal({
   savedLocRef.current = savedLocation;
   savedLabelRef.current = savedLabel;
 
+  const areaRefreshKey =
+    savedLocation != null
+      ? `${savedLocation.lat}|${savedLocation.lng}|${savedLabel}`
+      : `none:${savedLabel}`;
+
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<GoogleMapInstance | null>(null);
   const markersRef = useRef<Array<{ setMap: (m: unknown) => void }>>([]);
@@ -232,7 +238,7 @@ export default function NearbyApartmentsMapModal({
           });
         };
 
-        /** Priority: navbar saved lat/lng → device GPS → geocode city/state → saved address */
+        /** Priority: saved lat/lng → device GPS → geocode city/state → saved address */
         const resolveAnchor = async (): Promise<{
           pos: { lat: number; lng: number } | null;
           message: string;
@@ -243,8 +249,8 @@ export default function NearbyApartmentsMapModal({
             return {
               pos: { lat: sl.lat, lng: sl.lng },
               message: navLabel
-                ? `Area: ${navLabel} (from navbar). Blue pin = your location; map pins = listings in this region.`
-                : `Blue pin = your saved navbar location. Other pins = nearby listings.`,
+                ? `Area: ${navLabel}. Blue pin = your selected area; map pins = listings in this region.`
+                : `Blue pin = your saved area. Other pins = nearby listings.`,
             };
           }
 
@@ -264,7 +270,7 @@ export default function NearbyApartmentsMapModal({
             return {
               pos: gpsPos,
               message:
-                "Using device location (blue pin). Set city & state in the navbar to filter listings to that area.",
+                "Using device location (blue pin). Set city & state above to filter listings to that area.",
             };
           }
 
@@ -284,7 +290,7 @@ export default function NearbyApartmentsMapModal({
             if (g) {
               return {
                 pos: g,
-                message: "Using your saved address from the navbar to find nearby listing pins.",
+                message: "Using your saved address to find nearby listing pins.",
               };
             }
           }
@@ -292,7 +298,7 @@ export default function NearbyApartmentsMapModal({
           return {
             pos: null,
             message:
-              "Set your location in the navbar to show only nearby listings. Showing all pins across India.",
+              "Set your area above to show only nearby listings. Showing all pins across India.",
           };
         };
 
@@ -310,7 +316,7 @@ export default function NearbyApartmentsMapModal({
 
         if (data.length > 0) {
           if (serverAreaScoped) {
-            // Server already returned listings whose address matches navbar city/state
+            // Server already returned listings whose address matches saved city/state
             plotListings = data;
             filterNote = ` Showing ${plotListings.length} with map pins whose address includes ${areaDesc}.`;
           } else if (anchorPos) {
@@ -322,13 +328,13 @@ export default function NearbyApartmentsMapModal({
               sl?.state
             );
             if (plotListings.length === 0) {
-              filterNote = ` No listings with map pins within ~${NEARBY_RADIUS_KM} km of ${areaDesc} (or whose address includes that city/state) in this dataset. Set city in the navbar to load that area from the server.`;
+              filterNote = ` No listings with map pins within ~${NEARBY_RADIUS_KM} km of ${areaDesc} (or whose address includes that city/state) in this dataset. Update your area above to load that region from the server.`;
             } else {
               filterNote = ` Showing ${plotListings.length} near ${areaDesc} (within ~${NEARBY_RADIUS_KM} km or matching city/state in the listing address).`;
             }
           } else {
             plotListings = data;
-            filterNote = ` Showing all ${data.length} listing(s) with pins — set your city in the navbar to load that area.`;
+            filterNote = ` Showing all ${data.length} listing(s) with pins — set your city above to load that area.`;
           }
         }
 
@@ -464,7 +470,7 @@ export default function NearbyApartmentsMapModal({
       markersRef.current = [];
       mapInstanceRef.current = null;
     };
-  }, [open]);
+  }, [open, areaRefreshKey]);
 
   if (!open || typeof document === "undefined") return null;
 
@@ -493,14 +499,15 @@ export default function NearbyApartmentsMapModal({
             <p className="text-[11px] sm:text-sm text-gray-600 mt-1 flex items-start gap-1.5">
               <Navigation className="w-3.5 h-3.5 mt-0.5 shrink-0 text-cyan-600" />
               <span>
-                Pins match your{" "}
-                <strong className="text-gray-800">navbar location</strong> (~{NEARBY_RADIUS_KM}{" "}
-                km or same city/state in the listing). Update the top bar to change area.
+                Pins follow your{" "}
+                <strong className="text-gray-800">saved area</strong> (~{NEARBY_RADIUS_KM}{" "}
+                km or same city/state in the listing). Use the fields below to change it.
               </span>
             </p>
             {userLabel && (
               <p className="text-xs text-blue-700 mt-2 font-medium line-clamp-3">{userLabel}</p>
             )}
+            <NavbarLocationPicker variant="modal" />
           </div>
           <button
             type="button"

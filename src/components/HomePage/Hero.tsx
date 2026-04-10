@@ -260,11 +260,11 @@ function Hero() {
                     {label ? (
                       <>
                         Focused around <strong className="font-semibold text-gray-800">{label}</strong>
-                        <span className="text-gray-500"> — matches your navbar location. Change it in the top bar anytime.</span>
+                        <span className="text-gray-500"> — open the map to change your search area anytime.</span>
                       </>
                     ) : (
                       <>
-                        Set your <strong className="font-semibold text-gray-800">city &amp; state</strong> in the navbar to focus the map, then open this to explore pins.
+                        Open the map and set your <strong className="font-semibold text-gray-800">city &amp; area</strong> there to focus pins, then explore listings on the map.
                       </>
                     )}
                   </span>
