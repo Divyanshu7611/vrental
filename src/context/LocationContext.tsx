@@ -95,7 +95,7 @@ export function LocationProvider({ children }: { children: ReactNode }) {
       (pos) => {
         void (async () => {
           try {
-            // User may have picked a place from the navbar while GPS was resolving
+            // User may have set a place (e.g. map/menu) while GPS was resolving
             if (loadStored()) return;
 
             await loadGoogleMapsPlaces();

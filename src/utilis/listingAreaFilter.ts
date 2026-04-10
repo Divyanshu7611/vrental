@@ -26,7 +26,7 @@ export type ListingWithCoords = {
 
 /**
  * Keep listings near `center` within `radiusKm`, or whose address text mentions
- * the same city/state (navbar selection) for edge cases slightly outside the circle.
+ * the same city/state (saved area selection) for edge cases slightly outside the circle.
  */
 export function filterListingsNearArea<T extends ListingWithCoords>(
   listings: T[],

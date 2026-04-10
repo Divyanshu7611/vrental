@@ -11,7 +11,7 @@ export default function NavbarLocationPicker({
   variant = "desktop",
   dropdownAlign = "left",
 }: {
-  variant?: "desktop" | "sidebar";
+  variant?: "desktop" | "sidebar" | "modal";
   /** When the trigger sits on the right side of the navbar, align the panel to the right. */
   dropdownAlign?: "left" | "right";
 }) {
@@ -59,11 +59,17 @@ export default function NavbarLocationPicker({
 
   const display = label || "City, State";
 
-  if (variant === "sidebar") {
+  if (variant === "sidebar" || variant === "modal") {
+    const wrapClass =
+      variant === "sidebar"
+        ? "mb-6 pb-4 border-b border-gray-100"
+        : "mt-3 rounded-xl border border-gray-200 bg-gray-50/90 p-3 sm:p-4";
+    const title =
+      variant === "sidebar" ? "Your location" : "Update your area";
     return (
-      <div className="mb-6 pb-4 border-b border-gray-100">
+      <div className={wrapClass}>
         <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">
-          Your location
+          {title}
         </p>
         <div className="mb-2 flex items-center gap-2 text-black">
           <MapPin className="h-4 w-4 shrink-0" strokeWidth={2.25} />
@@ -75,7 +81,7 @@ export default function NavbarLocationPicker({
           onChange={setInputValue}
           onPlaceSelected={onPlaceSelected}
           placeholder="Search city or area…"
-          className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+          className="w-full px-3 py-2.5 text-sm border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none bg-white"
         />
         <button
           type="button"

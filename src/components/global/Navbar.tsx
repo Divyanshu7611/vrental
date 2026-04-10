@@ -89,7 +89,7 @@ export default function Navbar() {
       {/* ✅ PROMOTIONAL BANNER FOR OWNERS */}
       {isToken && userContext?.userAuthData?.role === "OWNER" && (
         <div className="fixed top-0 left-0 right-0 z-[60] bg-gradient-to-r from-blue-600 via-blue-700 to-blue-600 overflow-hidden shadow-lg border-b-2 border-yellow-400">
-          <div className="relative py-2.5 px-4">
+          <div className="relative py-2 px-4 sm:py-2.5">
             <div className="flex items-center justify-center gap-2 text-xs sm:text-sm">
               <MdOutlineLocalOffer className="text-yellow-300 w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
               <span className="text-white font-medium">
@@ -113,11 +113,11 @@ export default function Navbar() {
         className={`fixed z-50 left-1/2 -translate-x-1/2 transition-all duration-300 ease-in-out
         ${
           isScrolled
-            ? `${isToken && userContext?.userAuthData?.role === "OWNER" ? "top-10" : "top-0"} w-full rounded-t-none rounded-b-3xl px-3 lg:px-10 py-3 bg-white/90 backdrop-blur-xl shadow-lg`
-            : `${isToken && userContext?.userAuthData?.role === "OWNER" ? "top-14" : "top-4"} w-[95%] lg:w-[80%] rounded-full px-3 lg:px-8 bg-white/70 backdrop-blur-xl shadow-md`
+            ? `${isToken && userContext?.userAuthData?.role === "OWNER" ? "top-10" : "top-0"} w-full rounded-t-none rounded-b-3xl px-2.5 sm:px-3 lg:px-10 py-2 sm:py-2.5 lg:py-3 bg-white/90 backdrop-blur-xl shadow-lg`
+            : `${isToken && userContext?.userAuthData?.role === "OWNER" ? "top-[3.25rem] sm:top-14" : "top-2 sm:top-4"} w-[95%] lg:w-[80%] rounded-full px-2.5 sm:px-3 lg:px-8 bg-white/70 backdrop-blur-xl shadow-md`
         }`}
       >
-        <div className="flex justify-between items-center gap-2">
+        <div className="flex justify-between items-center gap-1.5 sm:gap-2 min-h-0">
           {/* Logo */}
           <div className="shrink-0">
             <Link href="/" className="block" aria-label="Vrental home">
@@ -126,20 +126,17 @@ export default function Navbar() {
                 alt="Vrental"
                 width={160}
                 height={60}
-                className="h-9 w-auto max-h-10 sm:h-10 object-contain cursor-pointer"
+                className="h-8 w-auto max-h-8 sm:h-10 sm:max-h-10 object-contain cursor-pointer"
               />
             </Link>
           </div>
 
-          {/* Mobile / tablet: location on the right + menu */}
-          <div className="flex lg:hidden items-center justify-end gap-2 min-w-0 flex-1">
-            <div className="hidden sm:block min-w-0 max-w-[min(42vw,11rem)] md:max-w-[13rem]">
-              <NavbarLocationPicker variant="desktop" dropdownAlign="right" />
-            </div>
+          {/* Mobile / tablet: notifications + menu */}
+          <div className="flex lg:hidden items-center justify-end gap-1 sm:gap-2 min-w-0 flex-1">
             {isToken && <NotificationDropdown />}
             <button
               type="button"
-              className="flex h-11 w-11 items-center justify-center rounded-full text-2xl text-gray-800 transition hover:bg-gray-100 active:scale-95"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xl text-gray-800 transition hover:bg-gray-100 active:scale-95 sm:h-10 sm:w-10 sm:text-2xl lg:h-11 lg:w-11"
               onClick={toggleSidebar}
               aria-expanded={isSidebarOpen}
               aria-controls="mobile-nav-drawer"
@@ -203,11 +200,8 @@ export default function Navbar() {
             </ul>
           </div>
 
-          {/* Desktop right: area + account */}
+          {/* Desktop right: account */}
           <div className="relative hidden lg:flex items-center gap-3 shrink-0">
-            <div className="min-w-0 max-w-[13rem] xl:max-w-[15rem]">
-              <NavbarLocationPicker variant="desktop" dropdownAlign="right" />
-            </div>
             {isToken ? (
               <div className="relative flex items-center">
                 <div className="flex items-center aspect-auto gap-3">
@@ -451,7 +445,17 @@ export default function Navbar() {
       </div>
 
       {/* ✅ Important: give space so content doesn't hide behind fixed navbar */}
-      <div className={`${isToken && userContext?.userAuthData?.role === "OWNER" ? (isScrolled ? "h-28" : "h-32") : (isScrolled ? "h-20" : "h-24")}`} />
+      <div
+        className={
+          isToken && userContext?.userAuthData?.role === "OWNER"
+            ? isScrolled
+              ? "h-[6.25rem] sm:h-28 lg:h-28"
+              : "h-[7rem] sm:h-32 lg:h-32"
+            : isScrolled
+              ? "h-[4.25rem] sm:h-20 lg:h-20"
+              : "h-[4.75rem] sm:h-24 lg:h-24"
+        }
+      />
     </div>
   );
 }
