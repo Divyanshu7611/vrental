@@ -1,7 +1,6 @@
 import User from "@/models/User";
 import { connectMongoDB } from "@/utilis/dbConnect";
-import bcrypt from "bcrypt";
-import { Underdog } from "next/font/google";
+import { hashPassword } from "@/utilis/passwordHash";
 import { NextRequest, NextResponse } from "next/server";
 
 export const dynamic = "force-dynamic";
@@ -35,7 +34,7 @@ export async function POST(request: NextRequest) {
         { status: 402 }
       );
     }
-    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    const hashedPassword = await hashPassword(newPassword, 10);
     user.password = hashedPassword;
     user.resetToken = undefined;
     user.resetTokenExpires = undefined;

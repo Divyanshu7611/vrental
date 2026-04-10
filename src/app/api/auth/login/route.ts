@@ -1,10 +1,8 @@
-import { Request, Response } from "express";
 import { connectMongoDB } from "@/utilis/dbConnect";
 import User from "@/models/User";
-import bcrypt from "bcrypt";
+import { comparePassword } from "@/utilis/passwordHash";
 import jwt from "jsonwebtoken";
 import { NextRequest, NextResponse } from "next/server";
-import { Cookie } from "next/font/google";
 
 export const dynamic = "force-dynamic";
 
@@ -42,7 +40,7 @@ export async function POST(NextRequest: NextRequest) {
     }
 
     // Compare password and generate token
-    if (await bcrypt.compare(password, existingUser.password)) {
+    if (await comparePassword(password, existingUser.password)) {
       const payload = {
         email: existingUser.email,
         id: existingUser._id,
