@@ -19,7 +19,6 @@ import {
 import {
   MIN_REFERRAL_WITHDRAWAL_POINTS,
   POINTS_PER_APARTMENT_LISTING_REFERRAL,
-  POINTS_PER_SIGNUP_REFERRAL,
 } from "@/lib/referralConstants";
 
 interface ReferralStats {
@@ -357,16 +356,17 @@ export default function ReferralDashboard({ embedded = false }: ReferralDashboar
               <li className="flex items-start gap-2">
                 <span className="text-blue-600 mt-0.5">•</span>
                 <span>
-                  Someone signs up with your code: you earn {POINTS_PER_SIGNUP_REFERRAL} points (₹
-                  {POINTS_PER_SIGNUP_REFERRAL}).
+                  Referral reward points are earned <strong className="text-gray-800">only</strong> when an
+                  owner successfully publishes an apartment listing and enters your code on the listing
+                  form ({POINTS_PER_APARTMENT_LISTING_REFERRAL} points, ₹{POINTS_PER_APARTMENT_LISTING_REFERRAL}
+                  ). <strong className="text-gray-800">No points</strong> are awarded for registering a new
+                  user account alone.
                 </span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="text-blue-600 mt-0.5">•</span>
                 <span>
-                  An owner publishes a listing with your code: you earn{" "}
-                  {POINTS_PER_APARTMENT_LISTING_REFERRAL} points (₹{POINTS_PER_APARTMENT_LISTING_REFERRAL}
-                  ). They cannot use their own code.
+                  Listers cannot use their own referral code on a listing.
                 </span>
               </li>
               <li className="flex items-start gap-2">

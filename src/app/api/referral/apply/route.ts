@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectMongoDB } from "@/utilis/dbConnect";
 import User from "@/models/User";
 import jwt from "jsonwebtoken";
-import { POINTS_PER_SIGNUP_REFERRAL } from "@/lib/referralConstants";
 
 export const dynamic = "force-dynamic";
 
@@ -82,28 +81,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Update current user with referrer info
+    // Link referrer only; reward points are credited on apartment listing (see createEvent), not on signup.
     currentUser.referredBy = referrer._id.toString();
     await currentUser.save();
-
-    referrer.referralPoints += POINTS_PER_SIGNUP_REFERRAL;
-    referrer.referralEarnings += POINTS_PER_SIGNUP_REFERRAL;
-    referrer.referralHistory.push({
-      referredUserId: currentUser._id,
-      referredUserName: `${currentUser.firstName} ${currentUser.lastName}`,
-      pointsEarned: POINTS_PER_SIGNUP_REFERRAL,
-      date: new Date(),
-      source: "SIGNUP",
-    });
-    await referrer.save();
 
     return NextResponse.json(
       {
         success: true,
-        message: `Referral code applied successfully! ${referrer.firstName} earned ${POINTS_PER_SIGNUP_REFERRAL} points.`,
+        message:
+          "Referral code applied successfully. Referral reward points are earned only when an owner publishes an apartment listing using this code.",
         data: {
           referrerName: `${referrer.firstName} ${referrer.lastName}`,
-          pointsEarned: POINTS_PER_SIGNUP_REFERRAL,
+          pointsEarned: 0,
         },
       },
       { status: 200 }

@@ -61,7 +61,8 @@ export default function ReferralCodeInput({ onSuccess }: ReferralCodeInputProps)
         <div>
           <p className="font-semibold text-green-800">Referral Code Applied!</p>
           <p className="text-sm text-green-600">
-            The referrer will earn points when you complete registration.
+            The referrer earns reward points only if you publish an apartment listing using their code—not
+            from registration alone.
           </p>
         </div>
       </motion.div>
@@ -75,8 +76,8 @@ export default function ReferralCodeInput({ onSuccess }: ReferralCodeInputProps)
         <div className="flex-1">
           <h3 className="font-bold text-gray-800 mb-1">Have a Referral Code?</h3>
           <p className="text-sm text-gray-600">
-            Enter a friend&apos;s or owner&apos;s code. They earn points when you sign up or when you list a
-            property using their code (you cannot use your own code).
+            Enter a friend&apos;s or owner&apos;s code. They earn referral points only when you publish a
+            property listing using their code on the listing form (you cannot use your own code).
           </p>
         </div>
       </div>
