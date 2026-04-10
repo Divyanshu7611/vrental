@@ -132,7 +132,7 @@ function ProfilePageContent() {
           </div>
 
           {showReferralTabs && (
-            <div className="w-full border-b border-gray-200 bg-white/95 backdrop-blur-sm sticky top-[4.5rem] z-20 shadow-sm">
+            <div className="w-full border-b border-gray-200 bg-white shadow-sm">
               <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex gap-2 py-2">
                 <button
                   type="button"
