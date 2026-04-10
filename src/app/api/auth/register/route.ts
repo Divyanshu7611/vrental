@@ -1,7 +1,7 @@
 import { connectMongoDB } from "@/utilis/dbConnect";
 import User from "@/models/User";
 import { NextRequest, NextResponse } from "next/server";
-import bcrypt from "bcrypt";
+import { hashPassword } from "@/utilis/passwordHash";
 import { nanoid } from "nanoid";
 import OTP from "@/models/OTP";
 import mailerSender from "@/utilis/mailSender";
@@ -81,7 +81,7 @@ export async function POST(request: NextRequest) {
 
 
     // Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await hashPassword(password, 10);
 
     // Generate unique client ID
     const clientID = await generatingTharID();
