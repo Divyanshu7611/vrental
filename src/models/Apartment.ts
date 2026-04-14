@@ -28,9 +28,9 @@ export interface IApartment extends Document {
   paymentStatus: string;
   txnID: string;
   paymentDate: Date;
-  paymentAmount: number;
+  paymentAmount?: number;
   memberShipExpiry: Date;
-  membershipDuration: number;
+  membershipDuration?: number;
   deactivatedAt?: Date;
   deactivationReason?: string;
 }
@@ -101,7 +101,7 @@ const apartmentSchema: Schema = new Schema<IApartment>({
   },
   status: {
     type: String,
-    enum: ["Not Available For Rent", "Available For Rent", "Deactivated"],
+    enum: ["Draft", "Not Available For Rent", "Available For Rent", "Deactivated"],
     default: "Available For Rent",
   },
   deactivatedAt: {
@@ -139,14 +139,12 @@ const apartmentSchema: Schema = new Schema<IApartment>({
   },
   paymentAmount: {
     type: Number,
-    required: true,
   },
   memberShipExpiry: {
     type: Date,
   },
   membershipDuration: {
     type: Number,
-    required: true,
   },
 });
 

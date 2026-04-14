@@ -116,6 +116,33 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
     onChangeRef.current(e.target.value);
   };
 
+  const resolveGoogleMapsUrl = useCallback(async (raw: string) => {
+    const s = raw.trim();
+    const lower = s.toLowerCase();
+    const isUrl =
+      lower.includes("maps.app.goo.gl/") ||
+      lower.includes("google.com/maps") ||
+      lower.includes("goo.gl/maps") ||
+      lower.includes("maps.google.com");
+    if (!isUrl) return;
+
+    try {
+      const res = await fetch("/api/maps/resolve", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ url: s }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data?.success || !data?.data) return;
+
+      const placeData: ParsedPlace = data.data;
+      onChangeRef.current(placeData.fullAddress || placeData.formattedAddress || "");
+      onPlaceSelectedRef.current(placeData);
+    } catch (e) {
+      console.error("Failed to resolve maps url:", e);
+    }
+  }, []);
+
   return (
     <div className="relative w-full min-w-0">
       {!hideIcon && (
@@ -128,6 +155,13 @@ const GooglePlacesAutocomplete: React.FC<GooglePlacesAutocompleteProps> = ({
         type="text"
         value={value}
         onChange={handleInputChange}
+        onPaste={(e) => {
+          const text = e.clipboardData.getData("text");
+          if (text) void resolveGoogleMapsUrl(text);
+        }}
+        onBlur={() => {
+          if (value) void resolveGoogleMapsUrl(value);
+        }}
         placeholder={placeholder}
         className={
           hideIcon
