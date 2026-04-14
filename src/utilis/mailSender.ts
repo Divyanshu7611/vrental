@@ -108,7 +108,10 @@ const mailerSender = async ({ email, title, body, text }: EmailOptions) => {
     if (error instanceof Error) {
       console.error("Error details:", error.message);
     }
-    throw new Error("Failed To Send Email");
+    // Preserve the underlying reason so API routes can return a useful message.
+    const details =
+      error instanceof Error && error.message ? `: ${error.message}` : "";
+    throw new Error(`Failed To Send Email${details}`);
   }
 };
 

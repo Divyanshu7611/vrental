@@ -68,7 +68,7 @@ export async function POST(request: NextRequest) {
     console.error("OTP route error:", error);
     const message =
       error instanceof Error && error.message.includes("Failed To Send Email")
-        ? "Could not send email. Check server mail settings (Brevo / SMTP)."
+        ? error.message
         : "Could not send OTP. Please try again later.";
     return NextResponse.json({ success: false, message }, { status: 502 });
   }
