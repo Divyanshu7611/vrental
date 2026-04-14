@@ -63,6 +63,7 @@ jobs:
           key_path: private_key.pem
           source: "."
           target: "/home/ubuntu/vrental"
+          exclude: "private_key.pem,node_modules,.git"
 
       # 6. Restart app on EC2 (NO BUILD HERE)
       
