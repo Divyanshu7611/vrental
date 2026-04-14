@@ -51,8 +51,8 @@ jobs:
       # Create PEM file from secret
       - name: Create SSH key
         run: |
-          echo "${{ secrets.EC2_KEY }}" > private_key.pem
-          chmod 600 private_key.pem    
+          echo "${{ secrets.EC2_KEY }}" > /tmp/private_key.pem
+          chmod 600 /tmp/private_key.pem    
 
       # 5. Copy project to EC2
       - name: Copy files to EC2
@@ -60,8 +60,8 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
-          key_path: private_key.pem
-          source: "."
+          key_path: /tmp/private_key.pem
+          source: "./*"
           target: "/home/ubuntu/vrental"
           exclude: "private_key.pem,node_modules,.git"
 
@@ -72,7 +72,7 @@ jobs:
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
-          key_path: private_key.pem
+          key_path: /tmp/private_key.pem
           script: |
             cd /home/ubuntu/vrental
             npm install --production
