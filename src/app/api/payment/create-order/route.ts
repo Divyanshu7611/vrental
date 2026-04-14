@@ -1,7 +1,15 @@
+import { createHash } from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import Razorpay from "razorpay";
 
 export const dynamic = "force-dynamic";
+
+/** Razorpay requires receipt length ≤ 40 (alphanumeric recommended). */
+function razorpayReceipt(apartmentID: string, userID: string): string {
+  const raw = `${apartmentID}:${userID}:${Date.now()}:${Math.random()}`;
+  const suffix = createHash("sha256").update(raw).digest("hex").slice(0, 37);
+  return `v${suffix}`;
+}
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID!,
@@ -26,7 +34,7 @@ export async function POST(req: NextRequest) {
     const options = {
       amount: amount * 100, // Convert to paise
       currency: "INR",
-      receipt: `receipt_${apartmentID}_${Date.now()}`,
+      receipt: razorpayReceipt(String(apartmentID), String(userID)),
       notes: {
         apartmentID,
         userID,

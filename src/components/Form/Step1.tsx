@@ -132,6 +132,8 @@ const Step1: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const paymentStepDraftTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const paymentStepDraftInFlight = useRef(false);
+  /** Skip redundant silent saves (same payload as last successful silent save). */
+  const lastSilentDraftSignature = useRef<string | null>(null);
 
   const nextStep = () => step < totalSteps && setStep(step + 1);
   const prevStep = () => step > 1 && setStep(step - 1);
@@ -279,6 +281,33 @@ const Step1: React.FC = () => {
 
     selectedImages.forEach((file) => fd.append("image", file));
 
+    let silentSignature: string | null = null;
+    if (silent) {
+      silentSignature = JSON.stringify({
+        apartmentName: formData.apartmentName,
+        description: formData.description,
+        price: formData.price,
+        contactNo: formData.contactNo,
+        facility: facilities.join(", "),
+        furniture: furnitures.join(", "),
+        location: `${localAddress}, ${city}, ${state}, ${pincode}`,
+        availableFor: formData.availableFor,
+        category: formData.category,
+        mapLat,
+        mapLng,
+        planAmount,
+        planDuration,
+        existingImageUrls,
+        newFiles: selectedImages.map((f) => `${f.name}:${f.size}:${f.lastModified}`),
+      });
+      if (
+        silentSignature === lastSilentDraftSignature.current &&
+        (effectiveDraftId || draftId)
+      ) {
+        return String(effectiveDraftId || draftId);
+      }
+    }
+
     const res = await axios.post(`/api/aparment/draft?id=${userContext?.userAuthData?._id}`, fd, {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -297,10 +326,19 @@ const Step1: React.FC = () => {
       /* ignore */
     }
     if (Array.isArray(res.data.data.image_urls)) {
-      setExistingImageUrls(res.data.data.image_urls);
+      const next = res.data.data.image_urls as string[];
+      setExistingImageUrls((prev) => {
+        if (prev.length === next.length && prev.every((url, i) => url === next[i])) {
+          return prev;
+        }
+        return next;
+      });
     }
     if (clearSelectedFiles) {
       setSelectedImages([]);
+    }
+    if (silent && silentSignature) {
+      lastSilentDraftSignature.current = silentSignature;
     }
     if (!silent) {
       toast.success("Draft saved — you can continue payment anytime from your profile.");
@@ -347,6 +385,7 @@ const Step1: React.FC = () => {
   useEffect(() => {
     if (step !== 4) {
       paymentStep4Bootstrapped.current = false;
+      lastSilentDraftSignature.current = null;
     }
   }, [step]);
 
@@ -377,7 +416,7 @@ const Step1: React.FC = () => {
       clearTimeout(paymentStepDraftTimer.current);
     }
 
-    paymentStepDraftTimer.current = setTimeout(runSave, 500);
+    paymentStepDraftTimer.current = setTimeout(runSave, 1500);
 
     return () => {
       if (paymentStepDraftTimer.current) {
