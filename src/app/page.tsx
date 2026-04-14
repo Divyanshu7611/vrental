@@ -14,6 +14,7 @@ import { Star, MapPin, Tag, Home as HomeIcon } from "lucide-react";
 import { MdBedroomParent, MdApartment, MdGroups, MdHotel, MdPeople, MdStorefront } from "react-icons/md";
 import { BsBuilding, BsHouseDoor } from "react-icons/bs";
 import { FaUsers } from "react-icons/fa";
+import { sortApartmentsForPublicList } from "@/utilis/apartmentListSort";
 
 interface Apartment {
   _id: string;
@@ -23,6 +24,7 @@ interface Apartment {
   location: string;
   image_urls: string[];
   averageRating: number;
+  categoryFeaturedOrder?: number;
 }
 
 const categories = [
@@ -77,9 +79,7 @@ function Home() {
         `/api/aparment/getApartment?category=${category}`
       );
 
-      const sortedData = response.data.data.sort(
-        (a: Apartment, b: Apartment) => b.averageRating - a.averageRating
-      );
+      const sortedData = sortApartmentsForPublicList(response.data.data as Apartment[]);
 
       // Store data in cache
       setCategoryData((prev) => ({

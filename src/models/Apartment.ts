@@ -33,6 +33,8 @@ export interface IApartment extends Document {
   membershipDuration?: number;
   deactivatedAt?: Date;
   deactivationReason?: string;
+  /** Lower = earlier in category listings. Default bucket 1_000_000 = automatic sort. */
+  categoryFeaturedOrder?: number;
 }
 
 const apartmentSchema: Schema = new Schema<IApartment>({
@@ -145,6 +147,10 @@ const apartmentSchema: Schema = new Schema<IApartment>({
   },
   membershipDuration: {
     type: Number,
+  },
+  categoryFeaturedOrder: {
+    type: Number,
+    default: 1_000_000,
   },
 });
 

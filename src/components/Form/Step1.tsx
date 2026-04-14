@@ -1421,7 +1421,7 @@ const Step1: React.FC = () => {
                 } else if (category === "FLAT") {
                   // Flats / Apartments pricing
                   plans = [
-                    { name: "1 Month", value: "1month", duration: 1, price: 1, originalPrice: 398, savings: "Save 50%" },
+                    { name: "1 Month", value: "1month", duration: 1, price: 199, originalPrice: 398, savings: "Save 50%" },
                     { name: "3 Months", value: "3months", duration: 3, price: 399, originalPrice: 798, savings: "Save 50%" },
                     { name: "6 Months", value: "6months", duration: 6, price: 599, originalPrice: 1198, savings: "Save 50%" },
                   ];

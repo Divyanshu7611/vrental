@@ -111,6 +111,9 @@ const getIcon = (item: string, type: "facility" | "furniture"): React.ReactNode 
 
 const ApartmentDetails: React.FC<ApartmentDetailsProps> = ({ data, ownerData, contactNo }:any) => {
   const router = useRouter();
+  const resolvedApartmentId = String(
+    data._id ?? (data as { id?: string }).id ?? ""
+  ).trim();
   // Split the facility string into an array
   const facilityList = data.facility.split(", ");
   const furnitureList = data.furniture.split(", ");
@@ -353,7 +356,7 @@ const ApartmentDetails: React.FC<ApartmentDetailsProps> = ({ data, ownerData, co
               _id: ownerData?._id || (typeof data.ownerID === 'object' ? data.ownerID.$oid : data.ownerID) || ownerData?._id,
             }}
             contactNo={data.contactNo}
-            apartmentID={data._id}
+            apartmentID={resolvedApartmentId || undefined}
             apartmentName={data.apartmentName}
           />
         </div>

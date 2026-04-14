@@ -1,6 +1,7 @@
 import Apartment from "@/models/Apartment";
 import { NextRequest, NextResponse } from "next/server";
 import { connectMongoDB } from "@/utilis/dbConnect";
+import { sortApartmentsForPublicList } from "@/utilis/apartmentListSort";
 
 export const dynamic = "force-dynamic";
 
@@ -22,13 +23,21 @@ export async function GET(req: NextRequest) {
       category: category,
       paymentStatus: "Verified",
       status: { $ne: "Deactivated" }, // Exclude deactivated apartments
-    });
+    }).lean();
+
+    const sorted = sortApartmentsForPublicList(
+      apartments as {
+        categoryFeaturedOrder?: number;
+        averageRating?: number;
+        _id?: string;
+      }[]
+    );
 
     return NextResponse.json(
       {
         success: true,
         message: "Verified Apartments Fetched Successfully",
-        data: apartments,
+        data: sorted,
       },
       { status: 200 }
     );

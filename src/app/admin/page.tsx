@@ -1,9 +1,10 @@
 "use client";
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useMemo } from "react";
 import { UserContext } from "@/context/UserContext";
 import { useRouter } from "next/navigation";
 import axios from "axios";
 import { toast } from "sonner";
+import { DEFAULT_CATEGORY_ORDER } from "@/utilis/apartmentListSort";
 import {
   Users,
   Home,
@@ -50,6 +51,7 @@ interface User {
 interface Apartment {
   _id: string;
   apartmentName: string;
+  categoryFeaturedOrder?: number;
   ownerID: {
     _id: string;
     firstName: string;
@@ -122,6 +124,8 @@ export default function AdminDashboard() {
   });
 
   const [apartments, setApartments] = useState<Apartment[]>([]);
+  const [listingOrderCategory, setListingOrderCategory] = useState("");
+  const [orderDraft, setOrderDraft] = useState<Record<string, string>>({});
   const [users, setUsers] = useState<User[]>([]);
   const [withdrawals, setWithdrawals] = useState<WithdrawalRequest[]>([]);
   const [expiringApartments, setExpiringApartments] = useState<Apartment[]>([]);
@@ -143,6 +147,66 @@ export default function AdminDashboard() {
 
     fetchAdminData();
   }, [userContext, router]);
+
+  const listingCategories = useMemo(
+    () => [...new Set(apartments.map((a) => a.category))].sort(),
+    [apartments]
+  );
+
+  const orderListApartments = useMemo(() => {
+    if (!listingOrderCategory) return [];
+    return apartments.filter(
+      (a) =>
+        a.category === listingOrderCategory &&
+        a.paymentStatus === "Verified" &&
+        a.status !== "Deactivated"
+    );
+  }, [apartments, listingOrderCategory]);
+
+  useEffect(() => {
+    if (!listingOrderCategory) {
+      setOrderDraft({});
+      return;
+    }
+    const next: Record<string, string> = {};
+    for (const a of apartments.filter(
+      (x) =>
+        x.category === listingOrderCategory &&
+        x.paymentStatus === "Verified" &&
+        x.status !== "Deactivated"
+    )) {
+      const v = a.categoryFeaturedOrder;
+      next[a._id] =
+        typeof v === "number" && v < DEFAULT_CATEGORY_ORDER ? String(v) : "";
+    }
+    setOrderDraft(next);
+  }, [listingOrderCategory, apartments]);
+
+  const saveListingOrder = async (apartmentId: string) => {
+    try {
+      const token = localStorage.getItem("token");
+      const raw = (orderDraft[apartmentId] ?? "").trim();
+      if (raw !== "") {
+        const n = Number.parseInt(raw, 10);
+        if (!Number.isFinite(n) || n < 1) {
+          toast.error("Enter a whole number ≥ 1, or clear the field for automatic order.");
+          return;
+        }
+      }
+      await axios.patch(
+        "/api/admin/apartments/priority",
+        raw === ""
+          ? { apartmentId, categoryFeaturedOrder: null }
+          : { apartmentId, categoryFeaturedOrder: Number.parseInt(raw, 10) },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success("Listing order saved");
+      fetchAdminData();
+    } catch (e: unknown) {
+      const err = e as { response?: { data?: { message?: string } } };
+      toast.error(err.response?.data?.message || "Failed to save listing order");
+    }
+  };
 
   const fetchAdminData = async () => {
     try {
@@ -435,6 +499,94 @@ export default function AdminDashboard() {
 
             {/* Apartments Tab */}
             {activeTab === "apartments" && (
+              <div className="space-y-8">
+              <div className="rounded-xl border border-amber-200 bg-amber-50/90 p-5 shadow-sm">
+                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                  <Home className="h-5 w-5 text-amber-700" />
+                  Category listing order (public pages)
+                </h3>
+                <p className="text-sm text-gray-600 mt-2 max-w-3xl">
+                  Pick a category, then assign a <strong>position</strong> for each verified listing.
+                  Lower numbers appear first on the category and home listings for that category.
+                  Clear the field and save to fall back to automatic ordering (rating, then recency).
+                </p>
+                <label className="mt-4 block text-sm font-medium text-gray-800">Category</label>
+                <select
+                  className="mt-1 block w-full max-w-md rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm shadow-sm focus:border-amber-500 focus:outline-none focus:ring-1 focus:ring-amber-500"
+                  value={listingOrderCategory}
+                  onChange={(e) => setListingOrderCategory(e.target.value)}
+                >
+                  <option value="">— Select category —</option>
+                  {listingCategories.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+                {listingOrderCategory ? (
+                  <>
+                    <p className="mt-3 text-sm text-gray-800">
+                      <span className="font-semibold">{orderListApartments.length}</span> active
+                      verified listing(s) in <span className="font-semibold">{listingOrderCategory}</span>.
+                      Recommended slot range:{" "}
+                      <span className="font-mono font-semibold text-amber-900">
+                        1 – {Math.max(1, orderListApartments.length)}
+                      </span>
+                      . Duplicates tie-break by rating, then id.
+                    </p>
+                    <div className="mt-4 overflow-x-auto rounded-lg border border-amber-100 bg-white">
+                      <table className="min-w-full divide-y divide-gray-200 text-sm">
+                        <thead className="bg-gray-50">
+                          <tr>
+                            <th className="px-4 py-2 text-left font-medium text-gray-600">Listing</th>
+                            <th className="px-4 py-2 text-left font-medium text-gray-600 w-40">
+                              Position (1 = top)
+                            </th>
+                            <th className="px-4 py-2 text-left font-medium text-gray-600 w-28">Save</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                          {orderListApartments.map((apt) => (
+                            <tr key={apt._id}>
+                              <td className="px-4 py-2">
+                                <div className="font-medium text-gray-900">{apt.apartmentName}</div>
+                                <div className="text-gray-500 text-xs truncate max-w-xs">
+                                  {apt.location}
+                                </div>
+                              </td>
+                              <td className="px-4 py-2">
+                                <input
+                                  type="text"
+                                  inputMode="numeric"
+                                  placeholder="auto"
+                                  className="w-full rounded-md border border-gray-300 px-2 py-1.5 text-sm"
+                                  value={orderDraft[apt._id] ?? ""}
+                                  onChange={(e) =>
+                                    setOrderDraft((p) => ({
+                                      ...p,
+                                      [apt._id]: e.target.value.replace(/\D/g, ""),
+                                    }))
+                                  }
+                                />
+                              </td>
+                              <td className="px-4 py-2">
+                                <button
+                                  type="button"
+                                  onClick={() => saveListingOrder(apt._id)}
+                                  className="rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-700"
+                                >
+                                  Save
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
+                ) : null}
+              </div>
+
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
@@ -523,6 +675,7 @@ export default function AdminDashboard() {
                     })}
                   </tbody>
                 </table>
+              </div>
               </div>
             )}
 

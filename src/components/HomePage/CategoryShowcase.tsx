@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import SmallCard from "../mini/SmallCard";
 import axios from "axios";
 import { useRouter } from "next/navigation";
+import { sortApartmentsForPublicList } from "@/utilis/apartmentListSort";
 
 interface Apartment {
   _id: string;
@@ -12,6 +13,7 @@ interface Apartment {
   location: string;
   image_urls: string[];
   averageRating: number;
+  categoryFeaturedOrder?: number;
 }
 
 const SkeletonCard = () => (
@@ -50,9 +52,7 @@ function CategoryShowcase({ categories }: { categories: string }) {
           router.push("/");
         }
 
-        const sortedData = response.data.data.sort(
-          (a: Apartment, b: Apartment) => b.averageRating - a.averageRating
-        );
+        const sortedData = sortApartmentsForPublicList(response.data.data as Apartment[]);
 
         setFilteredData(sortedData);
       } catch (error) {

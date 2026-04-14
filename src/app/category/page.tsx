@@ -21,6 +21,7 @@ import {
   Sparkles
 } from "lucide-react";
 import Spinner from "@/components/global/Spinner";
+import { sortApartmentsForPublicList } from "@/utilis/apartmentListSort";
 
 interface Flat {
   _id: string;
@@ -40,6 +41,7 @@ interface Flat {
   category: string;
   flexProp: string;
   averageRating: number;
+  categoryFeaturedOrder?: number;
 }
 
 const districtsOfRajasthan = [
@@ -98,9 +100,7 @@ export default function Page() {
           router.push("/");
         }
 
-        const sortedData = response.data.data.sort(
-          (a: Flat, b: Flat) => b.averageRating - a.averageRating
-        );
+        const sortedData = sortApartmentsForPublicList(response.data.data as Flat[]);
 
         setCategoryData(sortedData);
         setFilteredData(sortedData);
@@ -160,6 +160,8 @@ export default function Page() {
       filtered.sort((a, b) => b.price - a.price);
     } else if (sortOrder === "rating") {
       filtered.sort((a, b) => b.averageRating - a.averageRating);
+    } else {
+      filtered = sortApartmentsForPublicList(filtered);
     }
 
     if (filtered.length === 0) {

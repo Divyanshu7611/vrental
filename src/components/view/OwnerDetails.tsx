@@ -39,7 +39,7 @@ const OwnerDetails: React.FC<OwnerDetailsProps> = ({ data, contactNo, apartmentI
 
   const userContext = useContext(UserContext);
   const searchParams = useSearchParams();
-  const id = searchParams.get("apartmentID") || apartmentID;
+  const id = String(searchParams.get("apartmentID") || apartmentID || "").trim();
 
   const handleInterestedClick = async () => {
     if (isApplied) return;

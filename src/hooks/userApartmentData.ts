@@ -17,7 +17,17 @@ interface UserData {
   __v: number;
 }
 
+function toIdString(id: unknown): string {
+  if (id == null) return "";
+  if (typeof id === "string") return id;
+  if (typeof id === "object" && "$oid" in (id as object)) {
+    return String((id as { $oid: string }).$oid);
+  }
+  return String(id);
+}
+
 interface ApartmentData {
+  _id?: string;
   apartmentName: string;
   location: string;
   coordinates?: {
@@ -68,11 +78,11 @@ function useApartmentData(id: string | null) {
           return;
         }
 
-        const apartmentData = apartmentResponse.data.data;
-        const ownerID = apartmentData.ownerID;
+        const apartmentData = apartmentResponse.data.data as ApartmentData;
+        const ownerID = toIdString(apartmentData.ownerID);
 
         const ownerResponse = await axios.get<{ data: UserData }>(
-          `/api/auth/getUser?id=${ownerID}`
+          `/api/auth/getUser?id=${encodeURIComponent(ownerID)}`
         );
 
         setData({
