@@ -47,23 +47,31 @@ jobs:
     # Google Maps
           NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: ${{ secrets.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY }}
 
+
+      # Create PEM file from secret
+      - name: Create SSH key
+        run: |
+          echo "${{ secrets.EC2_KEY }}" > private_key.pem
+          chmod 600 private_key.pem    
+
       # 5. Copy project to EC2
       - name: Copy files to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_KEY }}
+          key_path: private_key.pem
           source: "."
           target: "/home/ubuntu/vrental"
 
       # 6. Restart app on EC2 (NO BUILD HERE)
+      
       - name: Restart app on EC2
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_KEY }}
+          key_path: private_key.pem
           script: |
             cd /home/ubuntu/vrental
             npm install --production
