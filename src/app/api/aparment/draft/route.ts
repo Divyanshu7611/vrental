@@ -96,6 +96,7 @@ export async function POST(req: NextRequest) {
     const longitude = formData.get("longitude");
 
     const imageFiles = formData.getAll("image") as File[];
+    const imageUrlsJson = (formData.get("image_urls") as string | null)?.trim() || null;
 
     if (imageFiles.length > 10) {
       return NextResponse.json(
@@ -104,9 +105,24 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    let baseImageUrls: string[] = [];
+    if (imageUrlsJson) {
+      try {
+        const parsed = JSON.parse(imageUrlsJson);
+        if (Array.isArray(parsed) && parsed.every((u) => typeof u === "string")) {
+          baseImageUrls = parsed;
+        }
+      } catch {
+        return NextResponse.json(
+          { success: false, message: "Invalid image_urls payload" },
+          { status: 400 }
+        );
+      }
+    }
+
     let image_urls: string[] | undefined = undefined;
     if (imageFiles.length > 0) {
-      image_urls = [];
+      image_urls = [...baseImageUrls];
       for (const imageFile of imageFiles) {
         const imageUrl = await uploadImage(imageFile, "VRENTAL");
         if (imageUrl) image_urls.push(imageUrl);
@@ -117,6 +133,9 @@ export async function POST(req: NextRequest) {
           { status: 400 }
         );
       }
+    } else if (imageUrlsJson) {
+      // Update ordering / keep existing URLs without uploading new files
+      image_urls = baseImageUrls;
     }
 
     const update: any = {

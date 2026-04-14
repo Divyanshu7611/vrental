@@ -1,5 +1,5 @@
 "use client";
-import React, { useContext, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { toast, ToastContainer } from "react-toastify";
 import axios from "axios";
@@ -84,6 +84,8 @@ const getIcon = (item: string, type: "facility" | "furniture"): React.ReactNode 
   return key ? iconMap[key] : null;
 };
 
+const LISTING_DRAFT_STORAGE_KEY = "vrental_listingDraftApartmentId";
+
 const Step1: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -97,8 +99,12 @@ const Step1: React.FC = () => {
     setValue,
   } = useForm<FormValues>({ mode: "onChange" });
   
-  const selectedCategory = watch("category");
-  const selectedAvailableFor = watch("availableFor");
+  const apartmentName = watch("apartmentName");
+  const description = watch("description");
+  const price = watch("price");
+  const contactNo = watch("contactNo");
+  const category = watch("category");
+  const availableFor = watch("availableFor");
 
   const [step, setStep] = useState(1);
   const totalSteps = 4;
@@ -124,6 +130,8 @@ const Step1: React.FC = () => {
   const [planDuration, setPlanDuration] = useState(0);
   const [loading, setLoading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const paymentStepDraftTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const paymentStepDraftInFlight = useRef(false);
 
   const nextStep = () => step < totalSteps && setStep(step + 1);
   const prevStep = () => step > 1 && setStep(step - 1);
@@ -136,7 +144,10 @@ const Step1: React.FC = () => {
   useEffect(() => {
     if (draftLoaded) return;
     const idFromQuery = searchParams.get("draftId");
-    if (!idFromQuery) {
+    const idFromStorage =
+      typeof window !== "undefined" ? localStorage.getItem(LISTING_DRAFT_STORAGE_KEY) : null;
+    const idToLoad = idFromQuery || idFromStorage;
+    if (!idToLoad) {
       setDraftLoaded(true);
       return;
     }
@@ -144,11 +155,12 @@ const Step1: React.FC = () => {
     (async () => {
       try {
         setLoading(true);
-        const res = await axios.get(`/api/aparment/profileApartment?id=${idFromQuery}`);
+        const res = await axios.get(`/api/aparment/profileApartment?id=${idToLoad}`);
         const apt = res.data?.data;
         if (!apt?._id) throw new Error("Draft not found");
 
         setDraftId(String(apt._id));
+        localStorage.setItem(LISTING_DRAFT_STORAGE_KEY, String(apt._id));
         setExistingImageUrls(Array.isArray(apt.image_urls) ? apt.image_urls : []);
         setValue("apartmentName", apt.apartmentName || "");
         setValue("description", apt.description || "");
@@ -183,6 +195,11 @@ const Step1: React.FC = () => {
       } catch (e) {
         console.error("Failed to load draft:", e);
         toast.error("Could not load draft. Please try again.");
+        try {
+          localStorage.removeItem(LISTING_DRAFT_STORAGE_KEY);
+        } catch {
+          /* ignore */
+        }
       } finally {
         setLoading(false);
         setDraftLoaded(true);
@@ -220,13 +237,22 @@ const Step1: React.FC = () => {
     return selectedImages.length > 0 || existingImageUrls.length > 0;
   }, [selectedImages.length, existingImageUrls.length]);
 
-  const saveDraft = async (): Promise<string> => {
+  const saveDraft = async (opts?: {
+    clearSelectedFiles?: boolean;
+    silent?: boolean;
+  }): Promise<string> => {
+    const clearSelectedFiles = opts?.clearSelectedFiles ?? false;
+    const silent = opts?.silent ?? false;
+
     const token = localStorage.getItem("token");
     if (!token) throw new Error("Please login again");
 
     const formData = watch();
     const fd = new FormData();
-    if (draftId) fd.append("draftId", draftId);
+    const effectiveDraftId =
+      draftId ||
+      (typeof window !== "undefined" ? localStorage.getItem(LISTING_DRAFT_STORAGE_KEY) : null);
+    if (effectiveDraftId) fd.append("draftId", effectiveDraftId);
 
     fd.append("apartmentName", formData.apartmentName);
     fd.append("description", formData.description);
@@ -246,6 +272,11 @@ const Step1: React.FC = () => {
     if (planAmount) fd.append("paymentAmount", String(planAmount));
     if (planDuration) fd.append("membershipDuration", String(planDuration));
 
+    // Preserve/merge existing uploaded image order when adding more images
+    if (existingImageUrls.length > 0) {
+      fd.append("image_urls", JSON.stringify(existingImageUrls));
+    }
+
     selectedImages.forEach((file) => fd.append("image", file));
 
     const res = await axios.post(`/api/aparment/draft?id=${userContext?.userAuthData?._id}`, fd, {
@@ -260,12 +291,124 @@ const Step1: React.FC = () => {
     }
     const newId = String(res.data.data._id);
     setDraftId(newId);
+    try {
+      localStorage.setItem(LISTING_DRAFT_STORAGE_KEY, newId);
+    } catch {
+      /* ignore */
+    }
     if (Array.isArray(res.data.data.image_urls)) {
       setExistingImageUrls(res.data.data.image_urls);
     }
-    setSelectedImages([]);
+    if (clearSelectedFiles) {
+      setSelectedImages([]);
+    }
+    if (!silent) {
+      toast.success("Draft saved — you can continue payment anytime from your profile.");
+    }
     return newId;
   };
+
+  const saveDraftRef = useRef(saveDraft);
+  saveDraftRef.current = saveDraft;
+
+  const canPersistDraftAtPaymentStep = useCallback(() => {
+    return (
+      !!userContext?.userAuthData?._id &&
+      !!apartmentName &&
+      !!contactNo &&
+      !!price &&
+      !!category &&
+      !!availableFor &&
+      !!localAddress &&
+      !!city &&
+      !!state &&
+      !!pincode &&
+      !!description &&
+      (selectedImages.length > 0 || existingImageUrls.length > 0)
+    );
+  }, [
+    userContext?.userAuthData?._id,
+    apartmentName,
+    contactNo,
+    price,
+    category,
+    availableFor,
+    localAddress,
+    city,
+    state,
+    pincode,
+    description,
+    selectedImages.length,
+    existingImageUrls.length,
+  ]);
+
+  const paymentStep4Bootstrapped = useRef(false);
+
+  useEffect(() => {
+    if (step !== 4) {
+      paymentStep4Bootstrapped.current = false;
+    }
+  }, [step]);
+
+  useEffect(() => {
+    if (!draftLoaded) return;
+    if (step !== 4) return;
+    if (!canPersistDraftAtPaymentStep()) return;
+
+    const runSave = () => {
+      if (paymentStepDraftInFlight.current) return;
+      paymentStepDraftInFlight.current = true;
+      void saveDraftRef
+        .current({ silent: true, clearSelectedFiles: false })
+        .catch((e) => {
+          console.error("Auto draft save failed:", e);
+        })
+        .finally(() => {
+          paymentStepDraftInFlight.current = false;
+        });
+    };
+
+    if (!paymentStep4Bootstrapped.current) {
+      paymentStep4Bootstrapped.current = true;
+      runSave();
+    }
+
+    if (paymentStepDraftTimer.current) {
+      clearTimeout(paymentStepDraftTimer.current);
+    }
+
+    paymentStepDraftTimer.current = setTimeout(runSave, 500);
+
+    return () => {
+      if (paymentStepDraftTimer.current) {
+        clearTimeout(paymentStepDraftTimer.current);
+      }
+    };
+  }, [
+    draftLoaded,
+    step,
+    canPersistDraftAtPaymentStep,
+    apartmentName,
+    description,
+    price,
+    contactNo,
+    category,
+    availableFor,
+    localAddress,
+    city,
+    state,
+    pincode,
+    mapLat,
+    mapLng,
+    facilities,
+    furnitures,
+    selectedImages,
+    existingImageUrls,
+    draftId,
+    planAmount,
+    planDuration,
+    selectedPlan,
+  ]);
 
   const handleAddFacility = () => {
     if (facilityInput && !facilities.includes(facilityInput)) {
@@ -345,7 +488,7 @@ const Step1: React.FC = () => {
     setIsProcessing(true);
 
     try {
-      const ensuredDraftId = await saveDraft();
+      const ensuredDraftId = await saveDraft({ silent: true, clearSelectedFiles: true });
       // Create Razorpay order
       const orderResponse = await axios.post("/api/payment/create-order", {
         amount: planAmount,
@@ -383,6 +526,11 @@ const Step1: React.FC = () => {
 
             if (verifyResponse.data.success) {
               localStorage.removeItem("pendingReferralCode");
+              try {
+                localStorage.removeItem(LISTING_DRAFT_STORAGE_KEY);
+              } catch {
+                /* ignore */
+              }
               toast.success("Payment successful! Your property is now listed.");
               router.push("/profile");
             } else {
@@ -594,15 +742,15 @@ const Step1: React.FC = () => {
                       type="button"
                       onClick={() => setValue("category", cat.value, { shouldValidate: true })}
                       className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all duration-200 ${
-                        selectedCategory === cat.value
+                        category === cat.value
                           ? "border-blue-600 bg-blue-50 shadow-md scale-105"
                           : "border-gray-300 bg-white hover:border-blue-400 hover:bg-blue-50/50"
                       }`}
                     >
-                      <div className={`mb-2 ${selectedCategory === cat.value ? "text-blue-600" : "text-gray-600"}`}>
+                      <div className={`mb-2 ${category === cat.value ? "text-blue-600" : "text-gray-600"}`}>
                         {cat.icon}
                       </div>
-                      <span className={`text-sm font-semibold ${selectedCategory === cat.value ? "text-blue-600" : "text-gray-700"}`}>
+                      <span className={`text-sm font-semibold ${category === cat.value ? "text-blue-600" : "text-gray-700"}`}>
                         {cat.label}
                       </span>
                     </button>
@@ -636,15 +784,15 @@ const Step1: React.FC = () => {
                       type="button"
                       onClick={() => setValue("availableFor", option.value, { shouldValidate: true })}
                       className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all duration-200 ${
-                        selectedAvailableFor === option.value
+                        availableFor === option.value
                           ? "border-blue-600 bg-blue-50 shadow-md scale-105"
                           : "border-gray-300 bg-white hover:border-blue-400 hover:bg-blue-50/50"
                       }`}
                     >
-                      <div className={`mb-2 ${selectedAvailableFor === option.value ? "text-blue-600" : "text-gray-600"}`}>
+                      <div className={`mb-2 ${availableFor === option.value ? "text-blue-600" : "text-gray-600"}`}>
                         {option.icon}
                       </div>
-                      <span className={`text-sm font-semibold ${selectedAvailableFor === option.value ? "text-blue-600" : "text-gray-700"}`}>
+                      <span className={`text-sm font-semibold ${availableFor === option.value ? "text-blue-600" : "text-gray-700"}`}>
                         {option.label}
                       </span>
                     </button>
