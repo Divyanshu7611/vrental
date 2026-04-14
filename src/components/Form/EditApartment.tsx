@@ -115,6 +115,18 @@ const EditApartment: React.FC = () => {
 
   const [loading, setLoading] = useState(true);
   const [token, setToken] = useState<string | null>(null);
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+
+  const moveUrl = (from: number, to: number) => {
+    if (from === to) return;
+    setImageUrls((prev) => {
+      const copy = [...prev];
+      const [item] = copy.splice(from, 1);
+      copy.splice(to, 0, item);
+      return copy;
+    });
+  };
 
   const nextStep = () => step < totalSteps && setStep(step + 1);
   const prevStep = () => step > 1 && setStep(step - 1);
@@ -179,6 +191,9 @@ const EditApartment: React.FC = () => {
         setMapLng(apartment.coordinates.longitude);
       }
 
+      // Images (orderable)
+      setImageUrls(Array.isArray(apartment.image_urls) ? apartment.image_urls : []);
+
       setLoading(false);
     } catch (error) {
       console.error("Failed to fetch apartment:", error);
@@ -220,6 +235,9 @@ const EditApartment: React.FC = () => {
       
       formData.append("availableFor", data.availableFor);
       formData.append("category", data.category);
+
+      // Persist image ordering (no uploads in edit for now)
+      formData.append("image_urls", JSON.stringify(imageUrls));
 
       const response = await axios.put(
         `/api/aparment/updateApartments?id=${apartmentId}`,
@@ -559,8 +577,8 @@ const EditApartment: React.FC = () => {
                   setMapLat(location.lat);
                   setMapLng(location.lng);
                 }}
-                initialLat={mapLat || 26.9124}
-                initialLng={mapLng || 75.7873}
+                initialLat={mapLat}
+                initialLng={mapLng}
                 externalLat={mapLat}
                 externalLng={mapLng}
               />
@@ -589,6 +607,39 @@ const EditApartment: React.FC = () => {
         {step === 3 && (
           <>
             <h2 className="text-2xl font-bold mb-6">Edit Property Details</h2>
+
+            {imageUrls.length > 0 && (
+              <div className="mb-6">
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  Images (Drag to reorder)
+                </label>
+                <p className="text-xs text-gray-500 mb-3">
+                  The first image will be used as the cover image.
+                </p>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                  {imageUrls.map((url, index) => (
+                    <div
+                      key={url + index}
+                      draggable
+                      onDragStart={() => setDragIndex(index)}
+                      onDragOver={(e) => e.preventDefault()}
+                      onDrop={() => {
+                        if (dragIndex == null) return;
+                        moveUrl(dragIndex, index);
+                        setDragIndex(null);
+                      }}
+                      className="relative aspect-square rounded-lg overflow-hidden border-2 border-gray-200 shadow-sm hover:shadow-md transition-shadow cursor-move"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={url} alt={`Image ${index + 1}`} className="w-full h-full object-cover" />
+                      <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white text-xs py-1 px-2 text-center">
+                        Image {index + 1}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="mb-6">
               <label className="block text-sm font-semibold text-gray-700 mb-2">

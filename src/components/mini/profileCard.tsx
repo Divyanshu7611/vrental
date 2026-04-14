@@ -66,6 +66,11 @@ const ProfileCard: React.FC<ICardDetails> = ({
 
   // handle edit fucntion
   const handleEdit = async (id: string) => {
+    // If payment is pending, send user to continue payment in listing flow.
+    if (paymentStatus && paymentStatus.toLowerCase() === "pending") {
+      window.location.href = `/list-apartment?draftId=${id}`;
+      return;
+    }
     window.location.href = `/edit?id=${id}`;
   };
   return (
@@ -131,7 +136,7 @@ const ProfileCard: React.FC<ICardDetails> = ({
             onClick={() => handleEdit(id)}
           >
             <Edit2 className="w-4 h-4" />
-            Edit
+            {paymentStatus && paymentStatus.toLowerCase() === "pending" ? "Continue Payment" : "Edit"}
           </button>
           <button
             className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-red-50 text-red-600 rounded-lg font-medium hover:bg-red-100 transition-all duration-200 border border-red-200"

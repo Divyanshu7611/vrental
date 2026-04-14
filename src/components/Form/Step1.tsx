@@ -1,759 +1,11 @@
-// type FormValues = {
-//   apartmentName: string;
-//   description: string;
-//   price: number;
-//   facility: string;
-//   location: string;
-//   images: FileList;
-//   category: string;
-//   availableFor: string;
-//   contactNo: number;
-//   furniture: string;
-//   txnID: string;
-//   membershipPlan?: string;
-//   planAmount?: number;
-// };
-
-// const Step1: React.FC = () => {
-//   const userContext = useContext(UserContext);
-//   useEffect(() => {
-//     const token = localStorage.getItem("token");
-//     console.log("Token:", token);
-//     if (!token) {
-//       window.location.href = "/auth";
-//     }
-//   }, []);
-
-//   const {
-//     register,
-//     handleSubmit,
-//     formState: { errors },
-//     reset,
-//     watch,
-//   } = useForm<FormValues>({ mode: "onChange" });
-//   const [selectedImages, setSelectedImages] = useState<File[]>([]);
-//   const [handleLoading, setLoading] = useState<boolean>(false);
-//   const [facilities, setFacilities] = useState<string[]>([]);
-//   const [furnitures, setFurniture] = useState<string[]>([]);
-
-//   const [facilityInput, setFacilityInput] = useState<string>("");
-//   const [furnitureInput, setFurnitureInput] = useState<string>("");
-//   const [localAddress, setLocalAddress] = useState<string>("");
-//   const [pincode, setPincode] = useState<string>("");
-//   const [city, setCity] = useState<string>("");
-//   const [state, setState] = useState<string>("");
-//   const [txnID, settxnID] = useState<string>("");
-
-//   const [payment, setPayment] = useState<boolean>(false);
-//   const [selectedPlan, setSelectedPlan] = useState<string>("");
-//   const [planAmount, setPlanAmount] = useState<number>(0);
-//   const watchAllFields = watch();
-//   const [isFormComplete, setIsFormComplete] = useState<boolean>(false);
-
-//   const router = useRouter();
-
-//   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-//     if (e.target.files) {
-//       const filesArray = Array.from(e.target.files).slice(0, 5); // limit to 5 files
-//       setSelectedImages(filesArray);
-//     }
-//   };
-
-//   const handleAddFacility = () => {
-//     if (facilityInput && !facilities.includes(facilityInput)) {
-//       setFacilities([...facilities, facilityInput]);
-//       setFacilityInput("");
-//     }
-//   };
-//   const handleAddFurniture = () => {
-//     if (furnitureInput && !furnitures.includes(furnitureInput)) {
-//       setFurniture([...furnitures, furnitureInput]);
-//       setFurnitureInput("");
-//     }
-//   };
-
-//   const handleRemoveFacility = (facility: string) => {
-//     setFacilities(facilities.filter((f) => f !== facility));
-//   };
-//   const handleRemoveFurniture = (furniture: string) => {
-//     setFurniture(furnitures.filter((f) => f !== furniture));
-//   };
-
-//   useEffect(() => {
-//     const checkFormCompleteness = () => {
-//       const isComplete =
-//         !!watchAllFields.apartmentName &&
-//         !!watchAllFields.description &&
-//         !!watchAllFields.price &&
-//         !!watchAllFields.contactNo &&
-//         !!watchAllFields.category &&
-//         !!watchAllFields.availableFor &&
-//         selectedImages.length > 0 &&
-//         facilities.length > 0 &&
-//         furnitures.length > 0 &&
-//         !!localAddress &&
-//         !!pincode &&
-//         !!city &&
-//         !!state;
-
-//       setIsFormComplete(isComplete);
-//     };
-
-//     checkFormCompleteness();
-//   }, [
-//     watchAllFields,
-//     selectedImages,
-//     facilities,
-//     furnitures,
-//     localAddress,
-//     pincode,
-//     city,
-//     state,
-//   ]);
-
-//   const onSubmit: SubmitHandler<FormValues> = async (data) => {
-//     const formData = new FormData();
-//     formData.append("apartmentName", data.apartmentName);
-//     formData.append("description", data.description);
-//     formData.append("price", data.price.toString());
-//     formData.append("contactNo", data.contactNo.toString());
-//     formData.append("facility", facilities.join(", "));
-//     formData.append("furniture", furnitures.join(", "));
-
-//     const fullLocation = `${localAddress}, ${city}, ${state}, ${pincode}`;
-//     formData.append("location", fullLocation);
-//     formData.append("availableFor", data.availableFor.toString());
-//     formData.append("category", data.category);
-//     formData.append("txnID", data.txnID);
-//     formData.append("membershipPlan", selectedPlan);
-//     formData.append("planAmount", planAmount.toString());
-
-//     selectedImages.forEach((file) => formData.append("image", file));
-//     formData.forEach((value, key) => {
-//       console.log(`${key}: ${value}`);
-//     });
-//     try {
-//       setLoading(true);
-//       const response = await axios.post(
-//         `/api/aparment/createEvent?id=${userContext?.userAuthData?._id}`,
-//         formData,
-//         {
-//           headers: {
-//             "Content-Type": "multipart/form-data",
-//           },
-//         }
-//       );
-//       if (response) {
-//         setLoading(false);
-//         toast.success("Apartment created successfully");
-//         reset(); // Reset the form
-
-//         // router.push("/test/success");
-//         router.push("/profile");
-//       } else toast.error("Something Went Error");
-//     } catch (error: any) {
-//       setLoading(false);
-//       toast.error("Something Went Wrong");
-//       console.log(error);
-//       console.error("Error:", error.response?.data || error.message);
-//     }
-//   };
-
-//   return (
-//     <form
-//       onSubmit={handleSubmit(onSubmit)}
-//       className="flex flex-col gap-5 px-6 py-8 sm:px-8 lg:px-12 bg-transparent"
-//     >
-//       {handleLoading ? (
-//         <div className="flex flex-col items-center justify-center min-h-screen">
-//           <div className="loader"></div>
-//         </div>
-//       ) : (
-//         <div className="flex items-center justify-center gap-5 max-w-[1200px] lg:mx-auto mx-5">
-//           {!payment && (
-//             <div className="flex flex-col items-center justify-center gap-5 max-w-[1200px] mx-auto">
-//               <div className="w-full bg-white rounded-xl p-6 sm:p-8 lg:p-10 shadow-xl">
-//                 <h1 className="mb-4 text-2xl font-bold">General Information</h1>
-//                 <div className="flex flex-col sm:flex-row sm:justify-between gap-6 w-full mt-4">
-//                   <label
-//                     className="w-full flex flex-col font-semibold"
-//                     htmlFor="apartmentName"
-//                   >
-//                     Apartment Name
-//                     <input
-//                       {...register("apartmentName", {
-//                         required: "Apartment name is required",
-//                       })}
-//                       className="border border-gray-300 rounded-lg px-4 py-2 font-normal bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-//                       placeholder="Raman Villa"
-//                     />
-//                     {errors.apartmentName && (
-//                       <p className="text-red-500 text-sm mt-1">
-//                         {errors.apartmentName.message}
-//                       </p>
-//                     )}
-//                   </label>
-//                   <label
-//                     className="w-full flex flex-col font-semibold"
-//                     htmlFor="contactNo"
-//                   >
-//                     Contact No
-//                     <input
-//                       type="number"
-//                       {...register("contactNo", {
-//                         required: "Contact number is required",
-//                       })}
-//                       className="border border-gray-300 rounded-lg px-4 py-2 font-normal bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-//                       placeholder="9854761278"
-//                     />
-//                     {errors.contactNo && (
-//                       <p className="text-red-500 text-sm mt-1">
-//                         {errors.contactNo.message}
-//                       </p>
-//                     )}
-//                   </label>
-
-//                   <label
-//                     htmlFor="price"
-//                     className="flex flex-col w-full font-semibold"
-//                   >
-//                     Rent/Month
-//                     <input
-//                       type="number"
-//                       {...register("price", { required: "Price is required" })}
-//                       className="border border-gray-300 rounded-lg px-4 py-2 font-normal bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-//                       placeholder="5000"
-//                     />
-//                     {errors.price && (
-//                       <p className="text-red-500 text-sm mt-1">
-//                         {errors.price.message}
-//                       </p>
-//                     )}
-//                   </label>
-//                 </div>
-//                 <fieldset className="flex flex-col mt-6 font-semibold">
-//                   <legend>Category</legend>
-//                   <div>
-//                     <div className="flex flex-col lg:flex-row gap-4 mt-2">
-//                       <label className="flex items-center gap-2 font-normal">
-//                         <input
-//                           type="radio"
-//                           value="ROOM"
-//                           className="bg-white"
-//                           {...register("category", {
-//                             required: "Category is required",
-//                           })}
-//                         />
-//                         ROOM
-//                       </label>
-//                       <label className="flex items-center gap-2 font-normal">
-//                         <input
-//                           type="radio"
-//                           value="PG"
-//                           className="bg-white"
-//                           {...register("category", {
-//                             required: "Category is required",
-//                           })}
-//                         />
-//                         PG
-//                       </label>
-//                       <label className="flex items-center gap-2 font-normal">
-//                         <input
-//                           type="radio"
-//                           value="HOSTEL"
-//                           className="bg-white"
-//                           {...register("category", {
-//                             required: "Category is required",
-//                           })}
-//                         />
-//                         HOSTEL
-//                       </label>
-//                       <label className="flex items-center gap-2 font-normal">
-//                         <input
-//                           type="radio"
-//                           value="CO-LIVING"
-//                           className="bg-white"
-//                           {...register("category", {
-//                             required: "Category is required",
-//                           })}
-//                         />
-//                         CO-LIVING
-//                       </label>
-//                       <label className="flex items-center gap-2 font-normal">
-//                         <input
-//                           type="radio"
-//                           value="FLAT"
-//                           className="bg-white"
-//                           {...register("category", {
-//                             required: "Category is required",
-//                           })}
-//                         />
-//                         FLAT
-//                       </label>
-//                       <label className="flex items-center gap-2 font-normal">
-//                         <input
-//                           type="radio"
-//                           value="SHOP"
-//                           className="bg-white"
-//                           {...register("category", {
-//                             required: "Category is required",
-//                           })}
-//                         />
-//                         SHOP
-//                       </label>
-//                     </div>
-//                   </div>
-
-//                   {errors.category && (
-//                     <p className="text-red-500 text-sm mt-1">
-//                       {errors.category.message}
-//                     </p>
-//                   )}
-//                   <div className="flex flex-col sm:flex-row sm:justify-between gap-6 w-full mt-4">
-//                     <label
-//                       className="w-full flex flex-col font-semibold"
-//                       htmlFor="LocalAddress"
-//                     >
-//                       Address
-//                       <input
-//                         value={localAddress}
-//                         onChange={(e) => setLocalAddress(e.target.value)}
-//                         className="border border-gray-300 rounded-lg px-4 py-2 font-normal bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-//                         placeholder="121 Chawani"
-//                         required
-//                       />
-//                     </label>
-//                     <label
-//                       className="w-full flex flex-col font-semibold"
-//                       htmlFor="pincode"
-//                     >
-//                       PinCode
-//                       <input
-//                         value={pincode}
-//                         onChange={(e) => setPincode(e.target.value)}
-//                         className="border border-gray-300 rounded-lg px-4 py-2 font-normal bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-//                         placeholder="302001"
-//                         required
-//                       />
-//                     </label>
-//                   </div>
-//                   <div className="flex flex-col sm:flex-row sm:justify-between gap-6 w-full mt-4">
-//                     <label
-//                       className="w-full flex flex-col font-semibold"
-//                       htmlFor="city"
-//                     >
-//                       City
-//                       <input
-//                         value={city}
-//                         onChange={(e) => setCity(e.target.value)}
-//                         className="border border-gray-300 rounded-lg px-4 py-2 font-normal bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-//                         placeholder="Jaipur"
-//                         required
-//                       />
-//                     </label>
-//                     <label
-//                       className="w-full flex flex-col font-semibold"
-//                       htmlFor="state"
-//                     >
-//                       State
-//                       <input
-//                         value={state}
-//                         onChange={(e) => setState(e.target.value)}
-//                         className="border border-gray-300 rounded-lg px-4 py-2 font-normal bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-//                         placeholder="Rajasthan"
-//                         required
-//                       />
-//                     </label>
-//                   </div>
-//                 </fieldset>
-//                 <div className="flex flex-col sm:flex-row sm:justify-between gap-6 w-full mt-4 font-semibold">
-//                   <label htmlFor="facility" className="flex flex-col w-full">
-//                     Electronics
-//                     <div className="flex items-center gap-2">
-//                       <select
-//                         value={facilityInput}
-//                         onChange={(e) => setFacilityInput(e.target.value)}
-//                         className="border border-gray-300 rounded-lg px-4 py-2 font-normal bg-white w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-//                       >
-//                         <option value="">Select a facility</option>
-//                         <option value="Television">Television</option>
-//                         <option value="Refrigerator">Refrigerator</option>
-//                         <option value="Micorwave">Micorwave</option>
-//                         <option value="Toaster">Toaster</option>
-//                         <option value="Oven">Oven</option>
-//                         <option value="Washing Machine">Washing Machine</option>
-//                         <option value="Air Conditioner">Air Conditioner</option>
-//                         <option value="Cooler">Cooler</option>
-//                         <option value="Fan">Fan</option>
-//                         <option value="Vacuum Cleaner">Vacuum Cleaner</option>
-//                         <option value="Wifi">Wifi</option>
-//                       </select>
-//                       <button
-//                         type="button"
-//                         onClick={handleAddFacility}
-//                         className="bg-blue-500 text-white px-4 py-2 rounded-lg"
-//                       >
-//                         Add
-//                       </button>
-//                     </div>
-//                     <div className="mt-2 flex flex-wrap max-w-[680px] mx-auto gap-1">
-//                       {facilities.map((facility, index) => (
-//                         <div
-//                           key={index}
-//                           className="bg-blue-200 text-blue-500 px-4 py-1 rounded-full flex items-center gap-2"
-//                         >
-//                           <span>{facility}</span>
-//                           <button
-//                             type="button"
-//                             onClick={() => handleRemoveFacility(facility)}
-//                             className="text-red-500 font-semibold"
-//                           >
-//                             &times;
-//                           </button>
-//                         </div>
-//                       ))}
-//                     </div>
-//                   </label>
-//                 </div>
-//                 {/* furniture */}
-//                 <div className="flex flex-col sm:flex-row sm:justify-between gap-6 w-full mt-4 font-semibold">
-//                   <label htmlFor="furniture" className="flex flex-col w-full">
-//                     Furniture
-//                     <div className="flex items-center gap-2">
-//                       <select
-//                         value={furnitureInput}
-//                         onChange={(e) => setFurnitureInput(e.target.value)}
-//                         className="border border-gray-300 rounded-lg px-4 py-2 font-normal bg-white w-full focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-//                       >
-//                         <option value="">Select a furniture</option>
-//                         <option value="Sofa">Sofa</option>
-//                         <option value="Bed">Bed</option>
-//                         <option value="Dining Table">Dinning Table</option>
-//                         <option value="Coffee & Tea Table">
-//                           Coffee & Tea Table
-//                         </option>
-//                         <option value="Dressing">Dressing</option>
-//                         <option value="Chair">Chair</option>
-//                         <option value="Bookshelf">Bookshelf</option>
-//                         <option value="Wardrobe">Wardrobe</option>
-//                         <option value="Desk">Desk</option>
-//                         <option value="TV Stand ">TV Stand </option>
-//                         <option value="Nightstand">Nightstand</option>
-//                         <option value="Study Table">Study Table</option>
-//                       </select>
-//                       <button
-//                         type="button"
-//                         onClick={handleAddFurniture}
-//                         className="bg-blue-500 text-white px-4 py-2 rounded-lg"
-//                       >
-//                         Add
-//                       </button>
-//                     </div>
-//                     <div className="mt-2 flex flex-wrap max-w-[680px] mx-auto gap-1">
-//                       {furnitures.map((furniture, index) => (
-//                         <div
-//                           key={index}
-//                           className="bg-blue-200 text-blue-500 px-4 py-1 rounded-full flex items-center gap-2"
-//                         >
-//                           <span>{furniture}</span>
-//                           <button
-//                             type="button"
-//                             onClick={() => handleRemoveFurniture(furniture)}
-//                             className="text-red-500 font-semibold"
-//                           >
-//                             &times;
-//                           </button>
-//                         </div>
-//                       ))}
-//                     </div>
-//                   </label>
-//                 </div>
-//                 <div className="flex flex-col mt-6 font-semibold">
-//                   <label htmlFor="availableFor">Available For</label>
-//                   <select
-//                     {...register("availableFor", {
-//                       required: "Available for is required",
-//                     })}
-//                     className="border border-gray-300 rounded-lg px-4 py-2 font-normal bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-//                   >
-//                     <option value="">Select an option</option>
-//                     <option value="Boys">Boys</option>
-//                     <option value="Girls">Girls</option>
-//                     <option value="Family">Family</option>
-//                     <option value="Couple">Couple</option>
-//                     <option value="Any">Any</option>
-//                   </select>
-//                   {errors.availableFor && (
-//                     <p className="text-red-500 text-sm mt-1">
-//                       {errors.availableFor.message}
-//                     </p>
-//                   )}
-//                 </div>
-
-//                 <div className="flex flex-col mt-6 font-semibold">
-//                   <label htmlFor="description">Description</label>
-//                   <textarea
-//                     {...register("description", {
-//                       required: "Description is required",
-//                       validate: (value) => {
-//                         const wordCount = value.trim().split(/\s+/).length;
-//                         return (
-//                           wordCount <= 500 ||
-//                           "Description cannot exceed 500 words"
-//                         );
-//                       },
-//                     })}
-//                     className="border border-gray-300 rounded-lg px-4 py-2 font-normal bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-//                     placeholder="A beautiful place to live in...(Maximum 500 words)"
-//                     rows={4}
-//                   ></textarea>
-//                   {errors.description && (
-//                     <p className="text-red-500 text-sm mt-1">
-//                       {errors.description.message}
-//                     </p>
-//                   )}
-//                 </div>
-//               </div>
-//               <div className="w-full bg-white rounded-xl p-6 sm:p-8 lg:p-10 shadow">
-//                 <h1 className="mb-4 text-2xl font-bold">Other Details</h1>
-
-//                 <div className="flex flex-col mt-6 font-semibold">
-//                   <label
-//                     htmlFor="images"
-//                     className="flex flex-col mt-4 font-semibold"
-//                   >
-//                     Upload Images
-//                     <input
-//                       type="file"
-//                       multiple
-//                       accept="image/*"
-//                       {...register("images", {
-//                         required: "Please upload images",
-//                         validate: {
-//                           lessThanFive: (files) =>
-//                             files.length <= 5 ||
-//                             "You can upload a maximum of 5 images",
-//                         },
-//                       })}
-//                       className="hidden"
-//                       id="image-upload"
-//                       onChange={handleImageChange}
-//                     />
-//                     <div className="image-upload-container border border-gray-400 rounded-lg flex items-center justify-center p-5 mt-2">
-//                       <label htmlFor="image-upload" className="cursor-pointer">
-//                         <div className="text-center">
-//                           <span className="text-red-500 text-4xl">+</span>
-//                           <p>You can add up to 5 photos</p>
-//                         </div>
-//                       </label>
-//                     </div>
-//                     {selectedImages.length > 0 && (
-//                       <div className="selected-images mt-2 flex flex-wrap gap-2">
-//                         {selectedImages.map((image, index) => (
-//                           <div key={index} className="inline-block p-1">
-//                             <img
-//                               src={URL.createObjectURL(image)}
-//                               alt={`selected ${index}`}
-//                               className="h-20 w-20 object-cover rounded-md"
-//                             />
-//                           </div>
-//                         ))}
-//                       </div>
-//                     )}
-//                     {errors.images && (
-//                       <p className="text-red-500">{errors.images.message}</p>
-//                     )}
-//                   </label>
-//                 </div>
-//               </div>
-
-//               <button
-//                 type="submit"
-//                 onClick={() => {
-//                   if (isFormComplete) {
-//                     setPayment(true);
-//                   } else {
-//                     toast.error("Please fill all required fields");
-//                   }
-//                 }}
-//                 className={`px-6 py-3 mt-4 rounded-lg font-semibold ${
-//                   isFormComplete
-//                     ? "bg-blue-500 text-white hover:bg-blue-600"
-//                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
-//                 }`}
-//                 disabled={!isFormComplete}
-//               >
-//                 Submit
-//               </button>
-//             </div>
-//           )}
-//           {payment && (
-//             <div className="flex flex-col items-center justify-center gap-5 border bg-white lg:p-10 md:p-10 p-5 rounded-xl text-black mx-auto">
-//               <h1 className="text-center font-semibold">
-//                 Choose Your Membership Plan
-//               </h1>
-
-//               {/* Membership Plans */}
-//               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-4xl">
-//                 <div
-//                   className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
-//                     selectedPlan === "1month"
-//                       ? "border-blue-500 bg-blue-50"
-//                       : "border-gray-300 hover:border-blue-300"
-//                   }`}
-//                   onClick={() => {
-//                     setSelectedPlan("1month");
-//                     setPlanAmount(99);
-//                   }}
-//                 >
-//                   <div className="text-center">
-//                     <h3 className="text-lg font-bold text-blue-600">1 Month</h3>
-//                     <div className="text-3xl font-bold text-gray-800 mt-2">
-//                       ₹99
-//                     </div>
-//                     <p className="text-sm text-gray-600 mt-1">Basic Plan</p>
-//                     <ul className="text-xs text-gray-600 mt-3 space-y-1">
-//                       <li>• Apartment listing for 1 month</li>
-//                       <li>• Basic support</li>
-//                       <li>• Standard features</li>
-//                     </ul>
-//                   </div>
-//                 </div>
-
-//                 <div
-//                   className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
-//                     selectedPlan === "6month"
-//                       ? "border-blue-500 bg-blue-50"
-//                       : "border-gray-300 hover:border-blue-300"
-//                   }`}
-//                   onClick={() => {
-//                     setSelectedPlan("6month");
-//                     setPlanAmount(499);
-//                   }}
-//                 >
-//                   <div className="text-center">
-//                     <h3 className="text-lg font-bold text-blue-600">
-//                       6 Months
-//                     </h3>
-//                     <div className="text-3xl font-bold text-gray-800 mt-2">
-//                       ₹499
-//                     </div>
-//                     <p className="text-sm text-gray-600 mt-1">Popular Plan</p>
-//                     <div className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full mt-1">
-//                       Save ₹95
-//                     </div>
-//                     <ul className="text-xs text-gray-600 mt-3 space-y-1">
-//                       <li>• Apartment listing for 6 months</li>
-//                       <li>• Priority support</li>
-//                       <li>• Enhanced features</li>
-//                     </ul>
-//                   </div>
-//                 </div>
-
-//                 <div
-//                   className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
-//                     selectedPlan === "12month"
-//                       ? "border-blue-500 bg-blue-50"
-//                       : "border-gray-300 hover:border-blue-300"
-//                   }`}
-//                   onClick={() => {
-//                     setSelectedPlan("12month");
-//                     setPlanAmount(999);
-//                   }}
-//                 >
-//                   <div className="text-center">
-//                     <h3 className="text-lg font-bold text-blue-600">
-//                       12 Months
-//                     </h3>
-//                     <div className="text-3xl font-bold text-gray-800 mt-2">
-//                       ₹999
-//                     </div>
-//                     <p className="text-sm text-gray-600 mt-1">Best Value</p>
-//                     <div className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded-full mt-1">
-//                       Save ₹189
-//                     </div>
-//                     <ul className="text-xs text-gray-600 mt-3 space-y-1">
-//                       <li>• Apartment listing for 12 months</li>
-//                       <li>• Premium support</li>
-//                       <li>• All features included</li>
-//                     </ul>
-//                   </div>
-//                 </div>
-//               </div>
-
-//               {selectedPlan && (
-//                 <div className="text-center">
-//                   <h2 className="text-xl font-semibold mb-4">
-//                     Pay ₹{planAmount} to Register Your Apartment
-//                   </h2>
-//                   <FixedQrCode amount={planAmount} />
-//                 </div>
-//               )}
-
-//               {!selectedPlan && (
-//                 <div className="text-center text-red-500 text-sm">
-//                   Please select a membership plan to continue
-//                 </div>
-//               )}
-//               <label
-//                 className="w-full flex flex-col font-semibold"
-//                 htmlFor="txnId"
-//               >
-//                 Transaction Id
-//                 <input
-//                   {...register("txnID", {
-//                     required: "txnID is required",
-//                   })}
-//                   className="border border-gray-300 rounded-lg px-4 py-2 font-normal bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-//                   placeholder="Transaction Id"
-//                 />
-//                 {errors.txnID && (
-//                   <p className="text-red-500 text-sm mt-1">
-//                     {errors.txnID.message}
-//                   </p>
-//                 )}
-//               </label>
-//               <button
-//                 type="submit"
-//                 disabled={!selectedPlan}
-//                 className={`px-6 py-3 mt-4 rounded-lg font-semibold w-full ${
-//                   selectedPlan
-//                     ? "bg-blue-500 text-white hover:bg-blue-600"
-//                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
-//                 }`}
-//               >
-//                 Submit
-//               </button>
-//               <button
-//                 type="button"
-//                 onClick={() => {
-//                   setPayment(false);
-//                 }}
-//                 className="bg-red-500 text-white px-6 py-3 mt-1 rounded-lg font-semibold hover:bg-blue-600 w-full"
-//               >
-//                 Back
-//               </button>
-//             </div>
-//           )}
-//         </div>
-//       )}
-//       <ToastContainer />
-//     </form>
-//   );
-// };
-
-// export default Step1;
-
-
-
 "use client";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { toast, ToastContainer } from "react-toastify";
 import axios from "axios";
 import "react-toastify/dist/ReactToastify.css";
 import { UserContext } from "@/context/UserContext";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import FixedQrCode from "../payment/FixedQrCode";
 import {
   FaTv,
@@ -834,6 +86,7 @@ const getIcon = (item: string, type: "facility" | "furniture"): React.ReactNode 
 
 const Step1: React.FC = () => {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const userContext = useContext(UserContext);
 
   const {
@@ -851,6 +104,9 @@ const Step1: React.FC = () => {
   const totalSteps = 4;
 
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [existingImageUrls, setExistingImageUrls] = useState<string[]>([]);
+  const [draftId, setDraftId] = useState<string | null>(null);
+  const [draftLoaded, setDraftLoaded] = useState(false);
   const [facilities, setFacilities] = useState<string[]>([]);
   const [furnitures, setFurniture] = useState<string[]>([]);
   const [facilityInput, setFacilityInput] = useState("");
@@ -877,10 +133,138 @@ const Step1: React.FC = () => {
     if (!token) window.location.href = "/auth";
   }, []);
 
+  useEffect(() => {
+    if (draftLoaded) return;
+    const idFromQuery = searchParams.get("draftId");
+    if (!idFromQuery) {
+      setDraftLoaded(true);
+      return;
+    }
+
+    (async () => {
+      try {
+        setLoading(true);
+        const res = await axios.get(`/api/aparment/profileApartment?id=${idFromQuery}`);
+        const apt = res.data?.data;
+        if (!apt?._id) throw new Error("Draft not found");
+
+        setDraftId(String(apt._id));
+        setExistingImageUrls(Array.isArray(apt.image_urls) ? apt.image_urls : []);
+        setValue("apartmentName", apt.apartmentName || "");
+        setValue("description", apt.description || "");
+        setValue("price", apt.price || 0);
+        setValue("contactNo", apt.contactNo || 0);
+        setValue("category", apt.category || "");
+        setValue("availableFor", apt.availableFor || "");
+
+        if (typeof apt.location === "string") {
+          const parts = apt.location.split(", ");
+          if (parts.length >= 4) {
+            const pincodeValue = parts[parts.length - 1];
+            const stateValue = parts[parts.length - 2];
+            const cityValue = parts[parts.length - 3];
+            const addressValue = parts.slice(0, -3).join(", ");
+            setLocalAddress(addressValue);
+            setCity(cityValue);
+            setState(stateValue);
+            setPincode(pincodeValue);
+          }
+        }
+
+        if (apt.coordinates) {
+          setMapLat(apt.coordinates.latitude);
+          setMapLng(apt.coordinates.longitude);
+        }
+
+        setFacilities(typeof apt.facility === "string" ? apt.facility.split(", ") : []);
+        setFurniture(typeof apt.furniture === "string" ? apt.furniture.split(", ") : []);
+
+        setStep(4);
+      } catch (e) {
+        console.error("Failed to load draft:", e);
+        toast.error("Could not load draft. Please try again.");
+      } finally {
+        setLoading(false);
+        setDraftLoaded(true);
+      }
+    })();
+  }, [searchParams, draftLoaded, setValue]);
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      setSelectedImages(Array.from(e.target.files).slice(0, 5));
+      setSelectedImages(Array.from(e.target.files).slice(0, 10));
     }
+  };
+
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const moveImage = (from: number, to: number) => {
+    if (from === to) return;
+    setSelectedImages((prev) => {
+      const copy = [...prev];
+      const [item] = copy.splice(from, 1);
+      copy.splice(to, 0, item);
+      return copy;
+    });
+  };
+  const moveExistingUrl = (from: number, to: number) => {
+    if (from === to) return;
+    setExistingImageUrls((prev) => {
+      const copy = [...prev];
+      const [item] = copy.splice(from, 1);
+      copy.splice(to, 0, item);
+      return copy;
+    });
+  };
+
+  const hasAnyImages = useMemo(() => {
+    return selectedImages.length > 0 || existingImageUrls.length > 0;
+  }, [selectedImages.length, existingImageUrls.length]);
+
+  const saveDraft = async (): Promise<string> => {
+    const token = localStorage.getItem("token");
+    if (!token) throw new Error("Please login again");
+
+    const formData = watch();
+    const fd = new FormData();
+    if (draftId) fd.append("draftId", draftId);
+
+    fd.append("apartmentName", formData.apartmentName);
+    fd.append("description", formData.description);
+    fd.append("price", String(formData.price));
+    fd.append("contactNo", String(formData.contactNo));
+    fd.append("facility", facilities.join(", "));
+    fd.append("furniture", furnitures.join(", "));
+    fd.append("location", `${localAddress}, ${city}, ${state}, ${pincode}`);
+    fd.append("availableFor", formData.availableFor);
+    fd.append("category", formData.category);
+
+    if (mapLat && mapLng) {
+      fd.append("latitude", mapLat.toString());
+      fd.append("longitude", mapLng.toString());
+    }
+
+    if (planAmount) fd.append("paymentAmount", String(planAmount));
+    if (planDuration) fd.append("membershipDuration", String(planDuration));
+
+    selectedImages.forEach((file) => fd.append("image", file));
+
+    const res = await axios.post(`/api/aparment/draft?id=${userContext?.userAuthData?._id}`, fd, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "x-auth-token": token,
+      },
+    });
+
+    if (!res.data?.success || !res.data?.data?._id) {
+      throw new Error(res.data?.message || "Failed to save draft");
+    }
+    const newId = String(res.data.data._id);
+    setDraftId(newId);
+    if (Array.isArray(res.data.data.image_urls)) {
+      setExistingImageUrls(res.data.data.image_urls);
+    }
+    setSelectedImages([]);
+    return newId;
   };
 
   const handleAddFacility = () => {
@@ -950,7 +334,7 @@ const Step1: React.FC = () => {
       setStep(3);
       return;
     }
-    if (selectedImages.length === 0) {
+    if (!hasAnyImages) {
       toast.error("Please upload at least one image");
       setStep(3);
       return;
@@ -961,10 +345,11 @@ const Step1: React.FC = () => {
     setIsProcessing(true);
 
     try {
+      const ensuredDraftId = await saveDraft();
       // Create Razorpay order
       const orderResponse = await axios.post("/api/payment/create-order", {
         amount: planAmount,
-        apartmentID: "temp_" + Date.now(), // Temporary ID for new apartment
+        apartmentID: ensuredDraftId,
         userID: userContext?.userAuthData?._id,
         duration: planDuration,
       });
@@ -990,68 +375,16 @@ const Step1: React.FC = () => {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
-              apartmentID: "temp_" + Date.now(),
+              apartmentID: ensuredDraftId,
               userID: userContext?.userAuthData?._id,
               duration: planDuration,
               amount: planAmount,
             });
 
             if (verifyResponse.data.success) {
-              // Payment verified, now submit the apartment form
-              const apartmentFormData = new FormData();
-              apartmentFormData.append("apartmentName", formData.apartmentName);
-              apartmentFormData.append("description", formData.description);
-              apartmentFormData.append("price", formData.price.toString());
-              apartmentFormData.append("contactNo", formData.contactNo.toString());
-              apartmentFormData.append("facility", facilities.join(", "));
-              apartmentFormData.append("furniture", furnitures.join(", "));
-              apartmentFormData.append(
-                "location",
-                `${localAddress}, ${city}, ${state}, ${pincode}`
-              );
-              
-              // Add coordinates if available
-              if (mapLat && mapLng) {
-                apartmentFormData.append("latitude", mapLat.toString());
-                apartmentFormData.append("longitude", mapLng.toString());
-                console.log("Coordinates added to form:", { lat: mapLat, lng: mapLng });
-              }
-              
-              apartmentFormData.append("availableFor", formData.availableFor);
-              apartmentFormData.append("category", formData.category);
-              apartmentFormData.append("txnID", response.razorpay_payment_id);
-              apartmentFormData.append("membershipPlan", selectedPlan);
-              apartmentFormData.append("planAmount", planAmount.toString());
-              apartmentFormData.append("paymentAmount", planAmount.toString());
-              apartmentFormData.append("membershipDuration", planDuration.toString());
-
-              // Add referral code if exists
-              const referralCode = localStorage.getItem("pendingReferralCode");
-              if (referralCode) {
-                apartmentFormData.append("referralCode", referralCode);
-              }
-
-              selectedImages.forEach((file) => apartmentFormData.append("image", file));
-
-              const token = localStorage.getItem("token");
-              const apartmentResponse = await axios.post(
-                `/api/aparment/createEvent?id=${userContext?.userAuthData?._id}`,
-                apartmentFormData,
-                {
-                  headers: {
-                    Authorization: `Bearer ${token}`,
-                    "x-auth-token": token,
-                  },
-                }
-              );
-
-              if (apartmentResponse.data) {
-                // Clear the referral code from localStorage after successful submission
-                localStorage.removeItem("pendingReferralCode");
-                
-                toast.success("Payment successful! Your property is now listed.");
-                router.push("/profile");
-              }
+              localStorage.removeItem("pendingReferralCode");
+              toast.success("Payment successful! Your property is now listed.");
+              router.push("/profile");
             } else {
               toast.error("Payment verification failed. Please contact support.");
             }
@@ -1063,7 +396,7 @@ const Step1: React.FC = () => {
           }
         },
         prefill: {
-          name: userContext?.userAuthData?.name || "",
+          name: `${userContext?.userAuthData?.firstName || ""} ${userContext?.userAuthData?.lastName || ""}`.trim(),
           email: userContext?.userAuthData?.email || "",
           contact: formData.contactNo?.toString() || "",
         },
@@ -1435,8 +768,8 @@ const Step1: React.FC = () => {
                   setMapLat(location.lat);
                   setMapLng(location.lng);
                 }}
-                initialLat={26.9124}
-                initialLng={75.7873}
+                initialLat={mapLat}
+                initialLng={mapLng}
                 externalLat={mapLat}
                 externalLng={mapLng}
               />
@@ -1646,7 +979,7 @@ const Step1: React.FC = () => {
 
             <div className="mb-6">
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Upload Images (Up to 5 images)
+                Upload Images (Up to 10 images)
               </label>
               
               {/* Image Upload Area */}
@@ -1663,7 +996,7 @@ const Step1: React.FC = () => {
                   htmlFor="image-upload"
                   className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 hover:border-blue-400 transition-colors duration-200"
                 >
-                  {selectedImages.length === 0 ? (
+                  {selectedImages.length === 0 && existingImageUrls.length === 0 ? (
                     <>
                       <svg
                         className="w-12 h-12 text-gray-400 mb-3"
@@ -1682,7 +1015,7 @@ const Step1: React.FC = () => {
                         Click to upload or drag and drop
                       </p>
                       <p className="text-xs text-gray-500 mt-1">
-                        PNG, JPG, GIF up to 10MB (max 5 images)
+                        PNG, JPG, GIF up to 10MB (max 10 images)
                       </p>
                     </>
                   ) : (
@@ -1704,7 +1037,7 @@ const Step1: React.FC = () => {
                         Click to add more images
                       </p>
                       <p className="text-xs text-gray-500 mt-1">
-                        {selectedImages.length}/5 images selected
+                        {existingImageUrls.length + selectedImages.length}/10 images selected
                       </p>
                     </div>
                   )}
@@ -1712,13 +1045,51 @@ const Step1: React.FC = () => {
               </div>
 
               {/* Image Preview Grid */}
-              {selectedImages.length > 0 && (
+              {(existingImageUrls.length > 0 || selectedImages.length > 0) && (
                 <div className="mt-4">
+                  <p className="text-xs text-gray-500 mb-3">
+                    Tip: drag and drop to change the order (1st image is the cover).
+                  </p>
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+                    {existingImageUrls.map((url, index) => (
+                      <div
+                        key={`existing-${index}`}
+                        draggable
+                        onDragStart={() => setDragIndex(index)}
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={() => {
+                          if (dragIndex == null) return;
+                          moveExistingUrl(dragIndex, index);
+                          setDragIndex(null);
+                        }}
+                        className="relative group aspect-square rounded-lg overflow-hidden border-2 border-gray-200 shadow-sm hover:shadow-md transition-shadow cursor-move"
+                      >
+                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                        <img
+                          src={url}
+                          alt={`Existing ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs py-1 px-2 text-center">
+                          Image {index + 1} (saved)
+                        </div>
+                      </div>
+                    ))}
+
                     {selectedImages.map((image, index) => (
                       <div
-                        key={index}
-                        className="relative group aspect-square rounded-lg overflow-hidden border-2 border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+                        key={`new-${index}`}
+                        draggable
+                        onDragStart={() => setDragIndex(existingImageUrls.length + index)}
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={() => {
+                          if (dragIndex == null) return;
+                          // Only reorder within the "new files" list.
+                          const from = dragIndex - existingImageUrls.length;
+                          if (from >= 0) moveImage(from, index);
+                          setDragIndex(null);
+                        }}
+                        className="relative group aspect-square rounded-lg overflow-hidden border-2 border-gray-200 shadow-sm hover:shadow-md transition-shadow cursor-move"
                       >
                         {/* eslint-disable-next-line @next/next/no-img-element */}
                         <img
@@ -1729,9 +1100,7 @@ const Step1: React.FC = () => {
                         <button
                           type="button"
                           onClick={() => {
-                            setSelectedImages(
-                              selectedImages.filter((_, i) => i !== index)
-                            );
+                            setSelectedImages(selectedImages.filter((_, i) => i !== index));
                           }}
                           className="absolute top-2 right-2 bg-red-500 text-white rounded-full p-1.5 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600"
                           aria-label="Remove image"
@@ -1751,7 +1120,7 @@ const Step1: React.FC = () => {
                           </svg>
                         </button>
                         <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 text-white text-xs py-1 px-2 text-center">
-                          Image {index + 1}
+                          Image {existingImageUrls.length + index + 1} (new)
                         </div>
                       </div>
                     ))}
@@ -1865,7 +1234,7 @@ const Step1: React.FC = () => {
                 } else if (category === "FLAT") {
                   // Flats / Apartments pricing
                   plans = [
-                    { name: "1 Month", value: "1month", duration: 1, price: 199, originalPrice: 398, savings: "Save 50%" },
+                    { name: "1 Month", value: "1month", duration: 1, price: 1, originalPrice: 398, savings: "Save 50%" },
                     { name: "3 Months", value: "3months", duration: 3, price: 399, originalPrice: 798, savings: "Save 50%" },
                     { name: "6 Months", value: "6months", duration: 6, price: 599, originalPrice: 1198, savings: "Save 50%" },
                   ];

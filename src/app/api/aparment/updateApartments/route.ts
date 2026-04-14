@@ -73,6 +73,7 @@ export async function PUT(req: NextRequest) {
     const location = formData.get("location") as string;
     const availableFor = formData.get("availableFor") as string;
     const category = formData.get("category") as string;
+    const imageUrlsJson = formData.get("image_urls") as string | null;
     
     // Extract coordinates if provided
     const latitude = formData.get("latitude");
@@ -90,6 +91,21 @@ export async function PUT(req: NextRequest) {
       availableFor,
       contactNo,
     };
+
+    // Optional: update image ordering (and/or replace list) without uploading new files
+    if (imageUrlsJson && imageUrlsJson.trim()) {
+      try {
+        const parsed = JSON.parse(imageUrlsJson);
+        if (Array.isArray(parsed) && parsed.every((u) => typeof u === "string")) {
+          updateData.image_urls = parsed;
+        }
+      } catch (e) {
+        return NextResponse.json(
+          { message: "Invalid image_urls payload", success: false },
+          { status: 400 }
+        );
+      }
+    }
 
     // Add coordinates if provided
     if (latitude && longitude) {

@@ -120,10 +120,10 @@ export async function POST(req: NextRequest) {
     // }
 
     // Check if the number of images exceeds the limit
-    if (imageFiles.length > 5) {
+    if (imageFiles.length > 10) {
       return NextResponse.json(
         {
-          message: "You can upload a maximum of 5 images",
+          message: "You can upload a maximum of 10 images",
           success: false,
         },
         { status: 400 }

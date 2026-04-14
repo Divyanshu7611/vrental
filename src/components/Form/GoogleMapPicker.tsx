@@ -15,6 +15,8 @@ interface GoogleMapPickerProps {
   initialLng?: number;
   externalLat?: number;
   externalLng?: number;
+  /** If true, auto-center on user's current location (when no initial coords provided). */
+  autoUseCurrentLocation?: boolean;
 }
 
 declare global {
@@ -25,16 +27,18 @@ declare global {
 
 const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
   onLocationSelect,
-  initialLat = 26.9124, // Default to Jaipur, India
-  initialLng = 75.7873,
+  initialLat,
+  initialLng,
   externalLat,
   externalLng,
+  autoUseCurrentLocation = true,
 }) => {
   const mapRef = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<any>(null);
   const [marker, setMarker] = useState<any>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState("");
+  const [booted, setBooted] = useState(false);
 
   // Effect to update map when external coordinates change (from autocomplete)
   useEffect(() => {
@@ -51,7 +55,7 @@ const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
     // Check if Google Maps is already loaded
     if (window.google && window.google.maps) {
       setIsLoaded(true);
-      initMap();
+      void bootMap();
       return;
     }
 
@@ -68,7 +72,7 @@ const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
 
       script.onload = () => {
         setIsLoaded(true);
-        initMap();
+        void bootMap();
       };
 
       script.onerror = () => {
@@ -82,18 +86,18 @@ const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
         if (window.google && window.google.maps) {
           clearInterval(checkGoogleMaps);
           setIsLoaded(true);
-          initMap();
+          void bootMap();
         }
       }, 100);
     }
   }, []);
 
-  const initMap = () => {
+  const initMap = (lat: number, lng: number) => {
     if (!mapRef.current || !window.google) return;
 
     // Create map
     const mapInstance = new window.google.maps.Map(mapRef.current, {
-      center: { lat: initialLat, lng: initialLng },
+      center: { lat, lng },
       zoom: 13,
       mapTypeControl: true,
       streetViewControl: false,
@@ -102,7 +106,7 @@ const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
 
     // Create draggable marker
     const markerInstance = new window.google.maps.Marker({
-      position: { lat: initialLat, lng: initialLng },
+      position: { lat, lng },
       map: mapInstance,
       draggable: true,
       animation: window.google.maps.Animation.DROP,
@@ -113,7 +117,7 @@ const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
     setMarker(markerInstance);
 
     // Get initial address
-    getAddressFromLatLng(initialLat, initialLng);
+    getAddressFromLatLng(lat, lng);
 
     // Add click listener to map
     mapInstance.addListener("click", (event: any) => {
@@ -129,6 +133,46 @@ const GoogleMapPicker: React.FC<GoogleMapPickerProps> = ({
       const lng = event.latLng.lng();
       getAddressFromLatLng(lat, lng);
     });
+  };
+
+  const bootMap = async () => {
+    if (booted) return;
+    setBooted(true);
+
+    // Priority:
+    // 1) external coords (autocomplete)
+    // 2) initial coords (edit / resume)
+    // 3) user's current location (if allowed)
+    // 4) fallback to Jaipur
+    const fallback = { lat: 26.9124, lng: 75.7873 };
+    const hasExternal =
+      typeof externalLat === "number" && typeof externalLng === "number";
+    const hasInitial =
+      typeof initialLat === "number" && typeof initialLng === "number";
+
+    if (hasExternal) {
+      initMap(externalLat as number, externalLng as number);
+      return;
+    }
+    if (hasInitial) {
+      initMap(initialLat as number, initialLng as number);
+      return;
+    }
+
+    if (autoUseCurrentLocation && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          initMap(position.coords.latitude, position.coords.longitude);
+        },
+        () => {
+          initMap(fallback.lat, fallback.lng);
+        },
+        { enableHighAccuracy: true, timeout: 8000 }
+      );
+      return;
+    }
+
+    initMap(fallback.lat, fallback.lng);
   };
 
   const getAddressFromLatLng = (lat: number, lng: number) => {
