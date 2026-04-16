@@ -401,7 +401,7 @@ const Step1: React.FC = () => {
     fd.append("availableFor", formData.availableFor);
     fd.append("category", formData.category);
 
-    if (mapLat && mapLng) {
+    if (mapLat != null && mapLng != null && Number.isFinite(mapLat) && Number.isFinite(mapLng)) {
       fd.append("latitude", mapLat.toString());
       fd.append("longitude", mapLng.toString());
     }
@@ -580,15 +580,14 @@ const Step1: React.FC = () => {
     selectedImages.length,
     existingImageUrls.length,
     facilities,
-    trigger,
   ]);
 
   const canPersistDraftAtPaymentStep = useCallback(() => {
     const nameOk = typeof apartmentName === "string" && apartmentName.trim().length > 0;
     const priceNum = Number(price);
     const priceOk = Number.isFinite(priceNum) && priceNum > 0;
-    const contactNum = Number(contactNo);
-    const contactOk = Number.isFinite(contactNum) && contactNum > 0;
+    const contactDigitsPersist = String(contactNo ?? "").replace(/\D/g, "");
+    const contactOk = contactDigitsPersist.length >= 10;
     const descTrim = typeof description === "string" ? description.trim() : "";
     const descOk = descTrim.length >= LISTING_MIN_DESCRIPTION_LENGTH;
     const facilitiesOk = facilities.length > 0;
@@ -637,6 +636,8 @@ const Step1: React.FC = () => {
     selectedImages.length,
     existingImageUrls.length,
   ]);
+
+  const listingPaymentReady = canPersistDraftAtPaymentStep();
 
   const paymentStep4Bootstrapped = useRef(false);
   const prevStepForProfileDraftRef = useRef<number | null>(null);
@@ -1779,6 +1780,15 @@ const Step1: React.FC = () => {
 
             <h2 className="text-2xl font-bold text-gray-800 mb-6">Choose Membership Plan</h2>
 
+            {!listingPaymentReady && (
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">
+                <p className="text-amber-900 text-sm">
+                  To pay, complete a description (at least {LISTING_MIN_DESCRIPTION_LENGTH} characters) and at least one
+                  facility on the previous step, with photos and location. Use <strong>Back</strong> to update.
+                </p>
+              </div>
+            )}
+
             {/* Referral Code Section */}
             <ReferralCodeInput />
 
@@ -1876,9 +1886,9 @@ const Step1: React.FC = () => {
               <button
                 type="button"
                 onClick={handlePayment}
-                disabled={!selectedPlan || isProcessing || !canPersistDraftAtPaymentStep()}
+                disabled={!selectedPlan || isProcessing || !listingPaymentReady}
                 className={`px-6 py-3 rounded-lg font-semibold transition-all shadow-md ${
-                  selectedPlan && !isProcessing && canPersistDraftAtPaymentStep()
+                  selectedPlan && !isProcessing && listingPaymentReady
                     ? "bg-gradient-to-r from-blue-600 to-cyan-500 text-white hover:from-blue-700 hover:to-cyan-600 hover:shadow-lg"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
                 }`}
