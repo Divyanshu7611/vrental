@@ -94,12 +94,22 @@ const ProfileCard: React.FC<ICardDetails> = ({
         {/* Status Badge */}
         {status && (
           <div className="absolute top-4 right-4">
-            <span className={`inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full ${
-              status === 'active' || status === 'verified' 
-                ? 'bg-green-100 text-green-700' 
-                : 'bg-yellow-100 text-yellow-700'
-            }`}>
-              {status}
+            <span
+              className={`inline-flex items-center px-2.5 py-1 text-xs font-medium rounded-full ${
+                status === "active" || status === "verified" || status === "Available For Rent"
+                  ? "bg-green-100 text-green-700"
+                  : status === "Draft" &&
+                      paymentStatus &&
+                      paymentStatus.toLowerCase() === "pending"
+                    ? "bg-amber-100 text-amber-800"
+                    : "bg-yellow-100 text-yellow-700"
+              }`}
+            >
+              {status === "Draft" &&
+              paymentStatus &&
+              paymentStatus.toLowerCase() === "pending"
+                ? "Draft · pay to publish"
+                : status}
             </span>
           </div>
         )}

@@ -11,20 +11,69 @@ function razorpayReceipt(apartmentID: string, userID: string): string {
   return `v${suffix}`;
 }
 
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID!,
-  key_secret: process.env.RAZORPAY_KEY_SECRET!,
-});
+let razorpaySingleton: Razorpay | null = null;
+
+function getRazorpay(): Razorpay {
+  const key_id = process.env.RAZORPAY_KEY_ID;
+  const key_secret = process.env.RAZORPAY_KEY_SECRET;
+  if (!key_id?.trim() || !key_secret?.trim()) {
+    throw new Error(
+      "Server Razorpay keys missing: set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in .env (same account as NEXT_PUBLIC_RAZORPAY_KEY_ID)."
+    );
+  }
+  if (!razorpaySingleton) {
+    razorpaySingleton = new Razorpay({ key_id, key_secret });
+  }
+  return razorpaySingleton;
+}
+
+function razorpayErrorMessage(error: unknown): string {
+  if (!error || typeof error !== "object") return String(error);
+  const e = error as {
+    message?: string;
+    error?: { description?: string; code?: string };
+    statusCode?: number;
+  };
+  return (
+    e.error?.description ||
+    e.error?.code ||
+    e.message ||
+    "Unknown Razorpay error"
+  );
+}
 
 export async function POST(req: NextRequest) {
   try {
     const { amount, apartmentID, userID, duration } = await req.json();
 
-    if (!amount || !apartmentID || !userID || !duration) {
+    const amountRupees = Number(amount);
+    const durationMonths = Number(duration);
+
+    if (
+      apartmentID == null ||
+      String(apartmentID).trim() === "" ||
+      userID == null ||
+      String(userID).trim() === "" ||
+      !Number.isFinite(amountRupees) ||
+      amountRupees < 1 ||
+      !Number.isFinite(durationMonths) ||
+      durationMonths < 1
+    ) {
       return NextResponse.json(
         {
           success: false,
-          message: "Missing required fields",
+          message: "Missing or invalid payment fields",
+        },
+        { status: 400 }
+      );
+    }
+
+    const amountPaise = Math.round(amountRupees * 100);
+    if (amountPaise < 100) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Amount must be at least ₹1",
         },
         { status: 400 }
       );
@@ -32,17 +81,17 @@ export async function POST(req: NextRequest) {
 
     // Create Razorpay order
     const options = {
-      amount: amount * 100, // Convert to paise
+      amount: amountPaise,
       currency: "INR",
       receipt: razorpayReceipt(String(apartmentID), String(userID)),
       notes: {
         apartmentID,
         userID,
-        duration: duration.toString(),
+        duration: String(durationMonths),
       },
     };
 
-    const order = await razorpay.orders.create(options);
+    const order = await getRazorpay().orders.create(options);
 
     return NextResponse.json(
       {
@@ -55,15 +104,17 @@ export async function POST(req: NextRequest) {
       },
       { status: 200 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Error creating Razorpay order:", error);
+    const detail = razorpayErrorMessage(error);
+    const missingKeys = detail.includes("Server Razorpay keys missing");
     return NextResponse.json(
       {
         success: false,
-        message: "Failed to create order",
-        error: error.message,
+        message: missingKeys ? detail : "Failed to create order",
+        error: detail,
       },
-      { status: 500 }
+      { status: missingKeys ? 503 : 500 }
     );
   }
 }

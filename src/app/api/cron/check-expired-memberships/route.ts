@@ -1,67 +1,51 @@
 import { NextRequest, NextResponse } from "next/server";
-import { connectMongoDB } from "@/utilis/dbConnect";
-import Apartment from "@/models/Apartment";
+import { deactivateExpiredMembershipApartments } from "@/lib/deactivateExpiredMemberships";
+import { isCronRouteAuthorized } from "./auth";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(req: NextRequest) {
-  try {
-    await connectMongoDB();
+async function runJob() {
+  const result = await deactivateExpiredMembershipApartments();
 
-    const currentDate = new Date();
-
-    // Find all apartments with expired memberships that are still active
-    const expiredApartments = await Apartment.find({
-      memberShipExpiry: { $lt: currentDate },
-      status: { $ne: "Deactivated" },
-    });
-
-    if (expiredApartments.length === 0) {
-      return NextResponse.json(
-        {
-          success: true,
-          message: "No expired memberships found",
-          count: 0,
-        },
-        { status: 200 }
-      );
-    }
-
-    // Deactivate all expired apartments
-    const updateResult = await Apartment.updateMany(
-      {
-        memberShipExpiry: { $lt: currentDate },
-        status: { $ne: "Deactivated" },
-      },
-      {
-        $set: {
-          status: "Deactivated",
-          deactivatedAt: currentDate,
-          deactivationReason: "Membership expired",
-        },
-      }
-    );
-
+  if (result.deactivated.length === 0) {
     return NextResponse.json(
       {
         success: true,
-        message: `Successfully deactivated ${updateResult.modifiedCount} expired apartments`,
-        count: updateResult.modifiedCount,
-        apartments: expiredApartments.map((apt) => ({
-          id: apt._id,
-          name: apt.apartmentName,
-          expiryDate: apt.memberShipExpiry,
-        })),
+        message: "No expired memberships found",
+        count: 0,
+        modifiedCount: 0,
       },
       { status: 200 }
     );
-  } catch (error: any) {
+  }
+
+  return NextResponse.json(
+    {
+      success: true,
+      message: `Successfully deactivated ${result.modifiedCount} expired apartment(s)`,
+      count: result.modifiedCount,
+      modifiedCount: result.modifiedCount,
+      matchedCount: result.matchedCount,
+      apartments: result.deactivated,
+    },
+    { status: 200 }
+  );
+}
+
+export async function GET(req: NextRequest) {
+  try {
+    if (!isCronRouteAuthorized(req)) {
+      return NextResponse.json({ success: false, message: "Unauthorized" }, { status: 401 });
+    }
+    return await runJob();
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Unknown error";
     console.error("Error checking expired memberships:", error);
     return NextResponse.json(
       {
         success: false,
         message: "Failed to check expired memberships",
-        error: error.message,
+        error: message,
       },
       { status: 500 }
     );
@@ -69,6 +53,5 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  // Same as GET, but can be called via POST for cron jobs
   return GET(req);
 }

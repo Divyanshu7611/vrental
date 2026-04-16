@@ -36,10 +36,18 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Calculate expiry date
+    const months = Number(duration);
+    if (!Number.isFinite(months) || months < 1 || months > 120) {
+      return NextResponse.json(
+        { success: false, message: "Invalid membership duration" },
+        { status: 400 }
+      );
+    }
+
+    // Calculate expiry from payment time (must use numeric months — string would concatenate in JS)
     const currentDate = new Date();
     const expiryDate = new Date(currentDate);
-    expiryDate.setMonth(expiryDate.getMonth() + duration);
+    expiryDate.setMonth(expiryDate.getMonth() + months);
 
     // Check if apartmentID is a temporary ID (for new listings)
     const isTempID = apartmentID && apartmentID.toString().startsWith("temp_");
@@ -54,7 +62,7 @@ export async function POST(req: NextRequest) {
           data: {
             paymentID: razorpay_payment_id,
             expiryDate,
-            duration,
+            duration: months,
             amount,
           },
         },
@@ -79,9 +87,9 @@ export async function POST(req: NextRequest) {
     apartment.paymentStatus = "Verified";
     apartment.txnID = razorpay_payment_id;
     apartment.paymentDate = currentDate;
-    apartment.paymentAmount = amount;
+    apartment.paymentAmount = Number(amount);
     apartment.memberShipExpiry = expiryDate;
-    apartment.membershipDuration = duration;
+    apartment.membershipDuration = months;
     apartment.status = "Available For Rent";
 
     await apartment.save();

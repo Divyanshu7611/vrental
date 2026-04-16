@@ -387,7 +387,8 @@ function ProfilePageContent() {
                       )}
                     </h2>
                     <p className="text-gray-600 text-sm sm:text-base">
-                      Manage and view all your listed properties
+                      Manage and view all your listed properties. Listings you left on the payment step appear here as
+                      drafts — use Continue Payment to finish checkout.
                     </p>
                   </div>
                   {aparmentData.length > 0 && userContext?.userAuthData?.role === "OWNER" && (

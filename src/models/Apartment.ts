@@ -42,7 +42,6 @@ const apartmentSchema: Schema = new Schema<IApartment>({
   },
   description: {
     type: String,
-    required: true,
     trim: true,
   },
   price: {
@@ -51,11 +50,9 @@ const apartmentSchema: Schema = new Schema<IApartment>({
   },
   facility: {
     type: String, // This will store comma-separated facilities
-    required: true,
   },
   furniture: {
     type: String, // This will store comma-separated facilities
-    required: true,
   },
   participants: [
     {
