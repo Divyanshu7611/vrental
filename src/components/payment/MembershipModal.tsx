@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { X, Check, Crown, Zap, Star } from "lucide-react";
 import axios from "axios";
+import { ensureRazorpayCheckoutLoaded, getRazorpayConstructor } from "@/lib/razorpayClient";
 
 interface MembershipModalProps {
   isOpen: boolean;
@@ -208,9 +209,20 @@ const MembershipModal: React.FC<MembershipModalProps> = ({
 
       const { orderId, amount, currency } = orderResponse.data.data;
 
+      const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID?.trim();
+      if (!keyId) {
+        alert(
+          "Razorpay is not configured: set NEXT_PUBLIC_RAZORPAY_KEY_ID in .env.local and restart the dev server."
+        );
+        setIsProcessing(false);
+        return;
+      }
+
+      await ensureRazorpayCheckoutLoaded();
+
       // Initialize Razorpay
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        key: keyId,
         amount: amount,
         currency: currency,
         name: "VRental",
@@ -256,11 +268,29 @@ const MembershipModal: React.FC<MembershipModalProps> = ({
         },
       };
 
-      const razorpay = new (window as any).Razorpay(options);
-      razorpay.open();
-    } catch (error) {
+      const RazorpayCtor = getRazorpayConstructor();
+      if (!RazorpayCtor) {
+        alert("Razorpay checkout did not load. Refresh the page and try again.");
+        setIsProcessing(false);
+        return;
+      }
+      try {
+        const razorpay = new RazorpayCtor(options);
+        razorpay.open();
+      } catch (e: unknown) {
+        alert(e instanceof Error ? e.message : "Could not open Razorpay checkout.");
+        setIsProcessing(false);
+        return;
+      }
+    } catch (error: unknown) {
       console.error("Payment error:", error);
-      alert("Failed to initiate payment. Please try again.");
+      const ax = error as { response?: { data?: { message?: string; error?: string } }; message?: string };
+      const detail =
+        ax?.response?.data?.message ||
+        (typeof ax?.response?.data?.error === "string" ? ax.response.data.error : "") ||
+        ax?.message ||
+        "";
+      alert(detail || "Failed to initiate payment. Please try again.");
       setIsProcessing(false);
     }
   };

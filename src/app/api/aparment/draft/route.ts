@@ -158,11 +158,8 @@ export async function POST(req: NextRequest) {
     }
     if (membershipDuration != null && !Number.isNaN(membershipDuration)) {
       update.membershipDuration = membershipDuration;
-      const currentDate = new Date();
-      const expiryDate = new Date(currentDate);
-      expiryDate.setMonth(expiryDate.getMonth() + membershipDuration);
-      update.memberShipExpiry = expiryDate;
     }
+    // memberShipExpiry is set only after Razorpay payment verification (see /api/payment/verify)
 
     if (latitude && longitude) {
       update.coordinates = {
@@ -171,8 +168,8 @@ export async function POST(req: NextRequest) {
       };
     }
 
-    if (image_urls) {
-      update.image_urls = image_urls;
+    if (image_urls && image_urls.length > 0) {
+      update.image_urls = [...new Set(image_urls)];
     }
 
     let draft;
@@ -191,7 +188,11 @@ export async function POST(req: NextRequest) {
           { status: 403 }
         );
       }
-      draft = await Apartment.findByIdAndUpdate(draftId, update, { new: true });
+      draft = await Apartment.findByIdAndUpdate(
+        draftId,
+        { $set: update, $unset: { memberShipExpiry: "" } },
+        { new: true }
+      );
     } else {
       // Create new draft (requires at least one image)
       if (!image_urls || image_urls.length === 0) {
@@ -216,10 +217,31 @@ export async function POST(req: NextRequest) {
       },
       { status: 200 }
     );
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Draft save error:", error);
+    const msg =
+      error instanceof Error
+        ? error.message
+        : typeof error === "object" && error !== null && "message" in error
+          ? String((error as { message: unknown }).message)
+          : String(error);
+
+    if (
+      msg.includes("Stale request") ||
+      msg.toLowerCase().includes("more than 1 hour ago")
+    ) {
+      return NextResponse.json(
+        {
+          success: false,
+          message:
+            "Image upload was rejected because this computer’s clock is out of sync with Cloudinary. In Windows: Settings → Time & language → Date & time → turn on “Set time automatically”, then try again.",
+        },
+        { status: 503 }
+      );
+    }
+
     return NextResponse.json(
-      { success: false, message: "Internal Server Error" },
+      { success: false, message: msg || "Internal Server Error" },
       { status: 500 }
     );
   }

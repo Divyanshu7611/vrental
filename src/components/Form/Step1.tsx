@@ -1,5 +1,5 @@
 "use client";
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { toast, ToastContainer } from "react-toastify";
 import axios from "axios";
@@ -32,6 +32,7 @@ import { Home, Users, User, Heart, Users2, Building2, Store } from "lucide-react
 import ReferralCodeInput from "./ReferralCodeInput";
 import GooglePlacesAutocomplete from "./GooglePlacesAutocomplete";
 import GoogleMapPicker from "./GoogleMapPicker";
+import { ensureRazorpayCheckoutLoaded, getRazorpayConstructor } from "@/lib/razorpayClient";
 
 type FormValues = {
   apartmentName: string;
@@ -86,6 +87,54 @@ const getIcon = (item: string, type: "facility" | "furniture"): React.ReactNode 
 
 const LISTING_DRAFT_STORAGE_KEY = "vrental_listingDraftApartmentId";
 
+/** Required for listing draft save and payment (aligned with step 3 validation). */
+const LISTING_MIN_DESCRIPTION_LENGTH = 10;
+
+type ListingPlan = {
+  name: string;
+  value: string;
+  duration: number;
+  price: number;
+  originalPrice: number;
+  savings: string;
+};
+
+function normalizeListingCategory(raw: string | undefined): string {
+  const c = (raw ?? "").trim().toUpperCase();
+  if (c === "CO_LIVING" || c === "COLIVING") return "CO-LIVING";
+  return c;
+}
+
+function getMembershipPlansForCategory(categoryRaw: string | undefined): ListingPlan[] {
+  const category = normalizeListingCategory(categoryRaw);
+  if (category === "ROOM" || category === "PG" || category === "HOSTEL" || category === "CO-LIVING") {
+    return [
+      { name: "1 Month", value: "1month", duration: 1, price: 99, originalPrice: 198, savings: "Save 50%" },
+      { name: "3 Months", value: "3months", duration: 3, price: 199, originalPrice: 398, savings: "Save 50%" },
+      { name: "6 Months", value: "6months", duration: 6, price: 299, originalPrice: 598, savings: "Save 50%" },
+    ];
+  }
+  if (category === "FLAT") {
+    return [
+      { name: "1 Month", value: "1month", duration: 1, price: 199, originalPrice: 398, savings: "Save 50%" },
+      { name: "3 Months", value: "3months", duration: 3, price: 399, originalPrice: 798, savings: "Save 50%" },
+      { name: "6 Months", value: "6months", duration: 6, price: 599, originalPrice: 1198, savings: "Save 50%" },
+    ];
+  }
+  if (category === "SHOP") {
+    return [
+      { name: "1 Month", value: "1month", duration: 1, price: 299, originalPrice: 598, savings: "Save 50%" },
+      { name: "3 Months", value: "3months", duration: 3, price: 699, originalPrice: 1398, savings: "Save 50%" },
+      { name: "6 Months", value: "6months", duration: 6, price: 999, originalPrice: 1998, savings: "Save 50%" },
+    ];
+  }
+  return [
+    { name: "1 Month", value: "1month", duration: 1, price: 99, originalPrice: 198, savings: "Save 50%" },
+    { name: "3 Months", value: "3months", duration: 3, price: 199, originalPrice: 398, savings: "Save 50%" },
+    { name: "6 Months", value: "6months", duration: 6, price: 299, originalPrice: 598, savings: "Save 50%" },
+  ];
+}
+
 const Step1: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -97,7 +146,17 @@ const Step1: React.FC = () => {
     formState: { errors },
     watch,
     setValue,
-  } = useForm<FormValues>({ mode: "onChange" });
+    trigger,
+  } = useForm<FormValues>({
+    mode: "onChange",
+    defaultValues: {
+      apartmentName: "",
+      description: "",
+      category: "",
+      availableFor: "",
+      txnID: "",
+    },
+  });
   
   const apartmentName = watch("apartmentName");
   const description = watch("description");
@@ -134,14 +193,37 @@ const Step1: React.FC = () => {
   const paymentStepDraftInFlight = useRef(false);
   /** Skip redundant silent saves (same payload as last successful silent save). */
   const lastSilentDraftSignature = useRef<string | null>(null);
+  const prevCategoryRef = useRef<string | null>(null);
 
-  const nextStep = () => step < totalSteps && setStep(step + 1);
   const prevStep = () => step > 1 && setStep(step - 1);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) window.location.href = "/auth";
   }, []);
+
+  // New listing (no draftId in URL/storage): mark ready before paint so step-4 draft save is not blocked for one frame.
+  useLayoutEffect(() => {
+    if (typeof window === "undefined") return;
+    const id =
+      searchParams.get("draftId")?.trim() ||
+      localStorage.getItem(LISTING_DRAFT_STORAGE_KEY)?.trim() ||
+      "";
+    if (!id) setDraftLoaded(true);
+  }, [searchParams]);
+
+  // Changing property category reuses plan ids ("1month", …) across tiers — clear selection so amount cannot stay stale (e.g. flat ₹199 vs hostel ₹99).
+  useEffect(() => {
+    const cur = category || "";
+    const prev = prevCategoryRef.current;
+    if (prev !== null && prev !== "" && prev !== cur) {
+      setSelectedPlan("");
+      setPlanAmount(0);
+      setPlanDuration(0);
+      lastSilentDraftSignature.current = null;
+    }
+    prevCategoryRef.current = cur;
+  }, [category]);
 
   useEffect(() => {
     if (draftLoaded) return;
@@ -168,7 +250,8 @@ const Step1: React.FC = () => {
         setValue("description", apt.description || "");
         setValue("price", apt.price || 0);
         setValue("contactNo", apt.contactNo || 0);
-        setValue("category", apt.category || "");
+        const catNorm = normalizeListingCategory(apt.category) || apt.category || "";
+        setValue("category", catNorm);
         setValue("availableFor", apt.availableFor || "");
 
         if (typeof apt.location === "string") {
@@ -193,6 +276,23 @@ const Step1: React.FC = () => {
         setFacilities(typeof apt.facility === "string" ? apt.facility.split(", ") : []);
         setFurniture(typeof apt.furniture === "string" ? apt.furniture.split(", ") : []);
 
+        const savedDur = Number(apt.membershipDuration);
+        const savedAmt = Number(apt.paymentAmount);
+        if (
+          Number.isFinite(savedDur) &&
+          savedDur > 0 &&
+          Number.isFinite(savedAmt) &&
+          savedAmt > 0
+        ) {
+          const plans = getMembershipPlansForCategory(catNorm);
+          const match = plans.find((p) => p.duration === savedDur && p.price === savedAmt);
+          if (match) {
+            setSelectedPlan(match.value);
+            setPlanAmount(match.price);
+            setPlanDuration(match.duration);
+          }
+        }
+
         setStep(4);
       } catch (e) {
         console.error("Failed to load draft:", e);
@@ -212,6 +312,8 @@ const Step1: React.FC = () => {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       setSelectedImages(Array.from(e.target.files).slice(0, 10));
+      // Reset input so the same file can be chosen again later; avoids odd browser reuse of the FileList.
+      e.target.value = "";
     }
   };
 
@@ -239,13 +341,46 @@ const Step1: React.FC = () => {
     return selectedImages.length > 0 || existingImageUrls.length > 0;
   }, [selectedImages.length, existingImageUrls.length]);
 
-  const saveDraft = async (opts?: {
+  const isStep2LocationComplete = useMemo(() => {
+    return (
+      localAddress.trim().length >= 3 &&
+      !!city.trim() &&
+      !!state.trim() &&
+      /^\d{5,10}$/.test(pincode.trim()) &&
+      mapLat != null &&
+      mapLng != null &&
+      Number.isFinite(mapLat) &&
+      Number.isFinite(mapLng)
+    );
+  }, [localAddress, city, state, pincode, mapLat, mapLng]);
+
+  const isStep1BasicsComplete = useMemo(() => {
+    const nameOk = (apartmentName ?? "").trim().length > 0;
+    const priceNum = Number(price);
+    const priceOk = Number.isFinite(priceNum) && priceNum >= 1;
+    const contactDigits = String(contactNo ?? "").replace(/\D/g, "");
+    const contactOk = contactDigits.length >= 10;
+    const categoryOk = (category ?? "").trim().length > 0;
+    const availableOk = (availableFor ?? "").trim().length > 0;
+    return nameOk && priceOk && contactOk && categoryOk && availableOk;
+  }, [apartmentName, price, contactNo, category, availableFor]);
+
+  const isStep3MediaAndDetailsComplete = useMemo(() => {
+    const descOk = (description ?? "").trim().length >= LISTING_MIN_DESCRIPTION_LENGTH;
+    return hasAnyImages && descOk && facilities.length > 0;
+  }, [hasAnyImages, description, facilities]);
+
+  /** Serialize draft writes so parallel calls never create two DB drafts for one listing. */
+  const draftSaveChainRef = useRef<Promise<unknown>>(Promise.resolve());
+
+  const saveDraft = (opts?: {
     clearSelectedFiles?: boolean;
     silent?: boolean;
   }): Promise<string> => {
     const clearSelectedFiles = opts?.clearSelectedFiles ?? false;
     const silent = opts?.silent ?? false;
 
+    const run = async (): Promise<string> => {
     const token = localStorage.getItem("token");
     if (!token) throw new Error("Please login again");
 
@@ -256,8 +391,8 @@ const Step1: React.FC = () => {
       (typeof window !== "undefined" ? localStorage.getItem(LISTING_DRAFT_STORAGE_KEY) : null);
     if (effectiveDraftId) fd.append("draftId", effectiveDraftId);
 
-    fd.append("apartmentName", formData.apartmentName);
-    fd.append("description", formData.description);
+    fd.append("apartmentName", (formData.apartmentName ?? "").trim());
+    fd.append("description", (formData.description ?? "").trim());
     fd.append("price", String(formData.price));
     fd.append("contactNo", String(formData.contactNo));
     fd.append("facility", facilities.join(", "));
@@ -344,24 +479,144 @@ const Step1: React.FC = () => {
       toast.success("Draft saved — you can continue payment anytime from your profile.");
     }
     return newId;
+    };
+
+    const job = draftSaveChainRef.current.then(run, run);
+    draftSaveChainRef.current = job.catch(() => {});
+    return job;
   };
 
   const saveDraftRef = useRef(saveDraft);
   saveDraftRef.current = saveDraft;
 
+  const goToNextStep = useCallback(async () => {
+    if (step < 1 || step >= totalSteps) return;
+
+    if (step === 1) {
+      const fieldsOk = await trigger(["apartmentName", "contactNo", "price", "category", "availableFor"]);
+      if (!fieldsOk) {
+        toast.error("Please fix the highlighted fields before continuing.");
+        return;
+      }
+      const fd = watch();
+      const priceNum = Number(fd.price);
+      if (!Number.isFinite(priceNum) || priceNum < 1) {
+        toast.error("Enter a valid monthly rent (at least ₹1).");
+        return;
+      }
+      const contactDigits = String(fd.contactNo ?? "").replace(/\D/g, "");
+      if (contactDigits.length < 10) {
+        toast.error("Enter a valid contact number (at least 10 digits).");
+        return;
+      }
+      setStep(2);
+      return;
+    }
+
+    if (step === 2) {
+      if (!localAddress.trim() || !city.trim() || !state.trim() || !pincode.trim()) {
+        toast.error("Fill in address, city, state, and pincode before continuing.");
+        return;
+      }
+      if (localAddress.trim().length < 3) {
+        toast.error("Enter a clearer street / area address.");
+        return;
+      }
+      if (!/^\d{5,10}$/.test(pincode.trim())) {
+        toast.error("Enter a valid pincode (digits only, 5–10 characters).");
+        return;
+      }
+      if (
+        mapLat == null ||
+        mapLng == null ||
+        !Number.isFinite(mapLat) ||
+        !Number.isFinite(mapLng)
+      ) {
+        toast.error(
+          "Set the map pin or pick a place from search so latitude and longitude are saved (required for listing)."
+        );
+        return;
+      }
+      setStep(3);
+      return;
+    }
+
+    if (step === 3) {
+      const descOk = await trigger("description");
+      if (!descOk) {
+        toast.error("Please add a property description (see highlighted field).");
+        return;
+      }
+      if (facilities.length === 0) {
+        toast.error("Select at least one facility or amenity before continuing.");
+        return;
+      }
+      if (selectedImages.length === 0 && existingImageUrls.length === 0) {
+        toast.error("Upload at least one property image before payment.");
+        return;
+      }
+      setStep(4);
+      void saveDraftRef.current({ silent: true, clearSelectedFiles: true }).catch((e: unknown) => {
+        const ax = e as { response?: { data?: { message?: string } }; message?: string };
+        const msg = ax?.response?.data?.message || (e instanceof Error ? e.message : "") || "";
+        toast.error(
+          msg
+            ? `Draft could not be saved: ${msg}`
+            : "Draft could not be saved. Check your connection and try again."
+        );
+      });
+    }
+  }, [
+    step,
+    totalSteps,
+    trigger,
+    watch,
+    localAddress,
+    city,
+    state,
+    pincode,
+    mapLat,
+    mapLng,
+    selectedImages.length,
+    existingImageUrls.length,
+    facilities,
+    trigger,
+  ]);
+
   const canPersistDraftAtPaymentStep = useCallback(() => {
+    const nameOk = typeof apartmentName === "string" && apartmentName.trim().length > 0;
+    const priceNum = Number(price);
+    const priceOk = Number.isFinite(priceNum) && priceNum > 0;
+    const contactNum = Number(contactNo);
+    const contactOk = Number.isFinite(contactNum) && contactNum > 0;
+    const descTrim = typeof description === "string" ? description.trim() : "";
+    const descOk = descTrim.length >= LISTING_MIN_DESCRIPTION_LENGTH;
+    const facilitiesOk = facilities.length > 0;
+    const locOk =
+      typeof localAddress === "string" &&
+      localAddress.trim().length >= 3 &&
+      typeof city === "string" &&
+      city.trim().length > 0 &&
+      typeof state === "string" &&
+      state.trim().length > 0 &&
+      typeof pincode === "string" &&
+      /^\d{5,10}$/.test(pincode.trim());
+    const coordsOk =
+      mapLat != null &&
+      mapLng != null &&
+      Number.isFinite(mapLat) &&
+      Number.isFinite(mapLng);
     return (
       !!userContext?.userAuthData?._id &&
-      !!apartmentName &&
-      !!contactNo &&
-      !!price &&
+      nameOk &&
+      priceOk &&
+      contactOk &&
       !!category &&
       !!availableFor &&
-      !!localAddress &&
-      !!city &&
-      !!state &&
-      !!pincode &&
-      !!description &&
+      locOk &&
+      coordsOk &&
+      descOk &&
+      facilitiesOk &&
       (selectedImages.length > 0 || existingImageUrls.length > 0)
     );
   }, [
@@ -371,16 +626,20 @@ const Step1: React.FC = () => {
     price,
     category,
     availableFor,
+    description,
+    facilities,
     localAddress,
     city,
     state,
     pincode,
-    description,
+    mapLat,
+    mapLng,
     selectedImages.length,
     existingImageUrls.length,
   ]);
 
   const paymentStep4Bootstrapped = useRef(false);
+  const prevStepForProfileDraftRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (step !== 4) {
@@ -388,6 +647,36 @@ const Step1: React.FC = () => {
       lastSilentDraftSignature.current = null;
     }
   }, [step]);
+
+  // As soon as the user reaches payment (step 4), persist a Draft so it appears under My Apartments and can resume payment.
+  useEffect(() => {
+    const prev = prevStepForProfileDraftRef.current;
+    if (prevStepForProfileDraftRef.current === null) {
+      prevStepForProfileDraftRef.current = step;
+      return;
+    }
+    prevStepForProfileDraftRef.current = step;
+
+    if (step !== 4 || prev === 4) return;
+    if (!draftLoaded || !canPersistDraftAtPaymentStep()) return;
+
+    void saveDraftRef
+      .current({ silent: true, clearSelectedFiles: true })
+      .then(() => {
+        toast.success("Listing saved to your profile. You can continue payment anytime from My Apartments.");
+      })
+      .catch((e: unknown) => {
+        console.error("Profile draft save on payment step:", e);
+        const ax = e as { response?: { data?: { message?: string } }; message?: string };
+        const msg =
+          ax?.response?.data?.message || (e instanceof Error ? e.message : "") || "";
+        toast.error(
+          msg
+            ? `Could not save draft: ${msg}`
+            : "Could not save your listing to your profile yet. Check your connection and stay on this page."
+        );
+      });
+  }, [step, draftLoaded, canPersistDraftAtPaymentStep]);
 
   useEffect(() => {
     if (!draftLoaded) return;
@@ -398,7 +687,7 @@ const Step1: React.FC = () => {
       if (paymentStepDraftInFlight.current) return;
       paymentStepDraftInFlight.current = true;
       void saveDraftRef
-        .current({ silent: true, clearSelectedFiles: false })
+        .current({ silent: true, clearSelectedFiles: true })
         .catch((e) => {
           console.error("Auto draft save failed:", e);
         })
@@ -472,13 +761,24 @@ const Step1: React.FC = () => {
   };
 
   const handlePayment = async () => {
-    if (!selectedPlan || !planAmount || !planDuration) {
+    if (!selectedPlan || planAmount <= 0 || planDuration <= 0) {
       toast.error("Please select a membership plan");
       return;
     }
 
     // Validate form data before payment
     const formData = watch();
+
+    const plansForPay = getMembershipPlansForCategory(formData.category);
+    const chosenPlan = plansForPay.find((p) => p.value === selectedPlan);
+    if (
+      !chosenPlan ||
+      chosenPlan.price !== planAmount ||
+      chosenPlan.duration !== planDuration
+    ) {
+      toast.error("Please tap your membership plan again (amount was out of date for this category).");
+      return;
+    }
     
     // Check all required fields with specific error messages
     if (!formData.apartmentName) {
@@ -486,13 +786,15 @@ const Step1: React.FC = () => {
       setStep(1);
       return;
     }
-    if (!formData.contactNo) {
-      toast.error("Please enter contact number");
+    const contactDigitsPay = String(formData.contactNo ?? "").replace(/\D/g, "");
+    if (contactDigitsPay.length < 10) {
+      toast.error("Please enter a valid contact number (at least 10 digits)");
       setStep(1);
       return;
     }
-    if (!formData.price) {
-      toast.error("Please enter rent amount");
+    const priceNumPay = Number(formData.price);
+    if (!Number.isFinite(priceNumPay) || priceNumPay < 1) {
+      toast.error("Please enter a valid monthly rent (at least ₹1)");
       setStep(1);
       return;
     }
@@ -506,14 +808,24 @@ const Step1: React.FC = () => {
       setStep(1);
       return;
     }
-    if (!localAddress || !city || !state || !pincode) {
+    if (!localAddress?.trim() || !city?.trim() || !state?.trim() || !pincode?.trim()) {
       toast.error("Please complete all location details");
       setStep(2);
       return;
     }
-    if (!formData.description) {
-      toast.error("Please enter property description");
-      setStep(3);
+    if (!/^\d{5,10}$/.test(pincode.trim())) {
+      toast.error("Please enter a valid pincode");
+      setStep(2);
+      return;
+    }
+    if (
+      mapLat == null ||
+      mapLng == null ||
+      !Number.isFinite(mapLat) ||
+      !Number.isFinite(mapLng)
+    ) {
+      toast.error("Go back to Location and set the map pin or choose a place from search (coordinates required).");
+      setStep(2);
       return;
     }
     if (!hasAnyImages) {
@@ -521,7 +833,20 @@ const Step1: React.FC = () => {
       setStep(3);
       return;
     }
-    
+    const descPay = (formData.description ?? "").trim();
+    if (descPay.length < LISTING_MIN_DESCRIPTION_LENGTH) {
+      toast.error(
+        `Please enter a property description (at least ${LISTING_MIN_DESCRIPTION_LENGTH} characters).`
+      );
+      setStep(3);
+      return;
+    }
+    if (facilities.length === 0) {
+      toast.error("Please select at least one facility or amenity.");
+      setStep(3);
+      return;
+    }
+
     // All validations passed
 
     setIsProcessing(true);
@@ -542,9 +867,20 @@ const Step1: React.FC = () => {
 
       const { orderId, amount, currency } = orderResponse.data.data;
 
+      const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID?.trim();
+      if (!keyId) {
+        toast.error(
+          "Razorpay is not configured: set NEXT_PUBLIC_RAZORPAY_KEY_ID in .env.local (same Key Id as the Razorpay dashboard), then restart npm run dev."
+        );
+        setIsProcessing(false);
+        return;
+      }
+
+      await ensureRazorpayCheckoutLoaded();
+
       // Initialize Razorpay
       const options = {
-        key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+        key: keyId,
         amount: amount,
         currency: currency,
         name: "VRental",
@@ -598,11 +934,36 @@ const Step1: React.FC = () => {
         },
       };
 
-      const razorpay = new (window as any).Razorpay(options);
-      razorpay.open();
-    } catch (error) {
+      if (!getRazorpayConstructor()) {
+        toast.error("Razorpay checkout is still not available after loading the script. Try a refresh.");
+        setIsProcessing(false);
+        return;
+      }
+      try {
+        const RazorpayCtor = getRazorpayConstructor()!;
+        const razorpay = new RazorpayCtor(options);
+        razorpay.open();
+      } catch (openErr: unknown) {
+        const m = openErr instanceof Error ? openErr.message : String(openErr);
+        toast.error(`Could not open Razorpay: ${m}`);
+        setIsProcessing(false);
+        return;
+      }
+    } catch (error: unknown) {
       console.error("Payment error:", error);
-      toast.error("Failed to initiate payment. Please try again.");
+      const ax = error as {
+        response?: { data?: { message?: string; error?: string } };
+        message?: string;
+      };
+      const body = ax?.response?.data;
+      const detail =
+        body?.message ||
+        (typeof body?.error === "string" ? body.error : "") ||
+        ax?.message ||
+        "";
+      toast.error(
+        detail ? `Payment could not start: ${detail}` : "Payment could not start. Check Razorpay keys and try again."
+      );
       setIsProcessing(false);
     }
   };
@@ -612,8 +973,8 @@ const Step1: React.FC = () => {
       setLoading(true);
 
       const formData = new FormData();
-      formData.append("apartmentName", data.apartmentName);
-      formData.append("description", data.description);
+      formData.append("apartmentName", (data.apartmentName ?? "").trim());
+      formData.append("description", (data.description ?? "").trim());
       formData.append("price", data.price.toString());
       formData.append("contactNo", data.contactNo.toString());
       formData.append("facility", facilities.join(", "));
@@ -852,8 +1213,9 @@ const Step1: React.FC = () => {
             <div className="flex justify-end pt-4 border-t border-gray-200">
               <button
                 type="button"
-                onClick={nextStep}
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg"
+                onClick={() => void goToNextStep()}
+                disabled={!isStep1BasicsComplete}
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:bg-gray-300"
               >
                 Next →
               </button>
@@ -943,9 +1305,13 @@ const Step1: React.FC = () => {
 
             {/* Google Map Picker */}
             <div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-3">
-                📍 Mark Location on Map
+              <h3 className="text-lg font-semibold text-gray-800 mb-1">
+                📍 Mark Location on Map *
               </h3>
+              <p className="text-xs text-gray-600 mb-3">
+                Drop the pin or use search above so latitude and longitude are saved. The Next button stays disabled
+                until address, city, state, pincode, and coordinates are all valid.
+              </p>
               <GoogleMapPicker
                 onLocationSelect={(location) => {
                   setLocalAddress(location.address);
@@ -972,8 +1338,9 @@ const Step1: React.FC = () => {
               </button>
               <button
                 type="button"
-                onClick={nextStep}
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg"
+                onClick={() => void goToNextStep()}
+                disabled={!isStep2LocationComplete}
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors shadow-md hover:shadow-lg disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:bg-gray-300"
               >
                 Next →
               </button>
@@ -984,21 +1351,31 @@ const Step1: React.FC = () => {
         {/* STEP 3 */}
         {step === 3 && (
           <>
-            <h2 className="text-2xl font-bold mb-6">Media & Description</h2>
+            <h2 className="text-2xl font-bold mb-2">Media &amp; property details</h2>
+            <p className="text-sm text-gray-600 mb-6">
+              <span className="font-semibold text-gray-800">Photos, description, and at least one facility are required</span>{" "}
+              before you can go to payment. Furniture is optional.
+            </p>
 
             <div className="mb-6">
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Description
+                Description *
               </label>
               <textarea
-                {...register("description", { required: true })}
-                placeholder="Describe your property in detail..."
+                {...register("description", {
+                  required: "Description is required",
+                  minLength: {
+                    value: LISTING_MIN_DESCRIPTION_LENGTH,
+                    message: `Use at least ${LISTING_MIN_DESCRIPTION_LENGTH} characters`,
+                  },
+                })}
+                placeholder={`Describe your property in detail (min. ${LISTING_MIN_DESCRIPTION_LENGTH} characters)...`}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 resize-none"
                 rows={5}
               />
               {errors.description && (
                 <p className="text-red-500 text-sm mt-1">
-                  Description is required
+                  {errors.description.message as string}
                 </p>
               )}
             </div>
@@ -1006,8 +1383,9 @@ const Step1: React.FC = () => {
             {/* Facilities Section */}
             <div className="mb-6">
               <label className="block text-sm font-semibold text-gray-700 mb-3">
-                Electronics & Facilities (Select Multiple)
+                Electronics &amp; Facilities *
               </label>
+              <p className="text-xs text-gray-600 mb-3">Select at least one item (required for payment).</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                 {[
                   "Television",
@@ -1086,7 +1464,7 @@ const Step1: React.FC = () => {
             {/* Furniture Section */}
             <div className="mb-6">
               <label className="block text-sm font-semibold text-gray-700 mb-3">
-                Furniture (Select Multiple)
+                Furniture <span className="text-gray-500 font-normal">(optional)</span>
               </label>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                 {[
@@ -1166,7 +1544,7 @@ const Step1: React.FC = () => {
 
             <div className="mb-6">
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Upload Images (Up to 10 images)
+                Upload Images * <span className="text-gray-500 font-normal">(at least one, up to 10)</span>
               </label>
               
               {/* Image Upload Area */}
@@ -1326,9 +1704,9 @@ const Step1: React.FC = () => {
               </button>
               <button
                 type="button"
-                onClick={nextStep}
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
-                disabled={selectedImages.length === 0}
+                onClick={() => void goToNextStep()}
+                className="px-6 py-3 bg-blue-600 text-white rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:bg-gray-300"
+                disabled={!isStep3MediaAndDetailsComplete}
               >
                 Next
               </button>
@@ -1405,46 +1783,9 @@ const Step1: React.FC = () => {
             <ReferralCodeInput />
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-              {(() => {
-                const formData = watch();
-                const category = formData.category;
-                
-                // Determine pricing based on category
-                let plans = [];
-                if (category === "ROOM" || category === "PG" || category === "HOSTEL" || category === "CO-LIVING") {
-                  // Rooms / PG / Hostel pricing
-                  plans = [
-                    { name: "1 Month", value: "1month", duration: 1, price: 99, originalPrice: 198, savings: "Save 50%" },
-                    { name: "3 Months", value: "3months", duration: 3, price: 199, originalPrice: 398, savings: "Save 50%" },
-                    { name: "6 Months", value: "6months", duration: 6, price: 299, originalPrice: 598, savings: "Save 50%" },
-                  ];
-                } else if (category === "FLAT") {
-                  // Flats / Apartments pricing
-                  plans = [
-                    { name: "1 Month", value: "1month", duration: 1, price: 1, originalPrice: 398, savings: "Save 50%" },
-                    { name: "3 Months", value: "3months", duration: 3, price: 399, originalPrice: 798, savings: "Save 50%" },
-                    { name: "6 Months", value: "6months", duration: 6, price: 599, originalPrice: 1198, savings: "Save 50%" },
-                  ];
-                } else if (category === "SHOP") {
-                  // Commercial Properties pricing
-                  plans = [
-                    { name: "1 Month", value: "1month", duration: 1, price: 299, originalPrice: 598, savings: "Save 50%" },
-                    { name: "3 Months", value: "3months", duration: 3, price: 699, originalPrice: 1398, savings: "Save 50%" },
-                    { name: "6 Months", value: "6months", duration: 6, price: 999, originalPrice: 1998, savings: "Save 50%" },
-                  ];
-                } else {
-                  // Default to Room pricing if category not selected
-                  plans = [
-                    { name: "1 Month", value: "1month", duration: 1, price: 99, originalPrice: 198, savings: "Save 50%" },
-                    { name: "3 Months", value: "3months", duration: 3, price: 199, originalPrice: 398, savings: "Save 50%" },
-                    { name: "6 Months", value: "6months", duration: 6, price: 299, originalPrice: 598, savings: "Save 50%" },
-                  ];
-                }
-                
-                return plans;
-              })().map((plan) => (
+              {getMembershipPlansForCategory(category).map((plan) => (
                 <div
-                  key={plan.value}
+                  key={`${normalizeListingCategory(category) || "default"}-${plan.value}`}
                   onClick={() => {
                     setSelectedPlan(plan.value);
                     setPlanAmount(plan.price);
@@ -1535,9 +1876,9 @@ const Step1: React.FC = () => {
               <button
                 type="button"
                 onClick={handlePayment}
-                disabled={!selectedPlan || isProcessing}
+                disabled={!selectedPlan || isProcessing || !canPersistDraftAtPaymentStep()}
                 className={`px-6 py-3 rounded-lg font-semibold transition-all shadow-md ${
-                  selectedPlan && !isProcessing
+                  selectedPlan && !isProcessing && canPersistDraftAtPaymentStep()
                     ? "bg-gradient-to-r from-blue-600 to-cyan-500 text-white hover:from-blue-700 hover:to-cyan-600 hover:shadow-lg"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
                 }`}

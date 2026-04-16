@@ -35,7 +35,18 @@ export async function GET(req: NextRequest) {
         );
       }
     } else {
-      apartments = await Apartment.find({ ownerID: userID }).exec();
+      const list = await Apartment.find({ ownerID: userID }).exec();
+      // Drafts awaiting payment first so owners see "continue payment" listings at the top of My Apartments.
+      const rank = (a: (typeof list)[number]) => {
+        if (a.status === "Draft" && a.paymentStatus === "Pending") return 0;
+        if (a.status === "Draft") return 1;
+        return 2;
+      };
+      apartments = [...list].sort((a, b) => {
+        const d = rank(a) - rank(b);
+        if (d !== 0) return d;
+        return String(b._id).localeCompare(String(a._id));
+      });
     }
 
     return NextResponse.json(

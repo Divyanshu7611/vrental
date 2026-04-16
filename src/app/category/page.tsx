@@ -7,18 +7,13 @@ import Footer from "@/components/global/Footer";
 import axios from "axios";
 import { useRouter } from "next/navigation";
 import { toast } from "react-toastify";
-import { 
-  Search, 
-  Frown, 
-  SlidersHorizontal, 
-  X, 
-  ChevronLeft, 
-  ChevronRight,
+import {
+  Search,
+  Frown,
+  SlidersHorizontal,
+  X,
   Home,
   Filter,
-  TrendingUp,
-  MapPin,
-  Sparkles
 } from "lucide-react";
 import Spinner from "@/components/global/Spinner";
 
@@ -74,16 +69,6 @@ export default function Page() {
   const [priceRange, setPriceRange] = useState({ min: "", max: "" });
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilters, setShowFilters] = useState(false);
-  
-  // Pagination state
-  const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(9); // 9 items for 3x3 grid
-  
-  // Calculate pagination
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = filteredData.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
   useEffect(() => {
     if (!category) {
@@ -167,7 +152,6 @@ export default function Page() {
     }
 
     setFilteredData(filtered);
-    setCurrentPage(1); // Reset to first page when filters change
   };
 
   const clearAllFilters = () => {
@@ -177,42 +161,7 @@ export default function Page() {
     setPriceRange({ min: "", max: "" });
     setSearchQuery("");
     setFilteredData(categoryData);
-    setCurrentPage(1);
     toast.success("All filters cleared");
-  };
-
-  const handlePageChange = (pageNumber: number) => {
-    setCurrentPage(pageNumber);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
-
-  const getPageNumbers = () => {
-    const pages = [];
-    const maxVisiblePages = 5;
-    
-    if (totalPages <= maxVisiblePages) {
-      for (let i = 1; i <= totalPages; i++) {
-        pages.push(i);
-      }
-    } else {
-      if (currentPage <= 3) {
-        for (let i = 1; i <= 4; i++) pages.push(i);
-        pages.push("...");
-        pages.push(totalPages);
-      } else if (currentPage >= totalPages - 2) {
-        pages.push(1);
-        pages.push("...");
-        for (let i = totalPages - 3; i <= totalPages; i++) pages.push(i);
-      } else {
-        pages.push(1);
-        pages.push("...");
-        for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i);
-        pages.push("...");
-        pages.push(totalPages);
-      }
-    }
-    
-    return pages;
   };
 
   return (
@@ -236,7 +185,9 @@ export default function Page() {
                     {category} Properties
                   </h1>
                   <p className="text-xs text-gray-500">
-                    {filteredData.length} properties available
+                    {filteredData.length > 0
+                      ? `${filteredData.length} properties — scroll to see all`
+                      : "Adjust filters to see more listings"}
                   </p>
                 </div>
               </div>
@@ -350,14 +301,10 @@ export default function Page() {
                     </button>
                     
                     {filteredData.length > 0 && (
-                      <div className="flex items-center gap-3 text-xs text-gray-600">
-                        <span>
-                          Showing <span className="font-bold text-blue-600">{indexOfFirstItem + 1}-{Math.min(indexOfLastItem, filteredData.length)}</span> of <span className="font-bold text-blue-600">{filteredData.length}</span>
-                        </span>
-                        <span className="px-2 py-1 bg-blue-50 text-blue-700 rounded font-semibold">
-                          Page {currentPage}/{totalPages}
-                        </span>
-                      </div>
+                      <span className="text-xs text-gray-600">
+                        Showing all{" "}
+                        <span className="font-bold text-blue-600">{filteredData.length}</span> — scroll the page
+                      </span>
                     )}
                   </div>
                 </div>
@@ -386,9 +333,9 @@ export default function Page() {
               </div>
             ) : (
               <>
-                {/* Property Cards - 3 Column Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-                  {currentItems.map((flat) => (
+                {/* Property cards — full list, page scrolls (no pagination) */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-8">
+                  {filteredData.map((flat) => (
                     <FlatCard
                       averageRating={flat.averageRating}
                       key={flat._id}
@@ -411,54 +358,6 @@ export default function Page() {
                     />
                   ))}
                 </div>
-
-                {/* Pagination */}
-                {totalPages > 1 && (
-                  <div className="flex justify-center items-center gap-2 mt-12">
-                    <button
-                      onClick={() => handlePageChange(currentPage - 1)}
-                      disabled={currentPage === 1}
-                      className={`p-3 rounded-xl border-2 transition-all ${
-                        currentPage === 1
-                          ? "border-gray-200 text-gray-400 cursor-not-allowed"
-                          : "border-blue-600 text-blue-600 hover:bg-blue-50"
-                      }`}
-                    >
-                      <ChevronLeft className="w-5 h-5" />
-                    </button>
-
-                    <div className="flex gap-2">
-                      {getPageNumbers().map((page, index) => (
-                        <button
-                          key={index}
-                          onClick={() => typeof page === "number" && handlePageChange(page)}
-                          disabled={page === "..."}
-                          className={`min-w-[44px] h-[44px] rounded-xl font-semibold transition-all ${
-                            page === currentPage
-                              ? "bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg"
-                              : page === "..."
-                              ? "text-gray-400 cursor-default"
-                              : "border-2 border-gray-200 text-gray-700 hover:border-blue-600 hover:text-blue-600 hover:bg-blue-50"
-                          }`}
-                        >
-                          {page}
-                        </button>
-                      ))}
-                    </div>
-
-                    <button
-                      onClick={() => handlePageChange(currentPage + 1)}
-                      disabled={currentPage === totalPages}
-                      className={`p-3 rounded-xl border-2 transition-all ${
-                        currentPage === totalPages
-                          ? "border-gray-200 text-gray-400 cursor-not-allowed"
-                          : "border-blue-600 text-blue-600 hover:bg-blue-50"
-                      }`}
-                    >
-                      <ChevronRight className="w-5 h-5" />
-                    </button>
-                  </div>
-                )}
               </>
             )}
           </div>
