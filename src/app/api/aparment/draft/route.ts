@@ -3,6 +3,7 @@ import { connectMongoDB } from "@/utilis/dbConnect";
 import Apartment from "@/models/Apartment";
 import User from "@/models/User";
 import jwt from "jsonwebtoken";
+import { getJwtSecret } from "@/lib/jwtSecret";
 import { uploadImage } from "@/utilis/uploadImage";
 
 export const dynamic = "force-dynamic";
@@ -36,7 +37,7 @@ export async function POST(req: NextRequest) {
 
     let decoded: any;
     try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET || "Divyanshu", {
+      decoded = jwt.verify(token, getJwtSecret(), {
         algorithms: ["HS256"],
       });
     } catch {

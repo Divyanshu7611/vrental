@@ -3,13 +3,14 @@ import User from "@/models/User";
 import { comparePassword } from "@/utilis/passwordHash";
 import jwt from "jsonwebtoken";
 import { NextRequest, NextResponse } from "next/server";
+import { getJwtSecret } from "@/lib/jwtSecret";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(NextRequest: NextRequest) {
   const { email, password } = await NextRequest.json();
 
-  const JwtKey = process.env.JWT_SECRET || "Divyanshu";
+  const JwtKey = getJwtSecret();
 
   try {
     await connectMongoDB();
@@ -43,7 +44,7 @@ export async function POST(NextRequest: NextRequest) {
     if (await comparePassword(password, existingUser.password)) {
       const payload = {
         email: existingUser.email,
-        id: existingUser._id,
+        id: String(existingUser._id),
         role: existingUser.role, // Include role in JWT payload
       };
 

@@ -7,6 +7,7 @@ import OTP from "@/models/OTP";
 import mailerSender from "@/utilis/mailSender";
 import registrationSuccess from "@/mail/templates/registrationSuccess";
 import jwt from "jsonwebtoken";
+import { getJwtSecret } from "@/lib/jwtSecret";
 
 export const dynamic = "force-dynamic";
 
@@ -127,10 +128,10 @@ export async function POST(request: NextRequest) {
     await OTP.deleteMany({ email: emailNorm });
 
     // Generate JWT token
-    const JwtKey = process.env.JWT_SECRET || "Divyanshu";
+    const JwtKey = getJwtSecret();
     const payload = {
       email: newUser.email,
-      id: newUser._id,
+      id: String(newUser._id),
       role: newUser.role,
     };
 

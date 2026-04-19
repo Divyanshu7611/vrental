@@ -2,10 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { connectMongoDB } from "@/utilis/dbConnect";
 import Apartment from "@/models/Apartment";
 import jwt, { JwtPayload } from "jsonwebtoken";
+import { getJwtSecret } from "@/lib/jwtSecret";
 
 export const dynamic = "force-dynamic";
-
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
 export async function PUT(req: NextRequest) {
   const url = new URL(req.url);
@@ -27,7 +26,7 @@ export async function PUT(req: NextRequest) {
     let decodedToken: string | JwtPayload;
 
     try {
-      decodedToken = jwt.verify(token, JWT_SECRET);
+      decodedToken = jwt.verify(token, getJwtSecret(), { algorithms: ["HS256"] });
     } catch (err) {
       return NextResponse.json(
         { message: "Unauthorized: Invalid token", success: false },
