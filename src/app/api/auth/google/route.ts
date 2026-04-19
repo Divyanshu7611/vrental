@@ -6,6 +6,7 @@ import { nanoid } from "nanoid";
 import { ClientRequest } from "http";
 import { Phone } from "lucide-react";
 import jwt from "jsonwebtoken";
+import { getJwtSecret } from "@/lib/jwtSecret";
 
 export const dynamic = "force-dynamic";
 
@@ -112,10 +113,10 @@ export async function POST(request: NextRequest){
             }
 
             // Generate JWT token (same as regular login)
-            const JwtKey = process.env.JWT_SECRET || "Divyanshu";
+            const JwtKey = getJwtSecret();
             const payload = {
                 email: user.email,
-                id: user._id,
+                id: String(user._id),
                 role: user.role,
             };
 

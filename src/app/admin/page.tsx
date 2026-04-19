@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect, useContext } from "react";
+import Link from "next/link";
 import { UserContext } from "@/context/UserContext";
 import { useRouter } from "next/navigation";
 import axios from "axios";
@@ -230,9 +231,17 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-          <p className="text-gray-600 mt-2">Manage your VRental platform</p>
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
+            <p className="text-gray-600 mt-2">Manage your VRental platform</p>
+          </div>
+          <Link
+            href="/admin/register-apartment"
+            className="inline-flex items-center justify-center rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-violet-700 transition-colors"
+          >
+            Register apartment (owner)
+          </Link>
         </div>
 
         {/* Stats Grid */}

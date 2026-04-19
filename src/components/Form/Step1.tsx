@@ -33,6 +33,11 @@ import ReferralCodeInput from "./ReferralCodeInput";
 import GooglePlacesAutocomplete from "./GooglePlacesAutocomplete";
 import GoogleMapPicker from "./GoogleMapPicker";
 import { ensureRazorpayCheckoutLoaded, getRazorpayConstructor } from "@/lib/razorpayClient";
+import {
+  LISTING_MIN_DESCRIPTION_LENGTH,
+  getMembershipPlansForCategory,
+  normalizeListingCategory,
+} from "@/lib/listingMembershipPlans";
 
 type FormValues = {
   apartmentName: string;
@@ -86,54 +91,6 @@ const getIcon = (item: string, type: "facility" | "furniture"): React.ReactNode 
 };
 
 const LISTING_DRAFT_STORAGE_KEY = "vrental_listingDraftApartmentId";
-
-/** Required for listing draft save and payment (aligned with step 3 validation). */
-const LISTING_MIN_DESCRIPTION_LENGTH = 10;
-
-type ListingPlan = {
-  name: string;
-  value: string;
-  duration: number;
-  price: number;
-  originalPrice: number;
-  savings: string;
-};
-
-function normalizeListingCategory(raw: string | undefined): string {
-  const c = (raw ?? "").trim().toUpperCase();
-  if (c === "CO_LIVING" || c === "COLIVING") return "CO-LIVING";
-  return c;
-}
-
-function getMembershipPlansForCategory(categoryRaw: string | undefined): ListingPlan[] {
-  const category = normalizeListingCategory(categoryRaw);
-  if (category === "ROOM" || category === "PG" || category === "HOSTEL" || category === "CO-LIVING") {
-    return [
-      { name: "1 Month", value: "1month", duration: 1, price: 99, originalPrice: 198, savings: "Save 50%" },
-      { name: "3 Months", value: "3months", duration: 3, price: 199, originalPrice: 398, savings: "Save 50%" },
-      { name: "6 Months", value: "6months", duration: 6, price: 299, originalPrice: 598, savings: "Save 50%" },
-    ];
-  }
-  if (category === "FLAT") {
-    return [
-      { name: "1 Month", value: "1month", duration: 1, price: 199, originalPrice: 398, savings: "Save 50%" },
-      { name: "3 Months", value: "3months", duration: 3, price: 399, originalPrice: 798, savings: "Save 50%" },
-      { name: "6 Months", value: "6months", duration: 6, price: 599, originalPrice: 1198, savings: "Save 50%" },
-    ];
-  }
-  if (category === "SHOP") {
-    return [
-      { name: "1 Month", value: "1month", duration: 1, price: 299, originalPrice: 598, savings: "Save 50%" },
-      { name: "3 Months", value: "3months", duration: 3, price: 699, originalPrice: 1398, savings: "Save 50%" },
-      { name: "6 Months", value: "6months", duration: 6, price: 999, originalPrice: 1998, savings: "Save 50%" },
-    ];
-  }
-  return [
-    { name: "1 Month", value: "1month", duration: 1, price: 99, originalPrice: 198, savings: "Save 50%" },
-    { name: "3 Months", value: "3months", duration: 3, price: 199, originalPrice: 398, savings: "Save 50%" },
-    { name: "6 Months", value: "6months", duration: 6, price: 299, originalPrice: 598, savings: "Save 50%" },
-  ];
-}
 
 const Step1: React.FC = () => {
   const router = useRouter();
