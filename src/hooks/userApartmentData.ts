@@ -17,6 +17,20 @@ interface UserData {
   __v: number;
 }
 
+interface BrokerProfileData {
+  fullName: string;
+  profilePhoto: string;
+  mobile: number;
+  email: string;
+  firmName: string;
+  officeAddress: string;
+  areasServed: string;
+  reraNumber: string;
+  brokerageDetails: string;
+  experience: string;
+  otherDetails?: string;
+}
+
 interface ApartmentData {
   apartmentName: string;
   location: string;
@@ -37,12 +51,15 @@ interface ApartmentData {
   ownerID: { $oid: string };
   status: string;
   averageRating: number;
+  instagramVideoLink?: string;
+  youtubeVideoLink?: string;
   __v: number;
 }
 
 interface ApartmentInfo {
   apartment: ApartmentData;
   owner: UserData;
+  broker?: BrokerProfileData | null;
 }
 
 function useApartmentData(id: string | null) {
@@ -74,10 +91,20 @@ function useApartmentData(id: string | null) {
         const ownerResponse = await axios.get<{ data: UserData }>(
           `/api/auth/getUser?id=${ownerID}`
         );
+        const ownerData = ownerResponse.data.data;
+
+        let broker: BrokerProfileData | null = null;
+        if (ownerData.role === "BROKER") {
+          const brokerRes = await axios.get<{ data: BrokerProfileData | null }>(
+            `/api/broker/public?userId=${ownerID}`
+          );
+          broker = brokerRes.data.data ?? null;
+        }
 
         setData({
           apartment: apartmentData,
-          owner: ownerResponse.data.data,
+          owner: ownerData,
+          broker,
         });
       } catch (error) {
         console.error("Error fetching data:", error);

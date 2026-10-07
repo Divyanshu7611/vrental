@@ -64,7 +64,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (user.role !== "OWNER") {
+    if (user.role !== "OWNER" && user.role !== "BROKER") {
       return NextResponse.json(
         {
           message: "Access denied. Only property owners can list properties.",

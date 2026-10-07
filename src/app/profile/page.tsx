@@ -114,6 +114,8 @@ function ProfilePageContent() {
 
   // Check if user is OWNER or regular USER
   const isOwner = userContext?.userAuthData?.role === "OWNER";
+  const isBroker = userContext?.userAuthData?.role === "BROKER";
+  const canManageListings = isOwner || isBroker;
   const showReferralTabs =
     userContext?.userAuthData?.role === "OWNER" || userContext?.userAuthData?.role === "USER";
 
@@ -163,7 +165,7 @@ function ProfilePageContent() {
           )}
 
           {/* Conditional Rendering Based on Role */}
-          {!isOwner ? (
+          {!canManageListings ? (
             <>
               {profileTab === "overview" && (
                 <>
@@ -391,7 +393,7 @@ function ProfilePageContent() {
                       drafts — use Continue Payment to finish checkout.
                     </p>
                   </div>
-                  {aparmentData.length > 0 && userContext?.userAuthData?.role === "OWNER" && (
+                  {aparmentData.length > 0 && canManageListings && (
                     <button
                       onClick={() => router.push("/list-apartment")}
                       className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 shadow-md hover:shadow-lg whitespace-nowrap"
@@ -431,14 +433,16 @@ function ProfilePageContent() {
                       </svg>
                     </div>
                     <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                      {userContext?.userAuthData?.role === "OWNER" ? "No Apartments Yet" : "No Properties Listed"}
+                      {canManageListings ? "No Apartments Yet" : "No Properties Listed"}
                     </h3>
                     <p className="text-gray-600 mb-6">
-                      {userContext?.userAuthData?.role === "OWNER" 
-                        ? "Start by listing your first property to get started."
+                      {canManageListings
+                        ? isBroker
+                          ? "Purchase an active broker plan to list up to 3 properties per month."
+                          : "Start by listing your first property to get started."
                         : "You haven't listed any properties yet. Browse available properties to find your perfect home."}
                     </p>
-                    {userContext?.userAuthData?.role === "OWNER" ? (
+                    {canManageListings ? (
                       <button
                         onClick={() => router.push("/list-apartment")}
                         className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-lg font-semibold hover:from-blue-700 hover:to-cyan-700 transition-all duration-200 shadow-md hover:shadow-lg"

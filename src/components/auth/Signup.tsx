@@ -406,7 +406,7 @@ interface FormValues {
   phone: string;
   otp: string;
   adharNo: string;
-  role: "USER" | "OWNER";
+  role: "USER" | "OWNER" | "BROKER";
 }
 
 export default function Signup() {
@@ -419,7 +419,7 @@ export default function Signup() {
   } = useForm<FormValues>();
   const userContext = useContext(UserContext);
   const [step, setStep] = useState(1);
-  const [selectedRole, setSelectedRole] = useState<"USER" | "OWNER">("USER");
+  const [selectedRole, setSelectedRole] = useState<"USER" | "OWNER" | "BROKER">("USER");
   const [state, setState] = useState({
     isEmailSent: false,
     isLoading: false,
@@ -506,7 +506,8 @@ export default function Signup() {
         userContext?.AuthDataHandler(responseData.data);
         handleSuccess("Email verified — welcome to VRENTAL!");
         setTimeout(() => {
-          window.location.href = "/";
+          window.location.href =
+            formData.role === "BROKER" ? "/broker/onboarding" : "/";
         }, 400);
       } else {
         handleError(responseData.message || "Registration failed. Please try again.");
@@ -606,14 +607,14 @@ export default function Signup() {
       {/* Role Selection */}
       <div className="space-y-2">
         <label className="text-sm font-medium text-gray-700">I am a:</label>
-        <div className="flex gap-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
           <button
             type="button"
             onClick={() => {
               setSelectedRole("USER");
               setValue("role", "USER");
             }}
-            className={`flex-1 px-4 py-3 border-2 rounded-lg text-center font-medium transition-all duration-200 ${
+            className={`px-4 py-3 border-2 rounded-lg text-center font-medium transition-all duration-200 ${
               selectedRole === "USER"
                 ? "border-blue-600 bg-blue-50 text-blue-700"
                 : "border-gray-300 text-gray-700 hover:border-gray-400"
@@ -627,13 +628,27 @@ export default function Signup() {
               setSelectedRole("OWNER");
               setValue("role", "OWNER");
             }}
-            className={`flex-1 px-4 py-3 border-2 rounded-lg text-center font-medium transition-all duration-200 ${
+            className={`px-4 py-3 border-2 rounded-lg text-center font-medium transition-all duration-200 ${
               selectedRole === "OWNER"
                 ? "border-blue-600 bg-blue-50 text-blue-700"
                 : "border-gray-300 text-gray-700 hover:border-gray-400"
             }`}
           >
             Owner
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedRole("BROKER");
+              setValue("role", "BROKER");
+            }}
+            className={`px-4 py-3 border-2 rounded-lg text-center font-medium transition-all duration-200 ${
+              selectedRole === "BROKER"
+                ? "border-indigo-600 bg-indigo-50 text-indigo-700"
+                : "border-gray-300 text-gray-700 hover:border-gray-400"
+            }`}
+          >
+            Broker
           </button>
         </div>
         <input

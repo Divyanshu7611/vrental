@@ -189,7 +189,9 @@ export default function Navbar() {
                 </a>
               </li>
 
-              {isToken && userContext?.userAuthData?.role === "OWNER" && (
+              {isToken &&
+                (userContext?.userAuthData?.role === "OWNER" ||
+                  userContext?.userAuthData?.role === "BROKER") && (
                 <li className="text-base font-semibold text-black cursor-pointer hover:scale-110 hover:font-bold transition-transform">
                   <a href="/list-apartment" className="flex items-center gap-1.5">
                     <Upload className="w-4 h-4 text-black" />
@@ -238,7 +240,8 @@ export default function Navbar() {
                         <CgProfile /> Profile
                       </li>
 
-                      {userContext?.userAuthData?.role === "OWNER" && (
+                      {(userContext?.userAuthData?.role === "OWNER" ||
+                        userContext?.userAuthData?.role === "BROKER") && (
                         <li
                           className="text-black flex items-center gap-2 px-4 py-2 hover:bg-gray-100 cursor-pointer"
                           onClick={() => router.push("/list-apartment")}
@@ -353,7 +356,8 @@ export default function Navbar() {
                     </p>
                   )}
 
-                  {userContext?.userAuthData?.role === "OWNER" && (
+                  {(userContext?.userAuthData?.role === "OWNER" ||
+                    userContext?.userAuthData?.role === "BROKER") && (
                     <a
                       href="/list-apartment"
                       onClick={toggleSidebar}

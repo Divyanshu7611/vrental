@@ -33,11 +33,14 @@ import ReferralCodeInput from "./ReferralCodeInput";
 import GooglePlacesAutocomplete from "./GooglePlacesAutocomplete";
 import GoogleMapPicker from "./GoogleMapPicker";
 import { ensureRazorpayCheckoutLoaded, getRazorpayConstructor } from "@/lib/razorpayClient";
+import Link from "next/link";
 import {
   LISTING_MIN_DESCRIPTION_LENGTH,
   getMembershipPlansForCategory,
   normalizeListingCategory,
 } from "@/lib/listingMembershipPlans";
+import { isValidInstagramUrl, isValidYouTubeUrl } from "@/lib/videoLinks";
+import type { BrokerListingQuota } from "@/lib/brokerListing";
 
 type FormValues = {
   apartmentName: string;
@@ -96,6 +99,7 @@ const Step1: React.FC = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
   const userContext = useContext(UserContext);
+  const isBroker = userContext?.userAuthData?.role === "BROKER";
 
   const {
     register,
@@ -133,6 +137,9 @@ const Step1: React.FC = () => {
   const [furnitures, setFurniture] = useState<string[]>([]);
   const [facilityInput, setFacilityInput] = useState("");
   const [furnitureInput, setFurnitureInput] = useState("");
+  const [instagramVideoLink, setInstagramVideoLink] = useState("");
+  const [youtubeVideoLink, setYoutubeVideoLink] = useState("");
+  const [brokerQuota, setBrokerQuota] = useState<BrokerListingQuota | null>(null);
 
   const [localAddress, setLocalAddress] = useState("");
   const [city, setCity] = useState("");
@@ -181,6 +188,22 @@ const Step1: React.FC = () => {
     }
     prevCategoryRef.current = cur;
   }, [category]);
+
+  useEffect(() => {
+    if (!isBroker) return;
+    const loadQuota = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        const res = await axios.get("/api/broker/quota", {
+          headers: { Authorization: `Bearer ${token}`, "x-auth-token": token ?? "" },
+        });
+        if (res.data?.success) setBrokerQuota(res.data.data);
+      } catch {
+        /* quota optional for UI */
+      }
+    };
+    void loadQuota();
+  }, [isBroker]);
 
   useEffect(() => {
     if (draftLoaded) return;
@@ -232,6 +255,8 @@ const Step1: React.FC = () => {
 
         setFacilities(typeof apt.facility === "string" ? apt.facility.split(", ") : []);
         setFurniture(typeof apt.furniture === "string" ? apt.furniture.split(", ") : []);
+        setInstagramVideoLink(apt.instagramVideoLink || "");
+        setYoutubeVideoLink(apt.youtubeVideoLink || "");
 
         const savedDur = Number(apt.membershipDuration);
         const savedAmt = Number(apt.paymentAmount);
@@ -357,6 +382,8 @@ const Step1: React.FC = () => {
     fd.append("location", `${localAddress}, ${city}, ${state}, ${pincode}`);
     fd.append("availableFor", formData.availableFor);
     fd.append("category", formData.category);
+    fd.append("instagramVideoLink", instagramVideoLink.trim());
+    fd.append("youtubeVideoLink", youtubeVideoLink.trim());
 
     if (mapLat != null && mapLng != null && Number.isFinite(mapLat) && Number.isFinite(mapLng)) {
       fd.append("latitude", mapLat.toString());
@@ -389,6 +416,8 @@ const Step1: React.FC = () => {
         mapLng,
         planAmount,
         planDuration,
+        instagramVideoLink,
+        youtubeVideoLink,
         existingImageUrls,
         newFiles: selectedImages.map((f) => `${f.name}:${f.size}:${f.lastModified}`),
       });
@@ -694,7 +723,103 @@ const Step1: React.FC = () => {
     planAmount,
     planDuration,
     selectedPlan,
+    instagramVideoLink,
+    youtubeVideoLink,
   ]);
+
+  const validateListingBeforePublish = (): boolean => {
+    const formData = watch();
+    if (!formData.apartmentName) {
+      toast.error("Please enter apartment name");
+      setStep(1);
+      return false;
+    }
+    const contactDigitsPay = String(formData.contactNo ?? "").replace(/\D/g, "");
+    if (contactDigitsPay.length < 10) {
+      toast.error("Please enter a valid contact number (at least 10 digits)");
+      setStep(1);
+      return false;
+    }
+    const priceNumPay = Number(formData.price);
+    if (!Number.isFinite(priceNumPay) || priceNumPay < 1) {
+      toast.error("Please enter a valid monthly rent (at least ₹1)");
+      setStep(1);
+      return false;
+    }
+    if (!formData.category || !formData.availableFor) {
+      toast.error("Please complete basic info");
+      setStep(1);
+      return false;
+    }
+    if (!localAddress?.trim() || !city?.trim() || !state?.trim() || !pincode?.trim()) {
+      toast.error("Please complete all location details");
+      setStep(2);
+      return false;
+    }
+    if (mapLat == null || mapLng == null || !Number.isFinite(mapLat) || !Number.isFinite(mapLng)) {
+      toast.error("Set the map pin on the Location step.");
+      setStep(2);
+      return false;
+    }
+    if (!hasAnyImages) {
+      toast.error("Please upload at least one image");
+      setStep(3);
+      return false;
+    }
+    const descPay = (formData.description ?? "").trim();
+    if (descPay.length < LISTING_MIN_DESCRIPTION_LENGTH) {
+      toast.error(`Description must be at least ${LISTING_MIN_DESCRIPTION_LENGTH} characters.`);
+      setStep(3);
+      return false;
+    }
+    if (facilities.length === 0) {
+      toast.error("Please select at least one facility.");
+      setStep(3);
+      return false;
+    }
+    if (instagramVideoLink.trim() && !isValidInstagramUrl(instagramVideoLink)) {
+      toast.error("Enter a valid Instagram reel/post URL");
+      setStep(3);
+      return false;
+    }
+    if (youtubeVideoLink.trim() && !isValidYouTubeUrl(youtubeVideoLink)) {
+      toast.error("Enter a valid YouTube video/short URL");
+      setStep(3);
+      return false;
+    }
+    return true;
+  };
+
+  const handleBrokerPublish = async () => {
+    if (!validateListingBeforePublish()) return;
+    if (!brokerQuota?.canListFree) {
+      toast.error("Active broker plan with available monthly quota required.");
+      return;
+    }
+
+    setIsProcessing(true);
+    try {
+      const ensuredDraftId = await saveDraft({ silent: true, clearSelectedFiles: true });
+      const token = localStorage.getItem("token");
+      const res = await axios.post(
+        "/api/broker/activate-listing",
+        { apartmentID: ensuredDraftId },
+        { headers: { Authorization: `Bearer ${token}`, "x-auth-token": token ?? "" } }
+      );
+      if (res.data.success) {
+        localStorage.removeItem(LISTING_DRAFT_STORAGE_KEY);
+        toast.success("Property listed under your broker plan!");
+        router.push("/profile");
+      } else {
+        toast.error(res.data.message || "Could not publish listing");
+      }
+    } catch (error: unknown) {
+      const msg = axios.isAxiosError(error) ? error.response?.data?.message : "Publish failed";
+      toast.error(String(msg || "Publish failed"));
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   const handleAddFacility = () => {
     if (facilityInput && !facilities.includes(facilityInput)) {
@@ -724,9 +849,7 @@ const Step1: React.FC = () => {
       return;
     }
 
-    // Validate form data before payment
     const formData = watch();
-
     const plansForPay = getMembershipPlansForCategory(formData.category);
     const chosenPlan = plansForPay.find((p) => p.value === selectedPlan);
     if (
@@ -734,78 +857,11 @@ const Step1: React.FC = () => {
       chosenPlan.price !== planAmount ||
       chosenPlan.duration !== planDuration
     ) {
-      toast.error("Please tap your membership plan again (amount was out of date for this category).");
-      return;
-    }
-    
-    // Check all required fields with specific error messages
-    if (!formData.apartmentName) {
-      toast.error("Please enter apartment name");
-      setStep(1);
-      return;
-    }
-    const contactDigitsPay = String(formData.contactNo ?? "").replace(/\D/g, "");
-    if (contactDigitsPay.length < 10) {
-      toast.error("Please enter a valid contact number (at least 10 digits)");
-      setStep(1);
-      return;
-    }
-    const priceNumPay = Number(formData.price);
-    if (!Number.isFinite(priceNumPay) || priceNumPay < 1) {
-      toast.error("Please enter a valid monthly rent (at least ₹1)");
-      setStep(1);
-      return;
-    }
-    if (!formData.category) {
-      toast.error("Please select a category");
-      setStep(1);
-      return;
-    }
-    if (!formData.availableFor) {
-      toast.error("Please select available for option");
-      setStep(1);
-      return;
-    }
-    if (!localAddress?.trim() || !city?.trim() || !state?.trim() || !pincode?.trim()) {
-      toast.error("Please complete all location details");
-      setStep(2);
-      return;
-    }
-    if (!/^\d{5,10}$/.test(pincode.trim())) {
-      toast.error("Please enter a valid pincode");
-      setStep(2);
-      return;
-    }
-    if (
-      mapLat == null ||
-      mapLng == null ||
-      !Number.isFinite(mapLat) ||
-      !Number.isFinite(mapLng)
-    ) {
-      toast.error("Go back to Location and set the map pin or choose a place from search (coordinates required).");
-      setStep(2);
-      return;
-    }
-    if (!hasAnyImages) {
-      toast.error("Please upload at least one image");
-      setStep(3);
-      return;
-    }
-    const descPay = (formData.description ?? "").trim();
-    if (descPay.length < LISTING_MIN_DESCRIPTION_LENGTH) {
-      toast.error(
-        `Please enter a property description (at least ${LISTING_MIN_DESCRIPTION_LENGTH} characters).`
-      );
-      setStep(3);
-      return;
-    }
-    if (facilities.length === 0) {
-      toast.error("Please select at least one facility or amenity.");
-      setStep(3);
+      toast.error("Please tap your membership plan again.");
       return;
     }
 
-    // All validations passed
+    if (!validateListingBeforePublish()) return;
 
     setIsProcessing(true);
 
@@ -1500,6 +1556,31 @@ const Step1: React.FC = () => {
               )}
             </div>
 
+            <div className="mb-6 rounded-xl border border-gray-200 bg-gray-50 p-4">
+              <label className="mb-3 block text-sm font-semibold text-gray-700">
+                Property Videos <span className="font-normal text-gray-500">(optional)</span>
+              </label>
+              <p className="mb-4 text-xs text-gray-600">
+                Add an Instagram reel/post or YouTube video/short link. Tenants can tap the thumbnail to watch on the original platform.
+              </p>
+              <div className="space-y-3">
+                <input
+                  type="url"
+                  value={instagramVideoLink}
+                  onChange={(e) => setInstagramVideoLink(e.target.value)}
+                  placeholder="Instagram reel/post URL"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                />
+                <input
+                  type="url"
+                  value={youtubeVideoLink}
+                  onChange={(e) => setYoutubeVideoLink(e.target.value)}
+                  placeholder="YouTube video/short URL"
+                  className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:border-blue-500 focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+            </div>
+
             <div className="mb-6">
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Upload Images * <span className="text-gray-500 font-normal">(at least one, up to 10)</span>
@@ -1673,9 +1754,86 @@ const Step1: React.FC = () => {
         )}
 
         {/* STEP 4 */}
-        {step === 4 && (
+        {step === 4 && isBroker && (
           <>
-            {/* Limited Time Launch Offer Banner */}
+            <h2 className="mb-2 text-2xl font-bold text-gray-800">Publish Listing</h2>
+            <p className="mb-6 text-gray-600">
+              Brokers with an active plan can list up to 3 properties per month at no extra cost.
+            </p>
+
+            {!listingPaymentReady && (
+              <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4">
+                <p className="text-sm text-amber-900">
+                  Complete photos, description, and facilities on the previous step before publishing.
+                </p>
+              </div>
+            )}
+
+            {brokerQuota?.canListFree ? (
+              <div className="mb-6 rounded-xl border border-emerald-200 bg-emerald-50 p-5">
+                <p className="font-semibold text-emerald-900">Broker plan active</p>
+                <p className="mt-1 text-sm text-emerald-800">
+                  {brokerQuota.remainingFreeListings} of 3 free listings remaining this month.
+                </p>
+              </div>
+            ) : (
+              <div className="mb-6 rounded-xl border border-indigo-200 bg-indigo-50 p-5">
+                <p className="font-semibold text-indigo-900">
+                  {brokerQuota?.planActive
+                    ? "Monthly free listing limit reached"
+                    : "Broker plan required"}
+                </p>
+                <p className="mt-1 text-sm text-indigo-800">
+                  {brokerQuota?.profileComplete === false
+                    ? "Complete your broker profile and purchase a plan to list properties."
+                    : "Purchase or renew your broker profile plan to continue listing."}
+                </p>
+                <div className="mt-4 flex flex-wrap gap-3">
+                  {!brokerQuota?.profileComplete && (
+                    <Link
+                      href="/broker/onboarding"
+                      className="rounded-lg bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-700"
+                    >
+                      Complete Profile
+                    </Link>
+                  )}
+                  <Link
+                    href="/broker/plan"
+                    className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-indigo-700 ring-1 ring-indigo-200 hover:bg-indigo-100"
+                  >
+                    {brokerQuota?.planActive ? "View Plan" : "Get Broker Plan"}
+                  </Link>
+                </div>
+              </div>
+            )}
+
+            <div className="flex justify-between border-t border-gray-200 pt-4">
+              <button
+                type="button"
+                onClick={prevStep}
+                className="rounded-lg bg-gray-200 px-6 py-3 font-semibold text-gray-700 hover:bg-gray-300"
+              >
+                ← Back
+              </button>
+              <button
+                type="button"
+                onClick={handleBrokerPublish}
+                disabled={!brokerQuota?.canListFree || isProcessing || !listingPaymentReady}
+                className={`rounded-lg px-6 py-3 font-semibold shadow-md ${
+                  brokerQuota?.canListFree && !isProcessing && listingPaymentReady
+                    ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700"
+                    : "cursor-not-allowed bg-gray-300 text-gray-500"
+                }`}
+              >
+                {isProcessing ? "Publishing..." : "Publish Free Listing"}
+              </button>
+            </div>
+          </>
+        )}
+
+        {step === 4 && !isBroker && (
+          <>
+            {/* Listing Plans Banner */}
             <div className="relative overflow-hidden bg-gradient-to-r from-amber-500 via-orange-500 to-red-500 rounded-2xl p-6 mb-6 shadow-2xl">
               {/* Animated background elements */}
               <div className="absolute inset-0 overflow-hidden">
@@ -1693,39 +1851,24 @@ const Step1: React.FC = () => {
                 {/* Animated badge */}
                 <div className="inline-block mb-3">
                   <div className="bg-white/20 backdrop-blur-sm px-4 py-1.5 rounded-full border-2 border-white/40 animate-bounce">
-                    <span className="text-white text-xs font-bold tracking-wider">🎉 SPECIAL LAUNCH OFFER 🎉</span>
+                    <span className="text-white text-xs font-bold tracking-wider">LISTING PLANS</span>
                   </div>
                 </div>
                 
-                {/* Main heading with gradient text */}
                 <h3 className="text-3xl md:text-4xl font-extrabold text-white mb-2 drop-shadow-lg">
-                  <span className="inline-block animate-pulse">Limited Time</span>{" "}
-                  <span className="inline-block bg-clip-text text-transparent bg-gradient-to-r from-yellow-200 to-white animate-shimmer">
-                    Launch Offer
-                  </span>
+                  Per-Listing Membership
                 </h3>
                 
                 <p className="text-white/90 text-lg font-semibold mb-3">
-                  For Early Property Owners
+                  ₹1,000 / ₹2,500 / ₹5,000 — listing auto-deactivates when plan expires
                 </p>
                 
-                {/* Discount highlight */}
                 <div className="flex items-center justify-center gap-3 flex-wrap">
-                  <div className="bg-white/20 backdrop-blur-sm px-6 py-2 rounded-full border border-white/30">
-                    <span className="text-white font-bold text-xl">🔥 50% OFF</span>
-                  </div>
                   <div className="bg-white/20 backdrop-blur-sm px-6 py-2 rounded-full border border-white/30">
                     <span className="text-white font-bold text-xl">⚡ Instant Activation</span>
                   </div>
                   <div className="bg-white/20 backdrop-blur-sm px-6 py-2 rounded-full border border-white/30">
-                    <span className="text-white font-bold text-xl">🎁 Premium Features</span>
-                  </div>
-                </div>
-                
-                {/* Countdown or urgency message */}
-                <div className="mt-4 inline-block">
-                  <div className="bg-red-600/80 backdrop-blur-sm px-4 py-2 rounded-lg border border-red-400/50 animate-pulse">
-                    <span className="text-white text-sm font-bold">⏰ Limited Slots Available - Register Now!</span>
+                    <span className="text-white font-bold text-xl">🔒 Secure Razorpay</span>
                   </div>
                 </div>
               </div>
@@ -1735,7 +1878,7 @@ const Step1: React.FC = () => {
               <div className="absolute bottom-0 right-0 w-20 h-20 border-b-4 border-r-4 border-white/30 rounded-br-2xl"></div>
             </div>
 
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">Choose Membership Plan</h2>
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">Choose Listing Plan</h2>
 
             {!listingPaymentReady && (
               <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-6">

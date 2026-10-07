@@ -73,7 +73,9 @@ export async function PUT(req: NextRequest) {
     const availableFor = formData.get("availableFor") as string;
     const category = formData.get("category") as string;
     const imageUrlsJson = formData.get("image_urls") as string | null;
-    
+    const instagramVideoLink = String(formData.get("instagramVideoLink") ?? "").trim();
+    const youtubeVideoLink = String(formData.get("youtubeVideoLink") ?? "").trim();
+
     // Extract coordinates if provided
     const latitude = formData.get("latitude");
     const longitude = formData.get("longitude");
@@ -89,6 +91,8 @@ export async function PUT(req: NextRequest) {
       category,
       availableFor,
       contactNo,
+      instagramVideoLink,
+      youtubeVideoLink,
     };
 
     // Optional: update image ordering (and/or replace list) without uploading new files

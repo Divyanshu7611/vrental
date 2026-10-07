@@ -61,9 +61,9 @@ export async function POST(req: NextRequest) {
         { status: 404 }
       );
     }
-    if (user.role !== "OWNER") {
+    if (user.role !== "OWNER" && user.role !== "BROKER") {
       return NextResponse.json(
-        { success: false, message: "Access denied. Only owners can list properties." },
+        { success: false, message: "Access denied. Only owners and brokers can list properties." },
         { status: 403 }
       );
     }
@@ -81,6 +81,8 @@ export async function POST(req: NextRequest) {
     const location = formData.get("location") as string;
     const availableFor = formData.get("availableFor") as string;
     const category = formData.get("category") as string;
+    const instagramVideoLink = String(formData.get("instagramVideoLink") ?? "").trim();
+    const youtubeVideoLink = String(formData.get("youtubeVideoLink") ?? "").trim();
 
     const paymentAmountRaw = formData.get("paymentAmount");
     const membershipDurationRaw = formData.get("membershipDuration");
@@ -152,6 +154,8 @@ export async function POST(req: NextRequest) {
       ownerID: userId,
       status: "Draft",
       paymentStatus: "Pending",
+      instagramVideoLink,
+      youtubeVideoLink,
     };
 
     if (paymentAmount != null && !Number.isNaN(paymentAmount)) {

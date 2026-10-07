@@ -1,12 +1,12 @@
 "use client";
 import React, { useState } from "react";
-import { FaHome, FaUser } from "react-icons/fa";
+import { FaHome, FaUser, FaBriefcase } from "react-icons/fa";
 import { MdClose } from "react-icons/md";
 
 interface RoleSelectionModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSelectRole: (role: "USER" | "OWNER") => void;
+  onSelectRole: (role: "USER" | "OWNER" | "BROKER") => void;
   userName?: string;
 }
 
@@ -16,7 +16,7 @@ export default function RoleSelectionModal({
   onSelectRole,
   userName = "there",
 }: RoleSelectionModalProps) {
-  const [selectedRole, setSelectedRole] = useState<"USER" | "OWNER" | null>(null);
+  const [selectedRole, setSelectedRole] = useState<"USER" | "OWNER" | "BROKER" | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   if (!isOpen) return null;
@@ -153,6 +153,38 @@ export default function RoleSelectionModal({
                   </div>
                 </div>
               )}
+            </div>
+          </button>
+
+          {/* Broker Option */}
+          <button
+            type="button"
+            onClick={() => setSelectedRole("BROKER")}
+            disabled={isSubmitting}
+            className={`w-full p-3 sm:p-4 md:p-5 border-2 rounded-xl text-left transition-all duration-300 active:scale-95 sm:hover:scale-[1.02] ${
+              selectedRole === "BROKER"
+                ? "border-indigo-600 bg-indigo-50 shadow-lg"
+                : "border-gray-200 hover:border-indigo-300 hover:shadow-md"
+            } ${isSubmitting ? "opacity-50 cursor-not-allowed" : ""}`}
+          >
+            <div className="flex items-start gap-3 sm:gap-4">
+              <div
+                className={`w-10 h-10 sm:w-12 sm:h-12 rounded-lg flex items-center justify-center flex-shrink-0 transition-colors ${
+                  selectedRole === "BROKER"
+                    ? "bg-indigo-600 text-white"
+                    : "bg-gray-100 text-gray-600"
+                }`}
+              >
+                <FaBriefcase className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="font-semibold text-base sm:text-lg text-gray-800 mb-0.5 sm:mb-1">
+                  I&apos;m a broker
+                </h3>
+                <p className="text-xs sm:text-sm text-gray-600 leading-tight sm:leading-normal">
+                  Verified broker profile with monthly free listings
+                </p>
+              </div>
             </div>
           </button>
         </div>
