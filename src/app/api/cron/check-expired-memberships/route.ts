@@ -1,32 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
 import { deactivateExpiredMembershipApartments } from "@/lib/deactivateExpiredMemberships";
+import { deactivateExpiredBrokerPlans } from "@/lib/deactivateExpiredBrokerPlans";
 import { isCronRouteAuthorized } from "./auth";
 
 export const dynamic = "force-dynamic";
 
 async function runJob() {
-  const result = await deactivateExpiredMembershipApartments();
-
-  if (result.deactivated.length === 0) {
-    return NextResponse.json(
-      {
-        success: true,
-        message: "No expired memberships found",
-        count: 0,
-        modifiedCount: 0,
-      },
-      { status: 200 }
-    );
-  }
+  const [listingResult, brokerResult] = await Promise.all([
+    deactivateExpiredMembershipApartments(),
+    deactivateExpiredBrokerPlans(),
+  ]);
 
   return NextResponse.json(
     {
       success: true,
-      message: `Successfully deactivated ${result.modifiedCount} expired apartment(s)`,
-      count: result.modifiedCount,
-      modifiedCount: result.modifiedCount,
-      matchedCount: result.matchedCount,
-      apartments: result.deactivated,
+      message: "Membership expiry check completed",
+      listings: {
+        modifiedCount: listingResult.modifiedCount,
+        matchedCount: listingResult.matchedCount,
+        deactivated: listingResult.deactivated,
+      },
+      brokers: {
+        brokersProcessed: brokerResult.brokersProcessed,
+        listingsDeactivated: brokerResult.listingsDeactivated,
+        details: brokerResult.brokers,
+      },
     },
     { status: 200 }
   );

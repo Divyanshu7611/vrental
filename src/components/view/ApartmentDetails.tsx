@@ -30,6 +30,8 @@ import { GiWashingMachine, GiCooler } from "react-icons/gi";
 import { BiSolidTv, BiFridge } from "react-icons/bi";
 import { BsBox } from "react-icons/bs";
 import PropertyLocationMap from "./PropertyLocationMap";
+import PropertyVideoSection from "./PropertyVideoSection";
+import BrokerDetails from "./BrokerDetails";
 
 interface ApartmentDetailsProps {
   data: {
@@ -51,7 +53,31 @@ interface ApartmentDetailsProps {
     averageRating: number;
     status: string;
     ownerID?: string | { $oid: string };
+    instagramVideoLink?: string;
+    youtubeVideoLink?: string;
   };
+  brokerData?: {
+    fullName: string;
+    profilePhoto: string;
+    mobile: number;
+    email: string;
+    firmName: string;
+    officeAddress: string;
+    areasServed: string;
+    reraNumber: string;
+    brokerageDetails: string;
+    experience: string;
+    otherDetails?: string;
+  } | null;
+  ownerData?: {
+    firstName: string;
+    lastName: string;
+    image: string;
+    email: string;
+    _id?: string;
+    role?: string;
+  };
+  contactNo?: number;
 }
 
 // Icon mapping for facilities
@@ -109,7 +135,13 @@ const getIcon = (item: string, type: "facility" | "furniture"): React.ReactNode 
   return type === "facility" ? <FaUtensils className="w-5 h-5" /> : <FaTable className="w-5 h-5" />;
 };
 
-const ApartmentDetails: React.FC<ApartmentDetailsProps> = ({ data, ownerData, contactNo }:any) => {
+const ApartmentDetails: React.FC<ApartmentDetailsProps> = ({
+  data,
+  ownerData,
+  contactNo,
+  brokerData,
+}) => {
+  const showBroker = Boolean(brokerData);
   const router = useRouter();
   // Split the facility string into an array
   const facilityList = data.facility.split(", ");
@@ -335,6 +367,11 @@ const ApartmentDetails: React.FC<ApartmentDetailsProps> = ({ data, ownerData, co
             </p>
           </div>
 
+          <PropertyVideoSection
+            instagramVideoLink={data.instagramVideoLink}
+            youtubeVideoLink={data.youtubeVideoLink}
+          />
+
           {/* Property Location Map */}
           <div className="pt-4">
             <PropertyLocationMap
@@ -345,17 +382,21 @@ const ApartmentDetails: React.FC<ApartmentDetailsProps> = ({ data, ownerData, co
           </div>
         </div>
   
-        {/* RIGHT SIDE → Owner Card */}
-        <div className="lg:w-96 flex-shrink-0">
-          <OwnerDetails
-            data={{
-              ...ownerData,
-              _id: ownerData?._id || (typeof data.ownerID === 'object' ? data.ownerID.$oid : data.ownerID) || ownerData?._id,
-            }}
-            contactNo={data.contactNo}
-            apartmentID={data._id}
-            apartmentName={data.apartmentName}
-          />
+        {/* RIGHT SIDE → Owner / Broker Card */}
+        <div className="lg:w-96 flex-shrink-0 space-y-6">
+          {showBroker ? (
+            <BrokerDetails broker={brokerData} />
+          ) : (
+            <OwnerDetails
+              data={{
+                ...ownerData,
+                _id: ownerData?._id || (typeof data.ownerID === "object" ? data.ownerID.$oid : data.ownerID) || ownerData?._id,
+              }}
+              contactNo={data.contactNo}
+              apartmentID={data._id}
+              apartmentName={data.apartmentName}
+            />
+          )}
         </div>
       </div>
     </div>

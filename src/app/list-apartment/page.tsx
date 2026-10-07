@@ -11,23 +11,22 @@ import { ShieldAlert, Home, ArrowRight } from "lucide-react";
 const Page = () => {
   const userContext = useContext(UserContext);
   const router = useRouter();
+  const role = userContext?.userAuthData?.role;
+  const canList = role === "OWNER" || role === "BROKER";
 
   useEffect(() => {
-    // Check if user is logged in
     if (!userContext?.userAuthData) {
       toast.error("Please login to list a property");
       router.push("/auth");
       return;
     }
 
-    // Check if user is OWNER
-    if (userContext?.userAuthData?.role !== "OWNER") {
-      toast.error("Only property owners can list properties");
+    if (!canList) {
+      toast.error("Only property owners and brokers can list properties");
     }
-  }, [userContext?.userAuthData, router]);
+  }, [userContext?.userAuthData, router, canList]);
 
-  // Show access denied message for non-owners
-  if (userContext?.userAuthData && userContext?.userAuthData?.role !== "OWNER") {
+  if (userContext?.userAuthData && !canList) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-cyan-50 flex flex-col">
         <Navbar />
@@ -37,22 +36,22 @@ const Page = () => {
               <div className="w-20 h-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <ShieldAlert className="w-10 h-10 text-red-600" />
               </div>
-              
+
               <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
                 Access Restricted
               </h1>
-              
+
               <p className="text-lg text-gray-600 mb-6">
-                Only property owners can list properties on VRENTAL.
+                Only property owners and verified brokers can list properties on VRENTAL.
               </p>
-              
+
               <div className="bg-blue-50 rounded-xl p-6 mb-8 border border-blue-200">
                 <h3 className="font-semibold text-gray-900 mb-3 flex items-center justify-center gap-2">
                   <Home className="w-5 h-5 text-blue-600" />
-                  Want to become a property owner?
+                  Want to list properties?
                 </h3>
                 <p className="text-sm text-gray-600 mb-4">
-                  Contact our support team to upgrade your account to an OWNER account and start listing your properties.
+                  Sign up as an Owner or Broker, or contact support to upgrade your account.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                   <a
@@ -87,7 +86,6 @@ const Page = () => {
     );
   }
 
-  // Show form for OWNER users
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50 to-cyan-50 flex flex-col">
       <Navbar />
@@ -98,7 +96,9 @@ const Page = () => {
               List Your Property
             </h1>
             <p className="text-gray-600 text-lg">
-              Fill out the form below to get started
+              {role === "BROKER"
+                ? "Brokers with an active plan can list up to 3 properties per month for free"
+                : "Fill out the form below to get started"}
             </p>
           </div>
           <Step1 />
@@ -110,4 +110,3 @@ const Page = () => {
 };
 
 export default Page;
-

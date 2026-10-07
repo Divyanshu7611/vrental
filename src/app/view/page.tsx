@@ -29,7 +29,12 @@ export default function Page() {
         <div className="min-w-screen min-h-screen">
           <Navbar />
 
-            <ApartmentDetails data={data.apartment} ownerData={data.owner} contactNo={data.apartment.contactNo}/>
+            <ApartmentDetails
+              data={data.apartment}
+              ownerData={data.owner}
+              contactNo={data.apartment.contactNo}
+              brokerData={data.broker}
+            />
 
             {/* <OwnerDetails
               data={data.owner}

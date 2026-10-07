@@ -17,7 +17,7 @@ export default function AuthMain() {
   const [showRoleModal, setShowRoleModal] = useState(false);
   const [showPhoneModal, setShowPhoneModal] = useState(false);
   const [googleAuthData, setGoogleAuthData] = useState<any>(null);
-  const [selectedRole, setSelectedRole] = useState<"USER" | "OWNER" | null>(null);
+  const [selectedRole, setSelectedRole] = useState<"USER" | "OWNER" | "BROKER" | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const userContext = useContext(UserContext);
   const provider = new GoogleAuthProvider();
@@ -78,7 +78,7 @@ export default function AuthMain() {
     }
   }
 
-  async function handleRoleSelection(role: "USER" | "OWNER") {
+  async function handleRoleSelection(role: "USER" | "OWNER" | "BROKER") {
     setSelectedRole(role);
     setShowRoleModal(false);
     setShowPhoneModal(true);
@@ -112,11 +112,17 @@ export default function AuthMain() {
         userContext?.AuthDataHandler(response.data.data);
         setShowPhoneModal(false);
         
-        toast.success(`Welcome! Your account has been set up as ${selectedRole === "OWNER" ? "Property Owner" : "Renter"}`);
+        const roleLabel =
+          selectedRole === "OWNER"
+            ? "Property Owner"
+            : selectedRole === "BROKER"
+              ? "Broker"
+              : "Renter";
+        toast.success(`Welcome! Your account has been set up as ${roleLabel}`);
         
         // Force reload to ensure context updates
         setTimeout(() => {
-          window.location.href = "/";
+          window.location.href = selectedRole === "BROKER" ? "/broker/onboarding" : "/";
         }, 500);
       }
     } catch (error: any) {

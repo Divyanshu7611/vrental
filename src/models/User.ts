@@ -10,7 +10,7 @@ export interface IUser extends Document {
   image: string;
   phone: number;
   clientID?: string;
-  role: "ADMIN" | "USER" | "OWNER";
+  role: "ADMIN" | "USER" | "OWNER" | "BROKER";
   participated: IApartment["_id"][];
   resetToken?: string;
   resetTokenExpires?: Date;
@@ -114,7 +114,7 @@ const userSchema: Schema = new Schema<IUser>({
   ],
   role: {
     type: String,
-    enum: ["ADMIN", "USER", "OWNER"],
+    enum: ["ADMIN", "USER", "OWNER", "BROKER"],
     default: "USER",
     required: true,
     trim: true,

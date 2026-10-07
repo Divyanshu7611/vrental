@@ -33,6 +33,10 @@ export interface IApartment extends Document {
   membershipDuration?: number;
   deactivatedAt?: Date;
   deactivationReason?: string;
+  instagramVideoLink?: string;
+  youtubeVideoLink?: string;
+  /** True when listing was published under an active broker plan (no per-listing fee). */
+  listedViaBrokerPlan?: boolean;
 }
 
 const apartmentSchema: Schema = new Schema<IApartment>({
@@ -142,6 +146,20 @@ const apartmentSchema: Schema = new Schema<IApartment>({
   },
   membershipDuration: {
     type: Number,
+  },
+  instagramVideoLink: {
+    type: String,
+    trim: true,
+    default: "",
+  },
+  youtubeVideoLink: {
+    type: String,
+    trim: true,
+    default: "",
+  },
+  listedViaBrokerPlan: {
+    type: Boolean,
+    default: false,
   },
 });
 
